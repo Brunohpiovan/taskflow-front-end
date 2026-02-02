@@ -179,7 +179,7 @@ export default function EnvironmentBoardsPage() {
 
       {/* Área dos quadros com margem lateral reduzida */}
       <div className="-mx-2 sm:-mx-4 md:-mx-6 lg:-mx-8">
-        <div className="px-4">
+        <div className="px-4 ">
           {isLoading ? (
             <div className="flex gap-2 overflow-x-auto pb-4">
               {[1, 2, 3].map((i) => (
@@ -207,7 +207,7 @@ export default function EnvironmentBoardsPage() {
               onDragStart={handleDragStart}
               onDragEnd={handleDragEnd}
             >
-              <div className="flex gap-2 overflow-x-auto overflow-y-hidden pb-4 min-h-[360px]">
+              <div className="flex gap-2 pt-2 overflow-x-auto overflow-y-hidden pb-4 min-h-[360px]">
                 {boards.map((board) => (
                   <BoardColumn
                     key={board.id}
