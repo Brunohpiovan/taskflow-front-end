@@ -111,7 +111,7 @@ export function BoardColumn({ board, cards }: BoardColumnProps) {
       <Card className="h-full flex flex-col rounded-xl border-0 bg-card/80 shadow-none">
         <CardHeader className="flex flex-row items-center justify-between gap-2 px-4 pt-4 pb-3 space-y-0">
           <div className="flex items-center gap-2 min-w-0 flex-1">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-icon">
               <ListTodo className="h-4 w-4" strokeWidth={2} />
             </div>
             <div className="min-w-0 flex-1">

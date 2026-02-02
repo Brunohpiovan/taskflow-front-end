@@ -15,6 +15,7 @@ const config: Config = {
         "card-hover": "0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.05)",
       },
       colors: {
+        icon: "hsl(var(--icon))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
@@ -48,6 +49,7 @@ const config: Config = {
           DEFAULT: "hsl(var(--popover))",
           foreground: "hsl(var(--popover-foreground))",
         },
+        
       },
       borderRadius: {
         lg: "var(--radius)",

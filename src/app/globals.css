@@ -24,6 +24,7 @@
     --radius: 0.625rem;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
+    --icon: 221 70% 45%;
   }
 
   .dark {
@@ -31,7 +32,7 @@
     --foreground: 210 40% 98%;
     --card: 222 47% 8%;
     --card-foreground: 210 40% 98%;
-    --primary: 215 94% 19%;
+    --primary: 225 94% 19%;
 
     --primary-foreground: 0 0% 100%;
     --secondary: 222 47% 12%;
@@ -47,6 +48,7 @@
     --ring: 224.3 76.3% 48%;
     --popover: 222 47% 8%;
     --popover-foreground: 210 40% 98%;
+    --icon: 201 70% 45%;
   }
 }
 
