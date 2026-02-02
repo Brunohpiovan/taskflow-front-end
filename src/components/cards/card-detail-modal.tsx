@@ -67,7 +67,10 @@ export function CardDetailModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent
+        className="sm:max-w-xl sm:w-full max-h-[90vh] overflow-y-auto"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle>Detalhes do card</DialogTitle>
           <DialogDescription>Edite o título e a descrição do card.</DialogDescription>
@@ -89,9 +92,9 @@ export function CardDetailModal({
             <Textarea
               id="card-description"
               placeholder="Descrição"
-              rows={3}
+              rows={6}
               maxLength={CARD_DESCRIPTION_MAX_LENGTH}
-              className="resize-none"
+              className="resize-none min-h-[120px]"
               {...register("description")}
             />
             <p className="text-xs text-muted-foreground text-right">
