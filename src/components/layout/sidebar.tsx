@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, FolderKanban, X } from "lucide-react";
+import { LayoutDashboard, FolderKanban, User, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useUIStore } from "@/stores/ui.store";
@@ -11,6 +11,7 @@ import { ROUTES } from "@/lib/constants";
 const navItems = [
   { href: ROUTES.DASHBOARD, label: "Dashboard", icon: LayoutDashboard },
   { href: ROUTES.ENVIRONMENTS, label: "Ambientes", icon: FolderKanban },
+  { href: ROUTES.MY_DATA, label: "Meus Dados", icon: User },
 ];
 
 export function Sidebar() {

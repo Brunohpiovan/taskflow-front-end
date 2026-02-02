@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { authService } from "@/services/auth.service";
 import { handleApiError } from "@/lib/api-error-handler";
-import type { User, LoginDTO, RegisterDTO } from "@/types/auth.types";
+import type { User, LoginDTO, RegisterDTO, UpdateProfileDTO } from "@/types/auth.types";
 import { STORAGE_KEYS } from "@/lib/constants";
 
 const AUTH_COOKIE_MAX_AGE = 60 * 60 * 24 * 7; // 7 days
@@ -26,6 +26,7 @@ interface AuthState {
   register: (data: RegisterDTO) => Promise<void>;
   setUser: (user: User | null) => void;
   checkAuth: () => Promise<void>;
+  updateProfile: (data: UpdateProfileDTO) => Promise<User>;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -77,6 +78,19 @@ export const useAuthStore = create<AuthState>()(
       },
 
       setUser: (user) => set({ user }),
+
+      updateProfile: async (data) => {
+        set({ isLoading: true });
+        try {
+          const user = await authService.updateProfile(data);
+          set({ user, isLoading: false });
+          return user;
+        } catch (error) {
+          set({ isLoading: false });
+          handleApiError(error);
+          throw error;
+        }
+      },
 
       checkAuth: async () => {
         const { token } = get();

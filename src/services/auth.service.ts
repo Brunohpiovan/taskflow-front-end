@@ -1,5 +1,11 @@
 import { api } from "./api";
-import type { LoginDTO, RegisterDTO, AuthResponse } from "@/types/auth.types";
+import type {
+  LoginDTO,
+  RegisterDTO,
+  AuthResponse,
+  User,
+  UpdateProfileDTO,
+} from "@/types/auth.types";
 
 export const authService = {
   login: async (credentials: LoginDTO): Promise<AuthResponse> => {
@@ -18,6 +24,16 @@ export const authService = {
 
   refresh: async (): Promise<AuthResponse> => {
     const { data } = await api.post<AuthResponse>("/auth/refresh");
+    return data;
+  },
+
+  getProfile: async (): Promise<User> => {
+    const { data } = await api.get<User>("/auth/me");
+    return data;
+  },
+
+  updateProfile: async (payload: UpdateProfileDTO): Promise<User> => {
+    const { data } = await api.put<User>("/auth/me", payload);
     return data;
   },
 };

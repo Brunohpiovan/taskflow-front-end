@@ -43,8 +43,26 @@ export const cardSchema = z.object({
   dueDate: z.string().optional(),
 });
 
+export const profileSchema = z
+  .object({
+    name: z.string().min(1, "Nome é obrigatório").min(2, "Nome deve ter no mínimo 2 caracteres"),
+    email: z.string().min(1, "Email é obrigatório").email("Email inválido"),
+    password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres").optional().or(z.literal("")),
+    confirmPassword: z.string().optional().or(z.literal("")),
+  })
+  .refine(
+    (data) => {
+      if (data.password && data.password.length > 0) {
+        return data.password === data.confirmPassword;
+      }
+      return true;
+    },
+    { message: "As senhas não coincidem", path: ["confirmPassword"] }
+  );
+
 export type LoginFormData = z.infer<typeof loginSchema>;
 export type RegisterFormData = z.infer<typeof registerSchema>;
 export type EnvironmentFormData = z.infer<typeof environmentSchema>;
 export type BoardFormData = z.infer<typeof boardSchema>;
 export type CardFormData = z.infer<typeof cardSchema>;
+export type ProfileFormData = z.infer<typeof profileSchema>;

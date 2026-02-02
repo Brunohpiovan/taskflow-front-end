@@ -7,6 +7,7 @@ export const ROUTES = {
   ENVIRONMENTS: "/environments",
   ENVIRONMENT: (id: string) => `/environments/${id}`,
   BOARD: (envId: string, boardId: string) => `/environments/${envId}/boards/${boardId}`,
+  MY_DATA: "/meus-dados",
 } as const;
 
 export const STORAGE_KEYS = {
