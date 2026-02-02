@@ -1,0 +1,44 @@
+import { z } from "zod";
+
+export const loginSchema = z.object({
+  email: z.string().min(1, "Email é obrigatório").email("Email inválido"),
+  password: z.string().min(1, "Senha é obrigatória").min(6, "Senha deve ter no mínimo 6 caracteres"),
+});
+
+export const registerSchema = z
+  .object({
+    name: z.string().min(1, "Nome é obrigatório").min(2, "Nome deve ter no mínimo 2 caracteres"),
+    email: z.string().min(1, "Email é obrigatório").email("Email inválido"),
+    password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres"),
+    confirmPassword: z.string().min(1, "Confirme a senha"),
+    acceptTerms: z.boolean().refine((val) => val === true, "Você deve aceitar os termos de uso"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "As senhas não coincidem",
+    path: ["confirmPassword"],
+  });
+
+export const environmentSchema = z.object({
+  name: z.string().min(1, "Nome é obrigatório").min(2, "Nome deve ter no mínimo 2 caracteres"),
+  description: z.string().optional(),
+  color: z.string().optional(),
+  icon: z.string().optional(),
+});
+
+export const boardSchema = z.object({
+  name: z.string().min(1, "Nome é obrigatório").min(2, "Nome deve ter no mínimo 2 caracteres"),
+  description: z.string().optional(),
+});
+
+export const cardSchema = z.object({
+  title: z.string().min(1, "Título é obrigatório").min(1, "Título deve ter no mínimo 1 caractere"),
+  description: z.string().optional(),
+  labels: z.array(z.string()).optional(),
+  dueDate: z.string().optional(),
+});
+
+export type LoginFormData = z.infer<typeof loginSchema>;
+export type RegisterFormData = z.infer<typeof registerSchema>;
+export type EnvironmentFormData = z.infer<typeof environmentSchema>;
+export type BoardFormData = z.infer<typeof boardSchema>;
+export type CardFormData = z.infer<typeof cardSchema>;
