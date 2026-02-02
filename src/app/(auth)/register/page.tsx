@@ -20,6 +20,7 @@ import { registerSchema, type RegisterFormData } from "@/lib/validations";
 import { useAuthStore } from "@/stores/auth.store";
 import { APP_NAME } from "@/lib/constants";
 import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -115,9 +116,9 @@ export default function RegisterPage() {
                 aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
               >
                 {showPassword ? (
-                  <span className="text-xs text-muted-foreground">Ocultar</span>
+                  <EyeOff className="h-4 w-4 text-muted-foreground" />
                 ) : (
-                  <span className="text-xs text-muted-foreground">Mostrar</span>
+                  <Eye className="h-4 w-4 text-muted-foreground" />
                 )}
               </Button>
             </div>
