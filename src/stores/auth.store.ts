@@ -54,6 +54,7 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: () => {
+        setAuthCookie(null);
         set({ user: null, token: null, isAuthenticated: false });
       },
 

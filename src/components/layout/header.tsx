@@ -1,6 +1,7 @@
 "use client";
 
 import { useTheme } from "next-themes";
+import { useRouter } from "next/navigation";
 import { Moon, Sun, Bell, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,10 +16,16 @@ import { useUIStore } from "@/stores/ui.store";
 import { APP_NAME } from "@/lib/constants";
 
 export function Header() {
+  const router = useRouter();
   const { theme, setTheme } = useTheme();
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
   const toggleSidebar = useUIStore((s) => s.toggleSidebar);
+
+  const handleLogout = () => {
+    logout();
+    router.push("/login");
+  };
 
   const initials = user?.name
     ?.split(" ")
@@ -72,7 +79,7 @@ export function Header() {
                 )}
               </div>
             </div>
-            <DropdownMenuItem onClick={() => logout()} className="cursor-pointer text-destructive">
+            <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive">
               Sair
             </DropdownMenuItem>
           </DropdownMenuContent>
