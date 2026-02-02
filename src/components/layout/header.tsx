@@ -27,6 +27,11 @@ export function Header() {
     router.push("/login");
   };
 
+  const handleMeusDados = () => {
+    router.push("/meus-dados");
+  };
+  
+
   const initials = user?.name
     ?.split(" ")
     .map((n) => n[0])
@@ -58,9 +63,7 @@ export function Header() {
           <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
           <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
         </Button>
-        <Button variant="ghost" size="icon" aria-label="Notificações">
-          <Bell className="h-5 w-5" />
-        </Button>
+        {user?.name && <p className="font-medium">{user.name}</p>}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-9 w-9 rounded-full">
@@ -73,12 +76,14 @@ export function Header() {
           <DropdownMenuContent className="w-56" align="end" forceMount>
             <div className="flex items-center justify-start gap-2 p-2">
               <div className="flex flex-col space-y-1 leading-none">
-                {user?.name && <p className="font-medium">{user.name}</p>}
                 {user?.email && (
                   <p className="w-full truncate text-sm text-muted-foreground">{user.email}</p>
                 )}
               </div>
             </div>
+            <DropdownMenuItem onClick={handleMeusDados} className="cursor-pointer">
+              Meus Dados  
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive">
               Sair
             </DropdownMenuItem>
