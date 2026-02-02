@@ -27,7 +27,7 @@ import { useCardsStore } from "@/stores/cards.store";
 import { useBoardsStore } from "@/stores/boards.store";
 import type { Board } from "@/types/board.types";
 import type { Card as CardType } from "@/types/card.types";
-import { useMemo, useState } from "react";
+import { useMemo, useState, memo } from "react";
 import { toast } from "sonner";
 import { boardSchema } from "@/lib/validations";
 
@@ -36,7 +36,7 @@ interface BoardColumnProps {
   cards: CardType[];
 }
 
-export function BoardColumn({ board, cards }: BoardColumnProps) {
+export const BoardColumn = memo(function BoardColumn({ board, cards }: BoardColumnProps) {
   const [cardFormOpen, setCardFormOpen] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [editNameOpen, setEditNameOpen] = useState(false);
@@ -173,49 +173,67 @@ export function BoardColumn({ board, cards }: BoardColumnProps) {
         </CardContent>
       </Card>
 
-      <CardForm
-        open={cardFormOpen}
-        onOpenChange={setCardFormOpen}
-        onSubmit={handleCreateCard}
-      />
+      {cardFormOpen && (
+        <CardForm
+          open={cardFormOpen}
+          onOpenChange={setCardFormOpen}
+          onSubmit={handleCreateCard}
+        />
+      )}
 
-      <ConfirmDialog
-        open={confirmDeleteOpen}
-        onOpenChange={setConfirmDeleteOpen}
-        title="Excluir quadro"
-        description={confirmDeleteDescription}
-        confirmLabel="Excluir"
-        cancelLabel="Cancelar"
-        variant="destructive"
-        onConfirm={handleDeleteBoard}
-      />
+      {confirmDeleteOpen && (
+        <ConfirmDialog
+          open={confirmDeleteOpen}
+          onOpenChange={setConfirmDeleteOpen}
+          title="Excluir quadro"
+          description={confirmDeleteDescription}
+          confirmLabel="Excluir"
+          cancelLabel="Cancelar"
+          variant="destructive"
+          onConfirm={handleDeleteBoard}
+        />
+      )}
 
-      <Dialog open={editNameOpen} onOpenChange={handleEditNameOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Editar nome do quadro</DialogTitle>
-          </DialogHeader>
-          <div className="grid gap-2 py-2">
-            <Label htmlFor="board-name">Nome</Label>
-            <Input
-              id="board-name"
-              value={editNameValue}
-              onChange={(e) => setEditNameValue(e.target.value)}
-              placeholder="Ex.: To Do"
-              disabled={editNameLoading}
-              onKeyDown={(e) => e.key === "Enter" && handleEditNameSubmit()}
-            />
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditNameOpen(false)} disabled={editNameLoading}>
-              Cancelar
-            </Button>
-            <Button onClick={handleEditNameSubmit} disabled={editNameLoading}>
-              {editNameLoading ? "Salvando…" : "Salvar"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {editNameOpen && (
+        <Dialog open={editNameOpen} onOpenChange={handleEditNameOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Editar nome do quadro</DialogTitle>
+            </DialogHeader>
+            <div className="grid gap-2 py-2">
+              <Label htmlFor="board-name">Nome</Label>
+              <Input
+                id="board-name"
+                value={editNameValue}
+                onChange={(e) => setEditNameValue(e.target.value)}
+                placeholder="Ex.: To Do"
+                disabled={editNameLoading}
+                onKeyDown={(e) => e.key === "Enter" && handleEditNameSubmit()}
+              />
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setEditNameOpen(false)} disabled={editNameLoading}>
+                Cancelar
+              </Button>
+              <Button onClick={handleEditNameSubmit} disabled={editNameLoading}>
+                {editNameLoading ? "Salvando…" : "Salvar"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
-}
+}, (prev: BoardColumnProps, next: BoardColumnProps) => {
+  if (prev.board.id !== next.board.id) return false;
+  if (prev.board.name !== next.board.name) return false;
+  if (prev.cards.length !== next.cards.length) return false;
+
+  // Shallow comparison for cards array (assuming immutable updates)
+  // If card instances change but IDs/content are same, we can rely on TaskCard's own memo.
+  // However, dragging changes internal order, so cards list reference will change.
+  // We want to re-render if the list of cards changes.
+  if (prev.cards !== next.cards) return false;
+
+  return true;
+});
