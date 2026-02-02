@@ -1,6 +1,6 @@
 "use client";
 
-import { useDroppable } from "@dnd-kit/core";
+import { useDndContext, useDroppable } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { ListTodo, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -27,7 +27,7 @@ import { useCardsStore } from "@/stores/cards.store";
 import { useBoardsStore } from "@/stores/boards.store";
 import type { Board } from "@/types/board.types";
 import type { Card as CardType } from "@/types/card.types";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { boardSchema } from "@/lib/validations";
 
@@ -43,7 +43,17 @@ export function BoardColumn({ board, cards }: BoardColumnProps) {
   const [editNameValue, setEditNameValue] = useState(board.name);
   const [editNameLoading, setEditNameLoading] = useState(false);
 
-  const { setNodeRef, isOver } = useDroppable({ id: board.id });
+  const { setNodeRef } = useDroppable({ id: board.id });
+  const { active, over } = useDndContext();
+
+  const isOverBoard = useMemo(() => {
+    if (!over) return false;
+    // Highlight if over the board itself
+    if (over.id === board.id) return true;
+    // Highlight if over any card in this board
+    const overCardId = String(over.id);
+    return cards.some((c) => c.id === overCardId);
+  }, [board.id, over, cards]);
 
   const createCard = useCardsStore((s) => s.createCard);
   const updateBoard = useBoardsStore((s) => s.updateBoard);
@@ -103,9 +113,9 @@ export function BoardColumn({ board, cards }: BoardColumnProps) {
       ref={setNodeRef}
       className={
         "shrink-0 w-[288px] ml-2 rounded-xl border bg-muted/20 transition-all duration-200 min-h-[620px] max-h-[630px] shadow-sm " +
-        (isOver
-          ? "ring-2 ring-foreground/60 bg-primary/5 border-foreground/40 shadow-lg shadow-foreground/5"
-          : "border-border/80 hover:border-border hover:bg-muted/30")
+        (isOverBoard
+          ? "bg-muted/40 ring-2 ring-primary/20 shadow-md"
+          : "bg-muted/10 border border-transparent hover:border-border/40 hover:bg-muted/20")
       }
     >
       <Card className="h-full flex flex-col rounded-xl border-0 bg-card/80 shadow-none">
