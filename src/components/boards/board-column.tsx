@@ -56,8 +56,10 @@ export function BoardColumn({ board, cards }: BoardColumnProps) {
     <div
       ref={setNodeRef}
       className={
-        "shrink-0 w-72 rounded-lg border bg-muted/30 transition-colors " +
-        (isOver ? "ring-2 ring-primary/50" : "")
+        "shrink-0 w-72 rounded-lg border bg-muted/30 transition-all duration-200 min-h-[280px] " +
+        (isOver
+          ? "ring-2 ring-primary bg-primary/10 border-primary/50 shadow-lg"
+          : "")
       }
     >
       <Card className="h-full flex flex-col">

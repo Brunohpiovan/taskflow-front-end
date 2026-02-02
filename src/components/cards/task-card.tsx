@@ -19,6 +19,20 @@ import { useState } from "react";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { toast } from "sonner";
 
+/** Apenas a aparência do card, para exibir no DragOverlay (sem sortable/dropdown) */
+export function TaskCardPreview({ card }: { card: CardType }) {
+  return (
+    <Card className="cursor-grabbing shadow-xl ring-2 ring-primary/30 w-full">
+      <CardContent className="p-3">
+        <p className="font-medium text-sm truncate">{card.title}</p>
+        {card.description && (
+          <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{card.description}</p>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 interface TaskCardProps {
   card: CardType;
 }
@@ -58,7 +72,7 @@ export function TaskCard({ card }: TaskCardProps) {
         style={style}
         className={cn(
           "cursor-grab active:cursor-grabbing transition-shadow",
-          isDragging && "opacity-90 shadow-lg ring-2 ring-primary/20"
+          isDragging && "opacity-0 pointer-events-none"
         )}
         {...attributes}
         {...listeners}

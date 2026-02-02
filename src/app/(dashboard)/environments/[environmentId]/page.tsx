@@ -7,15 +7,19 @@ import { Plus } from "lucide-react";
 import {
   DndContext,
   DragEndEvent,
+  DragOverlay,
+  DragStartEvent,
   PointerSensor,
   useSensor,
   useSensors,
+  defaultDropAnimationSideEffects,
 } from "@dnd-kit/core";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
 import { BoardColumn } from "@/components/boards/board-column";
 import { BoardForm } from "@/components/boards/board-form";
 import { BoardEmptyState } from "@/components/boards/board-empty-state";
+import { TaskCardPreview } from "@/components/cards/task-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEnvironmentsStore } from "@/stores/environments.store";
 import { useBoardsStore } from "@/stores/boards.store";
@@ -28,6 +32,7 @@ export default function EnvironmentBoardsPage() {
   const environmentId = params.environmentId as string;
 
   const [formOpen, setFormOpen] = useState(false);
+  const [activeCardId, setActiveCardId] = useState<string | null>(null);
 
   const environments = useEnvironmentsStore((s) => s.environments);
   const fetchEnvironments = useEnvironmentsStore((s) => s.fetchEnvironments);
@@ -72,7 +77,21 @@ export default function EnvironmentBoardsPage() {
     boardIds.forEach((id) => fetchCards(id).catch(() => {}));
   }, [boardIds.join(","), fetchCards]);
 
+  const activeCard = useMemo(() => {
+    if (!activeCardId) return null;
+    for (const list of Object.values(cardsByBoard)) {
+      const card = list.find((c) => c.id === activeCardId);
+      if (card) return card;
+    }
+    return null;
+  }, [activeCardId, cardsByBoard]);
+
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveCardId(String(event.active.id));
+  };
+
   const handleDragEnd = (event: DragEndEvent) => {
+    setActiveCardId(null);
     const { active, over } = event;
     if (!over) return;
     const cardId = active.id as string;
@@ -107,6 +126,10 @@ export default function EnvironmentBoardsPage() {
     moveCard(cardId, fromBoardId, targetBoardId, newIndex).then(() => {
       toast.success("Card movido.");
     }).catch(() => {});
+  };
+
+  const dropAnimation = {
+    sideEffects: defaultDropAnimationSideEffects({ styles: { active: { opacity: "0" } } }),
   };
 
   const handleCreateBoard = async (name: string, description?: string) => {
@@ -158,7 +181,11 @@ export default function EnvironmentBoardsPage() {
       ) : boards.length === 0 ? (
         <BoardEmptyState onCreateClick={() => setFormOpen(true)} />
       ) : (
-        <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+        <DndContext
+          sensors={sensors}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+        >
           <div className="flex gap-4 overflow-x-auto pb-4 min-h-[500px]">
             {boards.map((board) => (
               <BoardColumn
@@ -168,6 +195,17 @@ export default function EnvironmentBoardsPage() {
               />
             ))}
           </div>
+
+          <DragOverlay
+            dropAnimation={dropAnimation}
+            className="z-[9999]"
+          >
+            {activeCard ? (
+              <div className="w-72 cursor-grabbing rotate-1 shadow-2xl">
+                <TaskCardPreview card={activeCard} />
+              </div>
+            ) : null}
+          </DragOverlay>
         </DndContext>
       )}
 
