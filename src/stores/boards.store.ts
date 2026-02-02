@@ -14,7 +14,7 @@ interface BoardsState {
   clearBoards: () => void;
 }
 
-export const useBoardsStore = create<BoardsState>((set, get) => ({
+export const useBoardsStore = create<BoardsState>((set) => ({
   boards: [],
   isLoading: false,
 
@@ -54,7 +54,6 @@ export const useBoardsStore = create<BoardsState>((set, get) => ({
         boards: state.boards.map((b) => (b.id === id ? board : b)).sort((a, b) => a.position - b.position),
         isLoading: false,
       }));
-      return board;
     } catch (error) {
       set({ isLoading: false });
       handleApiError(error);

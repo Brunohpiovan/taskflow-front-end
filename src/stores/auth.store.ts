@@ -22,6 +22,7 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (credentials: LoginDTO) => Promise<void>;
+  loginWithToken: (token: string) => Promise<void>;
   logout: () => void;
   register: (data: RegisterDTO) => Promise<void>;
   setUser: (user: User | null) => void;
@@ -51,6 +52,18 @@ export const useAuthStore = create<AuthState>()(
           set({ isLoading: false });
           handleApiError(error);
           throw error;
+        }
+      },
+
+      loginWithToken: async (token) => {
+        setAuthCookie(token);
+        set({ token });
+        try {
+          await get().checkAuth();
+        } catch (err) {
+          setAuthCookie(null);
+          set({ user: null, token: null, isAuthenticated: false });
+          throw err;
         }
       },
 

@@ -19,7 +19,6 @@ export default function DashboardPage() {
     fetchEnvironments().catch(() => {});
   }, [fetchEnvironments]);
 
-  const totalBoards = environments.reduce((acc, env) => acc + (env.boardsCount ?? 0), 0);
   const totalCards = environments.reduce((acc, env) => acc + (env.cardsCount ?? 0), 0);
   const recentEnvironments = environments.slice(0, 3);
 

@@ -78,7 +78,6 @@ export const useCardsStore = create<CardsState>((set, get) => ({
         }
         return { cards: newCards, isLoading: false };
       });
-      return card;
     } catch (error) {
       set({ isLoading: false });
       handleApiError(error);
@@ -107,7 +106,6 @@ export const useCardsStore = create<CardsState>((set, get) => ({
   moveCard: async (cardId, fromBoardId, toBoardId, newIndex) => {
     const prevCards = get().cards;
     const fromCards = prevCards[fromBoardId] ?? [];
-    const toCards = prevCards[toBoardId] ?? [];
     const card = fromCards.find((c) => c.id === cardId);
     if (!card) return;
 

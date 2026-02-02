@@ -1,9 +1,10 @@
 "use client";
 
+import { Suspense, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,17 +19,22 @@ import {
 } from "@/components/ui/card";
 import { loginSchema, type LoginFormData } from "@/lib/validations";
 import { useAuthStore } from "@/stores/auth.store";
-import { APP_NAME } from "@/lib/constants";
-import { useState } from "react";
+import { APP_NAME, API_BASE_URL } from "@/lib/constants";
 import { Eye, EyeOff } from "lucide-react";
 
-
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const login = useAuthStore((s) => s.login);
   const isLoading = useAuthStore((s) => s.isLoading);
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (searchParams.get("error") === "oauth_failed") {
+      setLoginError("Falha ao entrar com Google ou GitHub. Tente novamente.");
+    }
+  }, [searchParams]);
 
   const {
     register,
@@ -119,6 +125,32 @@ export default function LoginPage() {
           <Button type="submit" className="w-full" isLoading={isLoading}>
             Entrar
           </Button>
+          <div className="relative w-full">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-border" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase text-muted-foreground">
+              <span className="bg-card px-2">ou continue com</span>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              onClick={() => (window.location.href = `${API_BASE_URL}/auth/google`)}
+            >
+              Google
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              onClick={() => (window.location.href = `${API_BASE_URL}/auth/github`)}
+            >
+              GitHub
+            </Button>
+          </div>
           <p className="text-center text-sm text-muted-foreground">
             Não tem conta?{" "}
             <Link href="/register" className="text-primary underline-offset-4 hover:underline">
@@ -128,5 +160,32 @@ export default function LoginPage() {
         </CardFooter>
       </form>
     </Card>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <Card>
+          <CardHeader className="space-y-1 text-center">
+            <div className="flex justify-center mb-2">
+              <div className="h-12 w-12 rounded-lg bg-muted animate-pulse" />
+            </div>
+            <div className="h-6 w-32 bg-muted rounded mx-auto animate-pulse" />
+            <div className="h-4 w-48 bg-muted rounded mx-auto animate-pulse" />
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="h-10 bg-muted rounded animate-pulse" />
+            <div className="h-10 bg-muted rounded animate-pulse" />
+          </CardContent>
+          <CardFooter>
+            <div className="h-10 w-full bg-muted rounded animate-pulse" />
+          </CardFooter>
+        </Card>
+      }
+    >
+      <LoginContent />
+    </Suspense>
   );
 }

@@ -19,7 +19,7 @@ interface EnvironmentsState {
   setCurrentEnvironment: (env: Environment | null) => void;
 }
 
-export const useEnvironmentsStore = create<EnvironmentsState>((set, get) => ({
+export const useEnvironmentsStore = create<EnvironmentsState>((set) => ({
   environments: [],
   currentEnvironment: null,
   isLoading: false,
@@ -63,7 +63,6 @@ export const useEnvironmentsStore = create<EnvironmentsState>((set, get) => ({
           state.currentEnvironment?.id === id ? environment : state.currentEnvironment,
         isLoading: false,
       }));
-      return environment;
     } catch (error) {
       set({ isLoading: false });
       handleApiError(error);

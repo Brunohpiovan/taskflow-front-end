@@ -9,7 +9,6 @@ import { EnvironmentList } from "@/components/environments/environment-list";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { useEnvironmentsStore } from "@/stores/environments.store";
 import type { Environment } from "@/types/environment.types";
-import type { CreateEnvironmentDTO, UpdateEnvironmentDTO } from "@/types/environment.types";
 import type { EnvironmentFormData } from "@/lib/validations";
 import { toast } from "sonner";
 

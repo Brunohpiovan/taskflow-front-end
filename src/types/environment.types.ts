@@ -17,4 +17,4 @@ export interface CreateEnvironmentDTO {
   icon?: string;
 }
 
-export interface UpdateEnvironmentDTO extends Partial<CreateEnvironmentDTO> {}
+export type UpdateEnvironmentDTO = Partial<CreateEnvironmentDTO>;

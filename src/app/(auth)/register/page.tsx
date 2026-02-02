@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/card";
 import { registerSchema, type RegisterFormData } from "@/lib/validations";
 import { useAuthStore } from "@/stores/auth.store";
-import { APP_NAME } from "@/lib/constants";
+import { APP_NAME, API_BASE_URL } from "@/lib/constants";
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 
@@ -158,6 +158,32 @@ export default function RegisterPage() {
           <Button type="submit" className="w-full" isLoading={isLoading}>
             Cadastrar
           </Button>
+          <div className="relative w-full">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-border" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase text-muted-foreground">
+              <span className="bg-card px-2">ou continue com</span>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              onClick={() => (window.location.href = `${API_BASE_URL}/auth/google`)}
+            >
+              Google
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              onClick={() => (window.location.href = `${API_BASE_URL}/auth/github`)}
+            >
+              GitHub
+            </Button>
+          </div>
           <p className="text-center text-sm text-muted-foreground">
             Já tem conta?{" "}
             <Link href="/login" className="text-primary underline-offset-4 hover:underline">
