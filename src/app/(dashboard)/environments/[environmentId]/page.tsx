@@ -173,9 +173,22 @@ export default function EnvironmentBoardsPage() {
       />
 
       {isLoading ? (
-        <div className="flex gap-4 overflow-x-auto pb-4">
+        <div className="flex gap-5 overflow-x-auto pb-6 pt-1">
           {[1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-96 w-72 shrink-0 rounded-lg" />
+            <div key={i} className="shrink-0 w-[288px] rounded-xl border border-border/50 bg-card/50 p-4">
+              <div className="flex items-center gap-2 pb-3">
+                <Skeleton className="h-9 w-9 rounded-lg" />
+                <div className="space-y-1">
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-3 w-16" />
+                </div>
+              </div>
+              <div className="space-y-3">
+                <Skeleton className="h-20 w-full rounded-xl" />
+                <Skeleton className="h-20 w-full rounded-xl" />
+                <Skeleton className="h-10 w-full rounded-lg" />
+              </div>
+            </div>
           ))}
         </div>
       ) : boards.length === 0 ? (
@@ -186,7 +199,7 @@ export default function EnvironmentBoardsPage() {
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
         >
-          <div className="flex gap-4 overflow-x-auto pb-4 min-h-[500px]">
+          <div className="flex gap-5 overflow-x-auto overflow-y-hidden pb-6 pt-1 min-h-[420px] scroll-smooth">
             {boards.map((board) => (
               <BoardColumn
                 key={board.id}
@@ -201,7 +214,7 @@ export default function EnvironmentBoardsPage() {
             className="z-[9999]"
           >
             {activeCard ? (
-              <div className="w-72 cursor-grabbing rotate-1 shadow-2xl">
+              <div className="w-[288px] cursor-grabbing rotate-1">
                 <TaskCardPreview card={activeCard} />
               </div>
             ) : null}

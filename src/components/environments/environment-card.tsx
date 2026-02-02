@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { MoreHorizontal, Pencil, Trash2, LayoutGrid } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash2, LayoutGrid, ChevronRight } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,34 +22,59 @@ interface EnvironmentCardProps {
 export function EnvironmentCard({ environment, onEdit, onDelete }: EnvironmentCardProps) {
   const boardsCount = environment.boardsCount ?? 0;
   const cardsCount = environment.cardsCount ?? 0;
+  const accentColor = environment.color ?? "hsl(var(--primary))";
 
   return (
-    <Card className="group relative overflow-hidden transition-shadow hover:shadow-md">
-      <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
-        <Link href={ROUTES.ENVIRONMENT(environment.id)} className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
+    <Card
+      className="group relative overflow-hidden rounded-xl border bg-card transition-all duration-200 hover:border-border/80 hover:shadow-lg hover:shadow-black/5 dark:hover:shadow-black/20"
+      style={{
+        borderLeftWidth: "4px",
+        borderLeftColor: accentColor,
+      }}
+    >
+      <CardHeader className="flex flex-row items-start justify-between gap-3 pb-3 pt-5 px-5">
+        <Link
+          href={ROUTES.ENVIRONMENT(environment.id)}
+          className="flex-1 min-w-0 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-lg -m-1 p-1"
+        >
+          <div className="flex items-center gap-3">
             <div
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary"
-              style={environment.color ? { backgroundColor: `${environment.color}20`, color: environment.color } : undefined}
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl shadow-sm transition-transform duration-200 group-hover:scale-105"
+              style={
+                environment.color
+                  ? { backgroundColor: `${environment.color}18`, color: environment.color }
+                  : { backgroundColor: "hsl(var(--primary) / 0.12)", color: "hsl(var(--primary))" }
+              }
             >
-              <LayoutGrid className="h-5 w-5" />
+              <LayoutGrid className="h-6 w-6" strokeWidth={2} />
             </div>
-            <div className="min-w-0">
-              <h3 className="font-semibold truncate">{environment.name}</h3>
-              {environment.description && (
-                <p className="text-sm text-muted-foreground line-clamp-1">{environment.description}</p>
+            <div className="min-w-0 flex-1">
+              <h3 className="font-semibold text-base truncate text-foreground group-hover:text-primary transition-colors">
+                {environment.name}
+              </h3>
+              {environment.description ? (
+                <p className="text-sm text-muted-foreground line-clamp-2 mt-0.5 leading-snug">
+                  {environment.description}
+                </p>
+              ) : (
+                <p className="text-sm text-muted-foreground mt-0.5">Sem descrição</p>
               )}
             </div>
+            <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground opacity-0 -translate-x-1 transition-all duration-200 group-hover:opacity-100 group-hover:translate-x-0" />
           </div>
         </Link>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 shrink-0 rounded-lg opacity-70 hover:opacity-100 hover:bg-muted/80 transition-opacity"
+              aria-label="Abrir menu"
+            >
               <MoreHorizontal className="h-4 w-4" />
-              <span className="sr-only">Abrir menu</span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent align="end" className="w-48">
             <DropdownMenuItem onClick={() => onEdit(environment)}>
               <Pencil className="mr-2 h-4 w-4" />
               Editar
@@ -64,11 +89,16 @@ export function EnvironmentCard({ environment, onEdit, onDelete }: EnvironmentCa
           </DropdownMenuContent>
         </DropdownMenu>
       </CardHeader>
-      <CardContent>
-        <Link href={ROUTES.ENVIRONMENT(environment.id)} className="block">
-          <p className="text-sm text-muted-foreground">
-            {boardsCount} quadros · {cardsCount} tarefas
-          </p>
+      <CardContent className="px-5 pb-5 pt-0">
+        <Link
+          href={ROUTES.ENVIRONMENT(environment.id)}
+          className="flex items-center gap-2 rounded-lg border border-border/50 bg-muted/30 px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
+        >
+          <span className="font-medium tabular-nums text-foreground/90">{boardsCount}</span>
+          <span>quadros</span>
+          <span className="text-border">·</span>
+          <span className="font-medium tabular-nums text-foreground/90">{cardsCount}</span>
+          <span>tarefas</span>
         </Link>
       </CardContent>
     </Card>

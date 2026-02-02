@@ -22,11 +22,11 @@ import { toast } from "sonner";
 /** Apenas a aparência do card, para exibir no DragOverlay (sem sortable/dropdown) */
 export function TaskCardPreview({ card }: { card: CardType }) {
   return (
-    <Card className="cursor-grabbing shadow-xl ring-2 ring-primary/30 w-full">
-      <CardContent className="p-3">
-        <p className="font-medium text-sm truncate">{card.title}</p>
+    <Card className="cursor-grabbing w-full rounded-xl border bg-card shadow-2xl ring-2 ring-primary/30">
+      <CardContent className="p-3.5">
+        <p className="font-medium text-sm truncate text-foreground">{card.title}</p>
         {card.description && (
-          <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{card.description}</p>
+          <p className="text-xs text-muted-foreground line-clamp-2 mt-1 leading-relaxed">{card.description}</p>
         )}
       </CardContent>
     </Card>
@@ -71,31 +71,37 @@ export function TaskCard({ card }: TaskCardProps) {
         ref={setNodeRef}
         style={style}
         className={cn(
-          "cursor-grab active:cursor-grabbing transition-shadow",
+          "group cursor-grab active:cursor-grabbing rounded-xl border bg-card shadow-sm transition-all duration-200 hover:border-border/80 hover:shadow-md",
           isDragging && "opacity-0 pointer-events-none"
         )}
         {...attributes}
         {...listeners}
       >
-        <CardContent className="p-3 flex flex-row items-start justify-between gap-2">
+        <CardContent className="p-3.5 flex flex-row items-start justify-between gap-2">
           <button
             type="button"
-            className="flex-1 text-left min-w-0"
+            className="flex-1 text-left min-w-0 rounded-md -m-1 p-1 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             onClick={() => setDetailOpen(true)}
           >
-            <p className="font-medium text-sm truncate">{card.title}</p>
-            {card.description && (
-              <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{card.description}</p>
+            <p className="font-medium text-sm truncate text-foreground">{card.title}</p>
+            {card.description ? (
+              <p className="text-xs text-muted-foreground line-clamp-2 mt-1 leading-relaxed">{card.description}</p>
+            ) : (
+              <p className="text-xs text-muted-foreground/70 mt-1 italic">Sem descrição</p>
             )}
           </button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-              <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0">
-                <MoreHorizontal className="h-3.5 w-3.5" />
-                <span className="sr-only">Menu</span>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 shrink-0 rounded-lg opacity-60 hover:opacity-100 hover:bg-muted"
+                aria-label="Menu"
+              >
+                <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+            <DropdownMenuContent align="end" className="w-44" onClick={(e) => e.stopPropagation()}>
               <DropdownMenuItem onClick={() => setDetailOpen(true)}>
                 <Pencil className="mr-2 h-4 w-4" />
                 Editar

@@ -52,30 +52,44 @@ export function BoardColumn({ board, cards }: BoardColumnProps) {
     setConfirmDeleteOpen(false);
   };
 
+  const confirmDeleteDescription =
+    "Tem certeza que deseja excluir o quadro " + board.name + "? Todos os cards serão removidos.";
+
   return (
     <div
       ref={setNodeRef}
       className={
-        "shrink-0 w-72 rounded-lg border bg-muted/30 transition-all duration-200 min-h-[280px] " +
+        "shrink-0 w-[288px] rounded-xl border bg-muted/20 transition-all duration-200 min-h-[320px] shadow-sm " +
         (isOver
-          ? "ring-2 ring-primary bg-primary/10 border-primary/50 shadow-lg"
-          : "")
+          ? "ring-2 ring-primary/60 bg-primary/5 border-primary/40 shadow-lg shadow-primary/5"
+          : "border-border/80 hover:border-border hover:bg-muted/30")
       }
     >
-      <Card className="h-full flex flex-col">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <div className="flex items-center gap-2 min-w-0">
-            <ListTodo className="h-4 w-4 shrink-0 text-muted-foreground" />
-            <h3 className="font-semibold truncate">{board.name}</h3>
+      <Card className="h-full flex flex-col rounded-xl border-0 bg-card/80 shadow-none">
+        <CardHeader className="flex flex-row items-center justify-between gap-2 px-4 pt-4 pb-3 space-y-0">
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <ListTodo className="h-4 w-4" strokeWidth={2} />
+            </div>
+            <div className="min-w-0 flex-1">
+              <h3 className="font-semibold text-sm truncate text-foreground">{board.name}</h3>
+              <p className="text-xs text-muted-foreground tabular-nums">
+                {cards.length} {cards.length === 1 ? "card" : "cards"}
+              </p>
+            </div>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 shrink-0 rounded-lg opacity-70 hover:opacity-100 hover:bg-muted"
+                aria-label="Menu do quadro"
+              >
                 <MoreHorizontal className="h-4 w-4" />
-                <span className="sr-only">Menu do quadro</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="end" className="w-48">
               <DropdownMenuItem
                 onClick={() => setConfirmDeleteOpen(true)}
                 className="text-destructive focus:text-destructive"
@@ -86,7 +100,7 @@ export function BoardColumn({ board, cards }: BoardColumnProps) {
             </DropdownMenuContent>
           </DropdownMenu>
         </CardHeader>
-        <CardContent className="flex-1 flex flex-col gap-2 overflow-hidden p-2">
+        <CardContent className="flex-1 flex flex-col gap-3 overflow-y-auto overflow-x-hidden px-4 pb-4 pt-0">
           <SortableContext items={cards.map((c) => c.id)} strategy={verticalListSortingStrategy}>
             {cards.map((card) => (
               <TaskCard key={card.id} card={card} />
@@ -94,7 +108,7 @@ export function BoardColumn({ board, cards }: BoardColumnProps) {
           </SortableContext>
           <Button
             variant="ghost"
-            className="w-full justify-start text-muted-foreground"
+            className="mt-1 w-full justify-start rounded-lg border border-dashed border-border/80 py-2.5 text-sm text-muted-foreground hover:border-primary/40 hover:bg-primary/5 hover:text-foreground"
             onClick={() => setCardFormOpen(true)}
           >
             + Adicionar card
@@ -112,7 +126,7 @@ export function BoardColumn({ board, cards }: BoardColumnProps) {
         open={confirmDeleteOpen}
         onOpenChange={setConfirmDeleteOpen}
         title="Excluir quadro"
-        description={"Tem certeza que deseja excluir o quadro \"" + board.name + "\"? Todos os cards serão removidos."}
+        description={confirmDeleteDescription}
         confirmLabel="Excluir"
         cancelLabel="Cancelar"
         variant="destructive"
