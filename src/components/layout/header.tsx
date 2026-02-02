@@ -35,18 +35,18 @@ export function Header() {
     .slice(0, 2) ?? "U";
 
   return (
-    <header className="flex h-14 items-center gap-4 border-b bg-card px-4">
+    <header className="flex h-14 items-center gap-4 border-b bg-card/95 backdrop-blur-sm px-4 shadow-card sticky top-0 z-20">
       <Button
         variant="ghost"
         size="icon"
-        className="md:hidden"
+        className="md:hidden rounded-lg"
         onClick={toggleSidebar}
         aria-label="Abrir menu"
       >
         <Menu className="h-5 w-5" />
       </Button>
       <div className="flex-1">
-        <h1 className="text-lg font-semibold text-foreground md:text-xl">{APP_NAME}</h1>
+        <h1 className="text-lg font-bold tracking-tight text-foreground md:text-xl">{APP_NAME}</h1>
       </div>
       <div className="flex items-center gap-2">
         <Button

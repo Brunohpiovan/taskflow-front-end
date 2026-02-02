@@ -23,7 +23,7 @@ export function Sidebar() {
     <>
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-40 w-64 border-r bg-card transition-transform md:static md:translate-x-0",
+          "fixed inset-y-0 left-0 z-40 w-64 border-r bg-card/95 backdrop-blur-sm transition-transform duration-200 md:static md:translate-x-0 shadow-card",
           !sidebarOpen && "-translate-x-full"
         )}
       >
@@ -47,9 +47,9 @@ export function Sidebar() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                  "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
                   isActive
-                    ? "bg-primary text-primary-foreground"
+                    ? "bg-primary text-primary-foreground shadow-sm"
                     : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                 )}
                 onClick={() => setSidebarOpen(false)}
@@ -63,7 +63,7 @@ export function Sidebar() {
       </aside>
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-30 bg-black/50 md:hidden"
+          className="fixed inset-0 z-30 bg-black/40 backdrop-blur-sm md:hidden"
           onClick={() => setSidebarOpen(false)}
           aria-hidden
         />

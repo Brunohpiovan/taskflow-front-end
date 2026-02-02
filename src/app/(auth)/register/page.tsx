@@ -60,15 +60,15 @@ export default function RegisterPage() {
   };
 
   return (
-    <Card>
-      <CardHeader className="space-y-1 text-center">
-        <div className="flex justify-center mb-2">
-          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <LayoutDashboard className="h-6 w-6" />
+    <Card className="border-0 shadow-soft rounded-2xl overflow-hidden">
+      <CardHeader className="space-y-1 text-center pb-2">
+        <div className="flex justify-center mb-3">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-md">
+            <LayoutDashboard className="h-7 w-7" />
           </div>
         </div>
-        <CardTitle className="text-2xl">{APP_NAME}</CardTitle>
-        <CardDescription>Crie sua conta para começar a organizar suas tarefas.</CardDescription>
+        <CardTitle className="text-2xl font-bold tracking-tight">{APP_NAME}</CardTitle>
+        <CardDescription className="text-base">Crie sua conta para começar a organizar suas tarefas.</CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit(onSubmit)}>
         <CardContent className="space-y-4">
@@ -156,23 +156,23 @@ export default function RegisterPage() {
             <p className="text-sm text-destructive">{errors.acceptTerms.message}</p>
           )}
         </CardContent>
-        <CardFooter className="flex flex-col space-y-4">
-          <Button type="submit" className="w-full" isLoading={isLoading}>
+        <CardFooter className="flex flex-col space-y-4 pt-2">
+          <Button type="submit" className="w-full h-11 text-base font-medium" isLoading={isLoading}>
             Cadastrar
           </Button>
           <div className="relative w-full">
             <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t border-border" />
             </div>
-            <div className="relative flex justify-center text-xs uppercase text-muted-foreground">
-              <span className="bg-card px-2">ou continue com</span>
+            <div className="relative flex justify-center text-xs uppercase tracking-wider text-muted-foreground">
+              <span className="bg-card px-3">ou continue com</span>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-3">
             <Button
               type="button"
               variant="outline"
-              className="w-full gap-2"
+              className="w-full gap-2 h-11 border-2"
               onClick={() => (window.location.href = `${API_BASE_URL}/auth/google`)}
             >
               <GoogleIcon size={18} />
@@ -181,16 +181,16 @@ export default function RegisterPage() {
             <Button
               type="button"
               variant="outline"
-              className="w-full gap-2"
+              className="w-full gap-2 h-11 border-2"
               onClick={() => (window.location.href = `${API_BASE_URL}/auth/github`)}
             >
               <GitHubIcon size={18} />
               GitHub
             </Button>
           </div>
-          <p className="text-center text-sm text-muted-foreground">
+          <p className="text-center text-sm text-muted-foreground pt-1">
             Já tem conta?{" "}
-            <Link href="/login" className="text-primary underline-offset-4 hover:underline">
+            <Link href="/login" className="text-primary font-medium underline-offset-4 hover:underline">
               Entrar
             </Link>
           </p>

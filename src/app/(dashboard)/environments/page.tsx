@@ -87,7 +87,7 @@ export default function EnvironmentsPage() {
         title="Meus Ambientes"
         description="Organize seus quadros e tarefas por ambiente."
         action={
-          <Button onClick={openCreateForm}>
+          <Button onClick={openCreateForm} className="rounded-lg shadow-sm">
             <Plus className="mr-2 h-4 w-4" />
             Novo ambiente
           </Button>

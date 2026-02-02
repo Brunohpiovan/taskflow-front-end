@@ -64,15 +64,15 @@ function LoginContent() {
   };
 
   return (
-    <Card>
-      <CardHeader className="space-y-1 text-center">
-        <div className="flex justify-center mb-2">
-          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <LayoutDashboard className="h-6 w-6" />
+    <Card className="border-0 shadow-soft rounded-2xl overflow-hidden">
+      <CardHeader className="space-y-1 text-center pb-2">
+        <div className="flex justify-center mb-3">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-md">
+            <LayoutDashboard className="h-7 w-7" />
           </div>
         </div>
-        <CardTitle className="text-2xl">{APP_NAME}</CardTitle>
-        <CardDescription>Bem-vindo de volta. Entre na sua conta.</CardDescription>
+        <CardTitle className="text-2xl font-bold tracking-tight">{APP_NAME}</CardTitle>
+        <CardDescription className="text-base">Bem-vindo de volta. Entre na sua conta.</CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
         <CardContent className="space-y-4">
@@ -123,23 +123,23 @@ function LoginContent() {
             <p className="text-sm text-destructive text-center">{loginError}</p>
           )}
         </CardContent>
-        <CardFooter className="flex flex-col space-y-4">
-          <Button type="submit" className="w-full" isLoading={isLoading}>
+        <CardFooter className="flex flex-col space-y-4 pt-2">
+          <Button type="submit" className="w-full h-11 text-base font-medium" isLoading={isLoading}>
             Entrar
           </Button>
           <div className="relative w-full">
             <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t border-border" />
             </div>
-            <div className="relative flex justify-center text-xs uppercase text-muted-foreground">
-              <span className="bg-card px-2">ou continue com</span>
+            <div className="relative flex justify-center text-xs uppercase tracking-wider text-muted-foreground">
+              <span className="bg-card px-3">ou continue com</span>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-3">
             <Button
               type="button"
               variant="outline"
-              className="w-full gap-2"
+              className="w-full gap-2 h-11 border-2"
               onClick={() => (window.location.href = `${API_BASE_URL}/auth/google`)}
             >
               <GoogleIcon size={18} />
@@ -148,16 +148,16 @@ function LoginContent() {
             <Button
               type="button"
               variant="outline"
-              className="w-full gap-2"
+              className="w-full gap-2 h-11 border-2"
               onClick={() => (window.location.href = `${API_BASE_URL}/auth/github`)}
             >
               <GitHubIcon size={18} />
               GitHub
             </Button>
           </div>
-          <p className="text-center text-sm text-muted-foreground">
+          <p className="text-center text-sm text-muted-foreground pt-1">
             Não tem conta?{" "}
-            <Link href="/register" className="text-primary underline-offset-4 hover:underline">
+            <Link href="/register" className="text-primary font-medium underline-offset-4 hover:underline">
               Cadastre-se
             </Link>
           </p>
@@ -171,20 +171,20 @@ export default function LoginPage() {
   return (
     <Suspense
       fallback={
-        <Card>
+        <Card className="border-0 shadow-soft rounded-2xl">
           <CardHeader className="space-y-1 text-center">
             <div className="flex justify-center mb-2">
-              <div className="h-12 w-12 rounded-lg bg-muted animate-pulse" />
+              <div className="h-14 w-14 rounded-2xl bg-muted animate-pulse" />
             </div>
-            <div className="h-6 w-32 bg-muted rounded mx-auto animate-pulse" />
-            <div className="h-4 w-48 bg-muted rounded mx-auto animate-pulse" />
+            <div className="h-6 w-32 bg-muted rounded-lg mx-auto animate-pulse" />
+            <div className="h-4 w-48 bg-muted rounded-lg mx-auto animate-pulse" />
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="h-10 bg-muted rounded animate-pulse" />
-            <div className="h-10 bg-muted rounded animate-pulse" />
+            <div className="h-10 bg-muted rounded-lg animate-pulse" />
+            <div className="h-10 bg-muted rounded-lg animate-pulse" />
           </CardContent>
           <CardFooter>
-            <div className="h-10 w-full bg-muted rounded animate-pulse" />
+            <div className="h-11 w-full bg-muted rounded-lg animate-pulse" />
           </CardFooter>
         </Card>
       }

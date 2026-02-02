@@ -123,10 +123,10 @@ export default function MeusDadosPage() {
         title="Meus Dados"
         description="Visualize e altere seus dados pessoais. Deixe a senha em branco para não alterá-la."
       />
-      <Card>
-        <CardHeader className="space-y-1">
-          <div className="flex items-center gap-2">
-            <Avatar className="h-14 w-14 rounded-lg">
+      <Card className="overflow-hidden">
+        <CardHeader className="space-y-1 pb-2">
+          <div className="flex items-center gap-4">
+            <Avatar className="h-14 w-14 rounded-xl border-2 border-border/50">
               <AvatarImage src={user?.avatar} alt={user?.name} />
               <AvatarFallback className="rounded-lg bg-primary/10 text-primary">
                 <User className="h-7 w-7" />
