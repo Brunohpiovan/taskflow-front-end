@@ -2,7 +2,7 @@
 
 import { useDndContext, useDroppable } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { ListTodo, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { ListTodo, MoreHorizontal, Pencil, Trash2, Plus } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -143,6 +143,10 @@ export const BoardColumn = memo(function BoardColumn({ board, cards }: BoardColu
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem onClick={() => setCardFormOpen(true)}>
+                <Plus className="mr-2 h-4 w-4" />
+                Adicionar card
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => handleEditNameOpen(true)}>
                 <Pencil className="mr-2 h-4 w-4" />
                 Editar nome
