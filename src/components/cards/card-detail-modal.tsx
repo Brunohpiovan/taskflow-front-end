@@ -5,7 +5,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { CARD_DESCRIPTION_MAX_LENGTH } from "@/lib/constants";
 import {
   Dialog,
   DialogContent,
@@ -32,22 +34,29 @@ export function CardDetailModal({
   onUpdate,
   onDelete,
 }: CardDetailModalProps) {
+  const initialDescription = (card.description ?? "").slice(0, CARD_DESCRIPTION_MAX_LENGTH);
   const {
     register,
     handleSubmit,
     reset,
+    watch,
     formState: { errors, isDirty, isSubmitting },
   } = useForm<CardFormData>({
     resolver: zodResolver(cardSchema),
     defaultValues: {
       title: card.title,
-      description: card.description ?? "",
+      description: initialDescription,
     },
   });
+  const descriptionValue = watch("description", initialDescription);
+  const descriptionLength = (descriptionValue ?? "").length;
 
   useEffect(() => {
     if (open) {
-      reset({ title: card.title, description: card.description ?? "" });
+      reset({
+        title: card.title,
+        description: (card.description ?? "").slice(0, CARD_DESCRIPTION_MAX_LENGTH),
+      });
     }
   }, [open, card.id, card.title, card.description, reset]);
 
@@ -77,11 +86,20 @@ export function CardDetailModal({
           </div>
           <div className="space-y-2">
             <Label htmlFor="card-description">Descrição (opcional)</Label>
-            <Input
+            <Textarea
               id="card-description"
               placeholder="Descrição"
+              rows={3}
+              maxLength={CARD_DESCRIPTION_MAX_LENGTH}
+              className="resize-none"
               {...register("description")}
             />
+            <p className="text-xs text-muted-foreground text-right">
+              {descriptionLength}/{CARD_DESCRIPTION_MAX_LENGTH}
+            </p>
+            {errors.description && (
+              <p className="text-sm text-destructive">{errors.description.message}</p>
+            )}
           </div>
           <DialogFooter className="flex flex-row justify-between sm:justify-between">
             <Button

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import {
   Dialog,
@@ -12,6 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { CARD_DESCRIPTION_MAX_LENGTH } from "@/lib/constants";
 
 interface CardFormProps {
   open: boolean;
@@ -43,9 +45,14 @@ export function CardForm({
       setError("Título é obrigatório.");
       return;
     }
+    const desc = description.trim().slice(0, CARD_DESCRIPTION_MAX_LENGTH) || undefined;
+    if (description.length > CARD_DESCRIPTION_MAX_LENGTH) {
+      setError(`A descrição deve ter no máximo ${CARD_DESCRIPTION_MAX_LENGTH} caracteres.`);
+      return;
+    }
     setIsSubmitting(true);
     try {
-      await onSubmit(trimmed, description.trim() || undefined);
+      await onSubmit(trimmed, desc);
       setCardTitle("");
       setDescription("");
       onOpenChange(false);
@@ -87,12 +94,18 @@ export function CardForm({
           </div>
           <div className="space-y-2">
             <Label htmlFor="card-description">Descrição (opcional)</Label>
-            <Input
+            <Textarea
               id="card-description"
               placeholder="Detalhes da tarefa"
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={(e) => setDescription(e.target.value.slice(0, CARD_DESCRIPTION_MAX_LENGTH))}
+              maxLength={CARD_DESCRIPTION_MAX_LENGTH}
+              rows={3}
+              className="resize-none"
             />
+            <p className="text-xs text-muted-foreground text-right">
+              {description.length}/{CARD_DESCRIPTION_MAX_LENGTH}
+            </p>
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>

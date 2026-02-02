@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { CARD_DESCRIPTION_MAX_LENGTH } from "@/lib/constants";
 
 export const loginSchema = z.object({
   email: z
@@ -38,7 +39,11 @@ export const boardSchema = z.object({
 
 export const cardSchema = z.object({
   title: z.string().min(1, "Título é obrigatório").min(1, "Título deve ter no mínimo 1 caractere"),
-  description: z.string().optional(),
+  description: z
+    .string()
+    .max(CARD_DESCRIPTION_MAX_LENGTH, `A descrição deve ter no máximo ${CARD_DESCRIPTION_MAX_LENGTH} caracteres`)
+    .optional()
+    .or(z.literal("")),
   labels: z.array(z.string()).optional(),
   dueDate: z.string().optional(),
 });
