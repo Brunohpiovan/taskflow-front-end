@@ -20,6 +20,8 @@ import { loginSchema, type LoginFormData } from "@/lib/validations";
 import { useAuthStore } from "@/stores/auth.store";
 import { APP_NAME } from "@/lib/constants";
 import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
+
 
 export default function LoginPage() {
   const router = useRouter();
@@ -57,7 +59,7 @@ export default function LoginPage() {
         <CardTitle className="text-2xl">{APP_NAME}</CardTitle>
         <CardDescription>Bem-vindo de volta. Entre na sua conta.</CardDescription>
       </CardHeader>
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit)} noValidate>
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
@@ -92,9 +94,9 @@ export default function LoginPage() {
                 aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
               >
                 {showPassword ? (
-                  <span className="text-xs text-muted-foreground">Ocultar</span>
+                  <EyeOff className="h-4 w-4 text-muted-foreground" />
                 ) : (
-                  <span className="text-xs text-muted-foreground">Mostrar</span>
+                  <Eye className="h-4 w-4 text-muted-foreground" />
                 )}
               </Button>
             </div>
