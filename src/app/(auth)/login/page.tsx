@@ -21,6 +21,8 @@ import { loginSchema, type LoginFormData } from "@/lib/validations";
 import { useAuthStore } from "@/stores/auth.store";
 import { APP_NAME, API_BASE_URL } from "@/lib/constants";
 import { Eye, EyeOff } from "lucide-react";
+import { GoogleIcon } from "@/components/icons/google-icon";
+import { GitHubIcon } from "@/components/icons/github-icon";
 
 function LoginContent() {
   const router = useRouter();
@@ -137,17 +139,19 @@ function LoginContent() {
             <Button
               type="button"
               variant="outline"
-              className="w-full"
+              className="w-full gap-2"
               onClick={() => (window.location.href = `${API_BASE_URL}/auth/google`)}
             >
+              <GoogleIcon size={18} />
               Google
             </Button>
             <Button
               type="button"
               variant="outline"
-              className="w-full"
+              className="w-full gap-2"
               onClick={() => (window.location.href = `${API_BASE_URL}/auth/github`)}
             >
+              <GitHubIcon size={18} />
               GitHub
             </Button>
           </div>
