@@ -68,7 +68,7 @@ export function CardDetailModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="sm:max-w-xl sm:w-full max-h-[90vh] overflow-y-auto"
+        className="max-h-[90vh] overflow-y-auto"
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <DialogHeader>
