@@ -6,8 +6,8 @@ export interface Card {
   boardId: string;
   labels?: string[];
   dueDate?: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface CreateCardDTO {
@@ -30,4 +30,11 @@ export interface UpdateCardDTO {
 export interface MoveCardDTO {
   targetBoardId: string;
   newPosition: number;
+}
+
+/** Resposta mínima do PATCH /cards/:id/move */
+export interface MoveCardResponse {
+  id: string;
+  boardId: string;
+  position: number;
 }

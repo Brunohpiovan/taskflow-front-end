@@ -5,8 +5,8 @@ export interface Board {
   position: number;
   environmentId: string;
   cardsCount?: number;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface CreateBoardDTO {

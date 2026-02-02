@@ -4,6 +4,7 @@ import type {
   CreateCardDTO,
   UpdateCardDTO,
   MoveCardDTO,
+  MoveCardResponse,
 } from "@/types/card.types";
 
 export const cardsService = {
@@ -22,8 +23,8 @@ export const cardsService = {
     return data;
   },
 
-  move: async (id: string, payload: MoveCardDTO): Promise<Card> => {
-    const { data } = await api.patch<Card>(`/cards/${id}/move`, payload);
+  move: async (id: string, payload: MoveCardDTO): Promise<MoveCardResponse> => {
+    const { data } = await api.patch<MoveCardResponse>(`/cards/${id}/move`, payload);
     return data;
   },
 

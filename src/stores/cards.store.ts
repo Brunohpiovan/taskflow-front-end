@@ -134,7 +134,7 @@ export const useCardsStore = create<CardsState>((set, get) => ({
         const toList = newCards[toBoardId] ?? [];
         const idx = toList.findIndex((c) => c.id === cardId);
         if (idx >= 0) {
-          toList[idx] = updated;
+          toList[idx] = { ...toList[idx], ...updated };
           newCards[toBoardId] = toList;
         }
         return { cards: newCards };

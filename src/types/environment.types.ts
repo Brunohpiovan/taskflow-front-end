@@ -6,8 +6,8 @@ export interface Environment {
   icon?: string;
   boardsCount?: number;
   cardsCount?: number;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface CreateEnvironmentDTO {
