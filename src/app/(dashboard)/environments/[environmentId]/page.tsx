@@ -122,9 +122,14 @@ export default function EnvironmentBoardsPage() {
       if (newIndex < 0) newIndex = targetList.length;
     }
 
-    if (fromBoardId === targetBoardId) return;
+    if (fromBoardId === targetBoardId) {
+      const fromList = cardsByBoard[fromBoardId] ?? [];
+      const fromIdx = fromList.findIndex((c) => c.id === cardId);
+      if (fromIdx === newIndex) return;
+    }
+
     moveCard(cardId, fromBoardId, targetBoardId, newIndex).then(() => {
-      toast.success("Card movido.");
+      toast.success(fromBoardId === targetBoardId ? "Posição atualizada." : "Card movido.");
     }).catch(() => {});
   };
 

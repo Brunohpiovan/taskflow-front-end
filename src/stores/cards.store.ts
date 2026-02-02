@@ -111,8 +111,16 @@ export const useCardsStore = create<CardsState>((set, get) => ({
     const card = fromCards.find((c) => c.id === cardId);
     if (!card) return;
 
+    const sameBoard = fromBoardId === toBoardId;
+
     set((state) => {
       const newFrom = state.cards[fromBoardId]?.filter((c) => c.id !== cardId) ?? [];
+      if (sameBoard) {
+        const insertIndex = Math.min(newIndex, newFrom.length);
+        const newTo = [...newFrom];
+        newTo.splice(insertIndex, 0, { ...card, boardId: toBoardId });
+        return { cards: { ...state.cards, [fromBoardId]: newTo } };
+      }
       const newTo = [...(state.cards[toBoardId] ?? [])];
       newTo.splice(newIndex, 0, { ...card, boardId: toBoardId });
       return {
