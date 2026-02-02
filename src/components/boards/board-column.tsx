@@ -102,7 +102,7 @@ export function BoardColumn({ board, cards }: BoardColumnProps) {
     <div
       ref={setNodeRef}
       className={
-        "shrink-0 w-[288px] rounded-xl border bg-muted/20 transition-all duration-200 min-h-[320px] shadow-sm " +
+        "shrink-0 w-[288px] rounded-xl border bg-muted/20 transition-all duration-200 min-h-[620px] max-h-[630px] shadow-sm " +
         (isOver
           ? "ring-2 ring-primary/60 bg-primary/5 border-primary/40 shadow-lg shadow-primary/5"
           : "border-border/80 hover:border-border hover:bg-muted/30")

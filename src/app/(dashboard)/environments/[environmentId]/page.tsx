@@ -177,55 +177,57 @@ export default function EnvironmentBoardsPage() {
         }
       />
 
-      {isLoading ? (
-        <div className="flex gap-5 overflow-x-auto pb-6 pt-1">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="shrink-0 w-[288px] rounded-xl border border-border/50 bg-card/50 p-4">
-              <div className="flex items-center gap-2 pb-3">
-                <Skeleton className="h-9 w-9 rounded-lg" />
-                <div className="space-y-1">
-                  <Skeleton className="h-4 w-24" />
-                  <Skeleton className="h-3 w-16" />
+      {/* Área dos quadros com margem lateral reduzida */}
+      <div className="-mx-2 sm:-mx-4 md:-mx-6 lg:-mx-8">
+        <div className="px-1">
+          {isLoading ? (
+            <div className="flex gap-4 overflow-x-auto pb-4">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="shrink-0 w-[288px] rounded-lg border bg-card p-4">
+                  <div className="flex items-center gap-2 pb-3">
+                    <Skeleton className="h-9 w-9 rounded-lg" />
+                    <div className="space-y-1">
+                      <Skeleton className="h-4 w-24" />
+                      <Skeleton className="h-3 w-16" />
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <Skeleton className="h-16 w-full rounded-lg" />
+                    <Skeleton className="h-16 w-full rounded-lg" />
+                    <Skeleton className="h-9 w-full rounded-lg" />
+                  </div>
                 </div>
-              </div>
-              <div className="space-y-3">
-                <Skeleton className="h-20 w-full rounded-xl" />
-                <Skeleton className="h-20 w-full rounded-xl" />
-                <Skeleton className="h-10 w-full rounded-lg" />
-              </div>
+              ))}
             </div>
-          ))}
-        </div>
-      ) : boards.length === 0 ? (
-        <BoardEmptyState onCreateClick={() => setFormOpen(true)} />
-      ) : (
-        <DndContext
-          sensors={sensors}
-          onDragStart={handleDragStart}
-          onDragEnd={handleDragEnd}
-        >
-          <div className="flex gap-5 overflow-x-auto overflow-y-hidden pb-6 pt-1 min-h-[420px] scroll-smooth">
-            {boards.map((board) => (
-              <BoardColumn
-                key={board.id}
-                board={board}
-                cards={cardsByBoard[board.id] ?? []}
-              />
-            ))}
-          </div>
-
-          <DragOverlay
-            dropAnimation={dropAnimation}
-            className="z-[9999]"
-          >
-            {activeCard ? (
-              <div className="w-[288px] cursor-grabbing rotate-1">
-                <TaskCardPreview card={activeCard} />
+          ) : boards.length === 0 ? (
+            <BoardEmptyState onCreateClick={() => setFormOpen(true)} />
+          ) : (
+            <DndContext
+              sensors={sensors}
+              onDragStart={handleDragStart}
+              onDragEnd={handleDragEnd}
+            >
+              <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 min-h-[360px]">
+                {boards.map((board) => (
+                  <BoardColumn
+                    key={board.id}
+                    board={board}
+                    cards={cardsByBoard[board.id] ?? []}
+                  />
+                ))}
               </div>
-            ) : null}
-          </DragOverlay>
-        </DndContext>
-      )}
+
+              <DragOverlay dropAnimation={dropAnimation} className="z-[9999]">
+                {activeCard ? (
+                  <div className="w-[300px] cursor-grabbing">
+                    <TaskCardPreview card={activeCard} />
+                  </div>
+                ) : null}
+              </DragOverlay>
+            </DndContext>
+          )}
+        </div>
+      </div>
 
       <BoardForm
         open={formOpen}
