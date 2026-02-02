@@ -30,7 +30,7 @@ export function Header() {
   const handleMeusDados = () => {
     router.push("/meus-dados");
   };
-  
+
 
   const initials = user?.name
     ?.split(" ")
@@ -87,7 +87,7 @@ export function Header() {
               </div>
             </div>
             <DropdownMenuItem onClick={handleMeusDados} className="cursor-pointer">
-              Meus Dados  
+              Meus Dados
             </DropdownMenuItem>
             <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive">
               Sair

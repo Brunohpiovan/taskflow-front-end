@@ -59,12 +59,12 @@ export default function EnvironmentBoardsPage() {
   );
 
   useEffect(() => {
-    fetchEnvironments().catch(() => {});
+    fetchEnvironments().catch(() => { });
   }, [fetchEnvironments]);
 
   useEffect(() => {
     if (environmentId) {
-      fetchBoards(environmentId).catch(() => {});
+      fetchBoards(environmentId).catch(() => { });
       return () => clearBoards();
     }
   }, [environmentId, fetchBoards, clearBoards]);
@@ -74,7 +74,7 @@ export default function EnvironmentBoardsPage() {
   }, [environment, setCurrentEnvironment]);
 
   useEffect(() => {
-    boardIds.forEach((id) => fetchCards(id).catch(() => {}));
+    boardIds.forEach((id) => fetchCards(id).catch(() => { }));
   }, [boardIds.join(","), fetchCards]);
 
   const activeCard = useMemo(() => {
@@ -130,7 +130,7 @@ export default function EnvironmentBoardsPage() {
 
     moveCard(cardId, fromBoardId, targetBoardId, newIndex).then(() => {
       toast.success(fromBoardId === targetBoardId ? "Posição atualizada." : "Card movido.");
-    }).catch(() => {});
+    }).catch(() => { });
   };
 
   const dropAnimation = {

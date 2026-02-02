@@ -68,15 +68,15 @@ export function CardDetailModal({
         title: data.title,
         description: data.description,
       });
-  
+
       reset(data);
-    
+
       onOpenChange(false);
     } catch (error) {
       toast.error("Erro ao atualizar o card. Tente novamente.");
     }
   };
-  
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
