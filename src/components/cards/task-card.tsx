@@ -15,7 +15,7 @@ import { CardDetailModal } from "@/components/cards/card-detail-modal";
 import { useCardsStore } from "@/stores/cards.store";
 import { cn } from "@/lib/utils";
 import type { Card as CardType } from "@/types/card.types";
-import { useState } from "react";
+import { useState, memo } from "react";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { toast } from "sonner";
 
@@ -37,7 +37,7 @@ interface TaskCardProps {
   card: CardType;
 }
 
-export function TaskCard({ card }: TaskCardProps) {
+export const TaskCard = memo(function TaskCard({ card }: TaskCardProps) {
   const [detailOpen, setDetailOpen] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
 
@@ -118,30 +118,42 @@ export function TaskCard({ card }: TaskCardProps) {
         </CardContent>
       </Card>
 
-      <CardDetailModal
-        card={card}
-        open={detailOpen}
-        onOpenChange={setDetailOpen}
-        onUpdate={async (data) => {
-          await updateCard(card.id, data);
-          toast.success("Card atualizado.");
-        }}
-        onDelete={() => {
-          setDetailOpen(false);
-          setConfirmDeleteOpen(true);
-        }}
-      />
+      {detailOpen && (
+        <CardDetailModal
+          card={card}
+          open={detailOpen}
+          onOpenChange={setDetailOpen}
+          onUpdate={async (data) => {
+            await updateCard(card.id, data);
+            toast.success("Card atualizado.");
+          }}
+          onDelete={() => {
+            setDetailOpen(false);
+            setConfirmDeleteOpen(true);
+          }}
+        />
+      )}
 
-      <ConfirmDialog
-        open={confirmDeleteOpen}
-        onOpenChange={setConfirmDeleteOpen}
-        title="Excluir card"
-        description="Tem certeza que deseja excluir este card? Esta ação não pode ser desfeita."
-        confirmLabel="Excluir"
-        cancelLabel="Cancelar"
-        variant="destructive"
-        onConfirm={handleDelete}
-      />
+      {confirmDeleteOpen && (
+        <ConfirmDialog
+          open={confirmDeleteOpen}
+          onOpenChange={setConfirmDeleteOpen}
+          title="Excluir card"
+          description="Tem certeza que deseja excluir este card? Esta ação não pode ser desfeita."
+          confirmLabel="Excluir"
+          cancelLabel="Cancelar"
+          variant="destructive"
+          onConfirm={handleDelete}
+        />
+      )}
     </>
   );
-}
+}, (prev: TaskCardProps, next: TaskCardProps) => {
+  return (
+    prev.card.id === next.card.id &&
+    prev.card.title === next.card.title &&
+    prev.card.description === next.card.description &&
+    prev.card.position === next.card.position &&
+    prev.card.boardId === next.card.boardId
+  );
+});
