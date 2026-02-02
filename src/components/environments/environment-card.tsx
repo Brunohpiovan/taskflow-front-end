@@ -43,13 +43,13 @@ export function EnvironmentCard({ environment, onEdit, onDelete }: EnvironmentCa
               style={
                 environment.color
                   ? { backgroundColor: `${environment.color}18`, color: environment.color }
-                  : { backgroundColor: "hsl(var(--primary) / 0.12)", color: "hsl(var(--primary))" }
+                  : { backgroundColor: "hsl(var(--priicommary) / 0.12)", color: "hsl(var(--icon))" }
               }
             >
               <LayoutGrid className="h-6 w-6" strokeWidth={2} />
             </div>
             <div className="min-w-0 flex-1">
-              <h3 className="font-semibold text-base truncate text-foreground group-hover:text-primary transition-colors">
+              <h3 className="font-semibold text-base truncate text-foreground group-hover:text-icon transition-colors">
                 {environment.name}
               </h3>
               {environment.description ? (

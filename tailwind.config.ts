@@ -16,6 +16,7 @@ const config: Config = {
       },
       colors: {
         icon: "hsl(var(--icon))",
+        cardTask: "hsl(var(--card-task))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {

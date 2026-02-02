@@ -38,7 +38,7 @@ export default function DashboardPage() {
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Ambientes</CardTitle>
             <div className="rounded-lg bg-primary/10 p-2">
-              <FolderKanban className="h-4 w-4 text-primary" />
+              <FolderKanban className="h-4 w-4 text-icon" />
             </div>
           </CardHeader>
           <CardContent>
@@ -50,7 +50,7 @@ export default function DashboardPage() {
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Tarefas</CardTitle>
             <div className="rounded-lg bg-primary/10 p-2">
-              <ListTodo className="h-4 w-4 text-primary" />
+              <ListTodo className="h-4 w-4 text-icon" />
             </div>
           </CardHeader>
           <CardContent>

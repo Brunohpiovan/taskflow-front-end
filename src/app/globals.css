@@ -25,6 +25,8 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
     --icon: 221 70% 45%;
+    --card-task: 210 12% 92%;
+
   }
 
   .dark {
@@ -49,6 +51,8 @@
     --popover: 222 47% 8%;
     --popover-foreground: 210 40% 98%;
     --icon: 201 70% 45%;
+    --card-task: 220 46% 9%;
+
   }
 }
 

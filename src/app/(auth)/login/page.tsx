@@ -157,7 +157,7 @@ function LoginContent() {
           </div>
           <p className="text-center text-sm text-muted-foreground pt-1">
             Não tem conta?{" "}
-            <Link href="/register" className="text-primary font-medium underline-offset-4 hover:underline">
+            <Link href="/register" className="text-icon font-medium underline-offset-4 hover:underline">
               Cadastre-se
             </Link>
           </p>

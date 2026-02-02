@@ -71,7 +71,7 @@ export function TaskCard({ card }: TaskCardProps) {
         ref={setNodeRef}
         style={style}
         className={cn(
-          "group cursor-grab active:cursor-grabbing rounded-xl border bg-card shadow-sm transition-all duration-200 hover:border-border/80 hover:shadow-md",
+          "group cursor-grab active:cursor-grabbing rounded-xl border bg-cardTask shadow-sm transition-all duration-200 hover:border-border/80 hover:shadow-md",
           isDragging && "opacity-0 pointer-events-none"
         )}
         {...attributes}
