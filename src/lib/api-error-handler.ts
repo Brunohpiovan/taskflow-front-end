@@ -30,6 +30,13 @@ export function handleApiError(error: unknown): void {
     case 404:
       toast.error("Recurso não encontrado.");
       break;
+    case 429:
+      if (isLoginRequest) {
+        toast.error("Muitas tentativas de login. Aguarde alguns minutos e tente novamente.");
+      } else {
+        toast.error("Muitas requisições. Aguarde um momento e tente novamente.");
+      }
+      break;
     case 500:
       toast.error("Erro no servidor. Tente novamente mais tarde.");
       break;

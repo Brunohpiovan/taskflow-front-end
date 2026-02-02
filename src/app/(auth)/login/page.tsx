@@ -45,8 +45,13 @@ export default function LoginPage() {
       await login(data);
       router.push("/dashboard");
       router.refresh();
-    } catch {
-      setLoginError("Email ou senha incorretos. Verifique e tente novamente.");
+    } catch (err: unknown) {
+      const status = (err as { response?: { status?: number } })?.response?.status;
+      setLoginError(
+        status === 429
+          ? "Muitas tentativas de login. Aguarde alguns minutos e tente novamente."
+          : "Email ou senha incorretos. Verifique e tente novamente."
+      );
     }
   };
 
@@ -106,6 +111,9 @@ export default function LoginPage() {
               <p className="text-sm text-destructive">{errors.password.message}</p>
             )}
           </div>
+          {loginError && (
+            <p className="text-sm text-destructive text-center">{loginError}</p>
+          )}
         </CardContent>
         <CardFooter className="flex flex-col space-y-4">
           <Button type="submit" className="w-full" isLoading={isLoading}>
