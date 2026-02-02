@@ -37,8 +37,11 @@ api.interceptors.response.use(
   },
   (error) => {
     if (error.response?.status === 401 && typeof window !== "undefined") {
-      useAuthStore.getState().logout();
-      window.location.href = "/login";
+      const isLoginRequest = String(error.config?.url ?? "").includes("login");
+      if (!isLoginRequest) {
+        useAuthStore.getState().logout();
+        window.location.href = "/login";
+      }
     }
     return Promise.reject(error);
   }

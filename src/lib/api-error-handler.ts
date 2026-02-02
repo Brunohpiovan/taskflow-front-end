@@ -11,13 +11,18 @@ export function handleApiError(error: unknown): void {
   const data = error.response?.data as ApiError | undefined;
   const message = data?.message ?? "Erro inesperado";
   const status = error.response?.status;
+  const isLoginRequest = String(error.config?.url ?? "").includes("login");
 
   switch (status) {
     case 400:
       toast.error(`Dados inválidos: ${message}`);
       break;
     case 401:
-      toast.error("Sessão expirada. Faça login novamente.");
+      if (isLoginRequest) {
+        toast.error("Email ou senha incorretos. Verifique e tente novamente.");
+      } else {
+        toast.error("Sessão expirada. Faça login novamente.");
+      }
       break;
     case 403:
       toast.error("Você não tem permissão para esta ação.");

@@ -28,6 +28,7 @@ export default function LoginPage() {
   const login = useAuthStore((s) => s.login);
   const isLoading = useAuthStore((s) => s.isLoading);
   const [showPassword, setShowPassword] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
 
   const {
     register,
@@ -39,12 +40,13 @@ export default function LoginPage() {
   });
 
   const onSubmit = async (data: LoginFormData) => {
+    setLoginError(null);
     try {
       await login(data);
       router.push("/dashboard");
       router.refresh();
     } catch {
-      // handleApiError já mostra o toast
+      setLoginError("Email ou senha incorretos. Verifique e tente novamente.");
     }
   };
 
