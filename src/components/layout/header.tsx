@@ -51,7 +51,12 @@ export function Header() {
         <Menu className="h-5 w-5" />
       </Button>
       <div className="flex-1">
-        <h1 className="text-lg font-bold tracking-tight text-foreground md:text-xl">{APP_NAME}</h1>
+        <h1
+          onClick={() => router.push("/dashboard")}
+          className="text-lg font-bold tracking-tight text-foreground md:text-xl cursor-pointer hover:opacity-80 transition-opacity"
+        >
+          {APP_NAME}
+        </h1>
       </div>
       <div className="flex items-center gap-2">
         <Button
