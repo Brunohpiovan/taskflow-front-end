@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { CARD_DESCRIPTION_MAX_LENGTH } from "@/lib/constants";
+import { Trash } from "lucide-react";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -61,9 +63,20 @@ export function CardDetailModal({
   }, [open, card.id, card.title, card.description, reset]);
 
   const onSubmit = async (data: CardFormData) => {
-    await onUpdate({ title: data.title, description: data.description });
-    reset(data);
+    try {
+      await onUpdate({
+        title: data.title,
+        description: data.description,
+      });
+  
+      reset(data);
+    
+      onOpenChange(false);
+    } catch (error) {
+      toast.error("Erro ao atualizar o card. Tente novamente.");
+    }
   };
+  
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -110,7 +123,7 @@ export function CardDetailModal({
               variant="destructive"
               onClick={onDelete}
             >
-              Excluir
+              <Trash className="h-4 w-4" />
             </Button>
             <div className="flex gap-2">
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
