@@ -187,6 +187,7 @@ export const BoardColumn = memo(function BoardColumn({ board, cards }: BoardColu
           onOpenChange={setCardFormOpen}
           onSubmit={handleCreateCard}
           boardId={board.id}
+          environmentId={board.environmentId}
         />
       )}
 

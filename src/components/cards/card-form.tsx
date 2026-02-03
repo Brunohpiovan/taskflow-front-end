@@ -25,7 +25,9 @@ interface CardFormProps {
   title?: string;
   defaultTitle?: string;
   defaultDescription?: string;
+
   boardId: string;
+  environmentId: string;
 }
 
 export function CardForm({
@@ -36,6 +38,7 @@ export function CardForm({
   defaultTitle = "",
   defaultDescription = "",
   boardId,
+  environmentId,
 }: CardFormProps) {
   const [cardTitle, setCardTitle] = useState(defaultTitle);
   const [description, setDescription] = useState(defaultDescription);
@@ -158,7 +161,7 @@ export function CardForm({
           </div>
           <div className="space-y-2">
             <LabelManager
-              boardId={boardId}
+              environmentId={environmentId}
               selectedLabels={selectedLabels}
               onChange={handleLabelChange}
             />
