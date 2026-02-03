@@ -9,6 +9,7 @@ export interface Card {
   id: string;
   title: string;
   description?: string;
+  completed: boolean;
   position: number;
   boardId: string;
   labels?: Label[];
@@ -32,6 +33,7 @@ export interface UpdateCardDTO {
   position?: number;
   labels?: string[]; // IDs of labels
   dueDate?: string;
+  completed?: boolean;
 }
 
 export interface MoveCardDTO {

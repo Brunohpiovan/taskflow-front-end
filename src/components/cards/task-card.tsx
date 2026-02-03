@@ -2,7 +2,7 @@
 
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { MoreHorizontal, Pencil, Trash2, Calendar } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash2, Calendar, Check } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,13 +18,23 @@ import type { Card as CardType } from "@/types/card.types";
 import { useState, memo } from "react";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { toast } from "sonner";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 /** Apenas a aparência do card, para exibir no DragOverlay (sem sortable/dropdown) */
 export function TaskCardPreview({ card }: { card: CardType }) {
   return (
     <Card className="cursor-grabbing w-full rounded-xl border bg-card shadow-2xl ring-2 ring-primary/30">
       <CardContent className="p-3.5">
-        <p className="font-medium text-sm truncate text-foreground">{card.title}</p>
+        <div className="flex items-start gap-2">
+          {card.completed && (
+            <div className="h-4 w-4 rounded border bg-primary border-primary flex items-center justify-center shrink-0 mt-0.5">
+              <Check className="h-3 w-3 text-primary-foreground" />
+            </div>
+          )}
+          <div className="flex-1 min-w-0">
+            <p className={cn("font-medium text-sm truncate text-foreground", card.completed && "line-through text-muted-foreground")}>{card.title}</p>
+          </div>
+        </div>
         {card.description && (
           <p className="text-xs text-muted-foreground line-clamp-2 mt-1 leading-relaxed">{card.description}</p>
         )}
@@ -66,19 +76,56 @@ export const TaskCard = memo(function TaskCard({ card }: TaskCardProps) {
     setConfirmDeleteOpen(false);
   };
 
+  const handleToggleComplete = async () => {
+    try {
+      await updateCard(card.id, { completed: !card.completed });
+      toast.success(card.completed ? "Card reaberto." : "Card concluído!");
+    } catch {
+      toast.error("Erro ao atualizar status.");
+    }
+  };
+
   return (
     <>
       <Card
         ref={setNodeRef}
         style={style}
         className={cn(
-          "group cursor-grab active:cursor-grabbing rounded-xl border bg-cardTask shadow-sm transition-all duration-200 hover:border-border/80 hover:shadow-md",
-          isDragging && "opacity-0 pointer-events-none"
+          "group rounded-xl border bg-cardTask shadow-sm transition-all duration-200 hover:border-border/80 hover:shadow-md",
+          isDragging && "opacity-0 pointer-events-none",
+          card.completed && "opacity-60 bg-muted/40"
         )}
         {...attributes}
         {...listeners}
       >
-        <CardContent className="p-3.5 flex flex-row items-start justify-between gap-2">
+        <CardContent className="p-3.5 flex flex-row items-start gap-2">
+          <div className={cn(
+            "flex flex-col gap-1 pt-0.5 overflow-hidden transition-all duration-300 ease-in-out",
+            card.completed ? "w-5 opacity-100" : "w-0 opacity-0 group-hover:w-5 group-hover:opacity-100"
+          )}>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    className={cn(
+                      "h-4 w-4 rounded border flex items-center justify-center transition-all mt-0.5 shrink-0",
+                      card.completed ? "bg-primary border-primary text-primary-foreground" : "border-muted-foreground/30 hover:border-primary/50"
+                    )}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleToggleComplete();
+                    }}
+                    onPointerDown={(e) => e.stopPropagation()}
+                  >
+                    {card.completed && <Check className="h-3 w-3" />}
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{card.completed ? "Reabrir card" : "Marcar como concluído"}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
           <button
             type="button"
             className="flex-1 text-left min-w-0 rounded-md -m-1 p-1 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
@@ -96,7 +143,7 @@ export const TaskCard = memo(function TaskCard({ card }: TaskCardProps) {
                 ))}
               </div>
             )}
-            <p className="font-medium text-sm truncate text-foreground">{card.title}</p>
+            <p className={cn("font-medium text-sm truncate text-foreground", card.completed && "line-through text-muted-foreground")}>{card.title}</p>
             {card.description ? (
               <p className="text-xs text-muted-foreground line-clamp-2 mt-1 leading-relaxed">{card.description}</p>
             ) : (
@@ -104,11 +151,12 @@ export const TaskCard = memo(function TaskCard({ card }: TaskCardProps) {
             )}
             {card.dueDate && (() => {
               const date = new Date(card.dueDate);
-              const isOverdue = new Date() > date;
+              const isOverdue = new Date() > date && !card.completed;
               return (
                 <div className={cn(
                   "flex items-center gap-1.5 mt-2 text-xs",
-                  isOverdue ? "text-destructive font-medium" : "text-muted-foreground"
+                  isOverdue ? "text-destructive font-medium" : "text-muted-foreground",
+                  card.completed && "opacity-70"
                 )}>
                   <Calendar className="h-3 w-3" />
                   <span>
@@ -207,6 +255,7 @@ export const TaskCard = memo(function TaskCard({ card }: TaskCardProps) {
     prev.card.position === next.card.position &&
     prev.card.boardId === next.card.boardId &&
     prev.card.dueDate === next.card.dueDate &&
+    prev.card.completed === next.card.completed &&
     JSON.stringify(prev.card.labels) === JSON.stringify(next.card.labels)
   );
 });

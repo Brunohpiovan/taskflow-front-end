@@ -44,7 +44,8 @@ export const cardSchema = z.object({
     .or(z.literal("")),
   labels: z.array(z.string()).optional(),
   dueDate: z.string().optional(),
-  boardId: z.string().optional(),
+  completed: z.boolean().optional(),
+  boardId: z.string().min(1, "Quadro é obrigatório"),
 });
 
 export const profileSchema = z

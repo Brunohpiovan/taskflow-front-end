@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { CARD_DESCRIPTION_MAX_LENGTH } from "@/lib/constants";
 import { Trash } from "lucide-react";
 import { toast } from "sonner";
@@ -37,7 +38,7 @@ interface CardDetailModalProps {
   card: CardType;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onUpdate: (data: { title?: string; description?: string; boardId?: string; dueDate?: string; labels?: string[] }) => Promise<void>;
+  onUpdate: (data: { title?: string; description?: string; boardId?: string; dueDate?: string; labels?: string[]; completed?: boolean }) => Promise<void>;
   onDelete: () => void;
 }
 
@@ -68,6 +69,7 @@ export function CardDetailModal({
       title: card.title,
       description: initialDescription,
       boardId: card.boardId,
+      completed: card.completed,
     },
   });
   const descriptionValue = watch("description", initialDescription);
@@ -117,6 +119,7 @@ export function CardDetailModal({
         description: (fullCard.description ?? "").slice(0, CARD_DESCRIPTION_MAX_LENGTH),
         boardId: fullCard.boardId,
         dueDate: formattedDate,
+        completed: fullCard.completed,
       });
       lastLabelIdsRef.current = (fullCard.labels || []).map(l => l.id).sort().join(',');
     }
@@ -134,6 +137,7 @@ export function CardDetailModal({
         title: data.title,
         description: data.description,
         boardId: data.boardId,
+        completed: data.completed,
         dueDate: data.dueDate ? new Date(data.dueDate).toISOString() : undefined,
       });
 
@@ -217,6 +221,17 @@ export function CardDetailModal({
                 {errors.title && (
                   <p className="text-xs text-destructive">{errors.title.message}</p>
                 )}
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="card-completed"
+                  checked={watch("completed")}
+                  onCheckedChange={(checked) => setValue("completed", !!checked, { shouldDirty: true })}
+                />
+                <Label htmlFor="card-completed" className="text-sm font-medium cursor-pointer">
+                  Marcar como concluído
+                </Label>
               </div>
 
               <div className="space-y-2">
