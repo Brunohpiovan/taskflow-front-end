@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, X, Tag } from "lucide-react";
+import { Plus, X, Tag, Trash2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { labelsService } from "@/services/labels.service";
 import { Label as LabelType } from "@/types/card.types";
 import { cn } from "@/lib/utils";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 
 interface LabelManagerProps {
     environmentId: string;
@@ -34,6 +35,8 @@ export function LabelManager({ environmentId, selectedLabels, onChange }: LabelM
     const [availableLabels, setAvailableLabels] = useState<LabelType[]>([]);
     const [loading, setLoading] = useState(false);
     const [isCreating, setIsCreating] = useState(false);
+    const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+    const [labelToDelete, setLabelToDelete] = useState<LabelType | null>(null);
 
     // New label form
     const [newLabelName, setNewLabelName] = useState("");
@@ -83,6 +86,27 @@ export function LabelManager({ environmentId, selectedLabels, onChange }: LabelM
             toast.success("Etiqueta criada");
         } catch (error) {
             toast.error("Erro ao criar etiqueta");
+        }
+    };
+
+    const handleDeleteLabel = (label: LabelType) => {
+        setLabelToDelete(label);
+        setConfirmDeleteOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!labelToDelete) return;
+        try {
+            await labelsService.delete(labelToDelete.id);
+            setAvailableLabels(availableLabels.filter((l) => l.id !== labelToDelete.id));
+            if (selectedIds.includes(labelToDelete.id)) {
+                onChange(selectedLabels.filter((l) => l.id !== labelToDelete.id));
+            }
+            toast.success("Etiqueta excluída");
+        } catch (error) {
+            toast.error("Erro ao excluir etiqueta");
+        } finally {
+            setLabelToDelete(null);
         }
     };
 
@@ -161,22 +185,45 @@ export function LabelManager({ environmentId, selectedLabels, onChange }: LabelM
                     availableLabels.map((label) => (
                         <div
                             key={label.id}
-                            className="flex items-center gap-2 p-1.5 hover:bg-muted/50 rounded-sm cursor-pointer"
+                            className="group flex items-center justify-between p-1.5 hover:bg-muted/50 rounded-sm cursor-pointer"
                             onClick={() => toggleLabel(label)}
                         >
-                            <Checkbox
-                                checked={selectedIds.includes(label.id)}
-                                onCheckedChange={() => toggleLabel(label)}
-                            />
-                            <div
-                                className="w-3 h-3 rounded-full"
-                                style={{ backgroundColor: label.color }}
-                            />
-                            <span className="text-sm">{label.name}</span>
+                            <div className="flex items-center gap-2">
+                                <Checkbox
+                                    checked={selectedIds.includes(label.id)}
+                                    onCheckedChange={() => toggleLabel(label)}
+                                />
+                                <div
+                                    className="w-3 h-3 rounded-full"
+                                    style={{ backgroundColor: label.color }}
+                                />
+                                <span className="text-sm">{label.name}</span>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteLabel(label);
+                                }}
+                                className="text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-muted"
+                                title="Excluir etiqueta"
+                            >
+                                <Trash2 className="h-3 w-3" />
+                            </button>
                         </div>
                     ))
                 )}
             </div>
+
+            <ConfirmDialog
+                open={confirmDeleteOpen}
+                onOpenChange={setConfirmDeleteOpen}
+                title="Excluir etiqueta"
+                description={`Tem certeza que deseja excluir a etiqueta "${labelToDelete?.name}"? Esta ação não pode ser desfeita.`}
+                confirmLabel="Excluir"
+                variant="destructive"
+                onConfirm={confirmDelete}
+            />
         </div>
     );
 }
