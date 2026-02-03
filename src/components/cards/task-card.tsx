@@ -154,12 +154,12 @@ export const TaskCard = memo(function TaskCard({ card }: TaskCardProps) {
               const isOverdue = new Date() > date && !card.completed;
               return (
                 <div className={cn(
-                  "flex items-center gap-1.5 mt-2 text-xs",
+                  "flex items-center gap-1.5 mt-2 text-xs flex-wrap",
                   isOverdue ? "text-destructive font-medium" : "text-muted-foreground",
                   card.completed && "opacity-70"
                 )}>
-                  <Calendar className="h-3 w-3" />
-                  <span>
+                  <Calendar className="h-3 w-3 shrink-0" />
+                  <span className="whitespace-nowrap">
                     {date.toLocaleString('pt-BR', {
                       day: '2-digit',
                       month: '2-digit',
@@ -167,7 +167,7 @@ export const TaskCard = memo(function TaskCard({ card }: TaskCardProps) {
                       minute: '2-digit'
                     })}
                   </span>
-                  {isOverdue && <span className="text-[10px] uppercase tracking-wider font-semibold ml-1">(Atrasado)</span>}
+                  {isOverdue && <span className="text-[10px] uppercase tracking-wider font-semibold ml-1 whitespace-nowrap">(Atrasado)</span>}
                 </div>
               );
             })()}
