@@ -153,106 +153,127 @@ export function CardDetailModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="max-h-[90vh] overflow-y-auto sm:max-w-xl"
+        className="max-w-[95vw] w-full max-h-[90vh] p-0 gap-0"
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
-        <DialogHeader>
-          <DialogTitle>Detalhes do card</DialogTitle>
-          <DialogDescription>Edite o título, a descrição e o quadro do card.</DialogDescription>
+        <DialogHeader className="px-6 pt-6 pb-4 border-b">
+          <DialogTitle>Detalhes do Card</DialogTitle>
+          <DialogDescription>
+            Edite as informações do card, adicione comentários e veja o histórico de atividades.
+          </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="card-title" className="text-base font-medium">Título</Label>
-              <Input
-                id="card-title"
-                placeholder="Título do card"
-                className="h-11"
-                {...register("title")}
-              />
-              {errors.title && (
-                <p className="text-sm text-destructive">{errors.title.message}</p>
-              )}
-            </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="card-board" className="text-base font-medium">Quadro</Label>
-              <Select
-                onValueChange={(value) => setValue("boardId", value, { shouldDirty: true })}
-                defaultValue={card.boardId}
-              >
-                <SelectTrigger className="h-11">
-                  <SelectValue placeholder="Selecione um quadro" />
-                </SelectTrigger>
-                <SelectContent>
-                  {boards.map((board) => (
-                    <SelectItem key={board.id} value={board.id}>
-                      {board.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+        {/* Three Column Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 overflow-hidden" style={{ height: 'calc(90vh - 140px)' }}>
 
-            <div className="space-y-2">
-              <Label htmlFor="card-description" className="text-base font-medium">Descrição (opcional)</Label>
-              <Textarea
-                id="card-description"
-                placeholder="Adicione detalhes sobre essa tarefa..."
-                rows={6}
-                maxLength={CARD_DESCRIPTION_MAX_LENGTH}
-                className="resize-none min-h-[120px] leading-relaxed"
-                {...register("description")}
-              />
-              <p className="text-xs text-muted-foreground text-right">
-                {descriptionLength}/{CARD_DESCRIPTION_MAX_LENGTH}
-              </p>
-              {errors.description && (
-                <p className="text-sm text-destructive">{errors.description.message}</p>
-              )}
-            </div>
+          {/* Left Column - Form Inputs */}
+          <div className="lg:col-span-1 border-r px-6 py-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="card-title" className="text-sm font-medium">Título</Label>
+                <Input
+                  id="card-title"
+                  placeholder="Título do card"
+                  className="h-10"
+                  {...register("title")}
+                />
+                {errors.title && (
+                  <p className="text-xs text-destructive">{errors.title.message}</p>
+                )}
+              </div>
 
-            <Label htmlFor="card-due-date" className="text-base font-medium">Prazo</Label>
-            <Input
-              id="card-due-date"
-              type="datetime-local"
-              className="h-11"
-              {...register("dueDate")}
-            />
+              <div className="space-y-2">
+                <Label htmlFor="card-board" className="text-sm font-medium">Quadro</Label>
+                <Select
+                  onValueChange={(value) => setValue("boardId", value, { shouldDirty: true })}
+                  defaultValue={card.boardId}
+                >
+                  <SelectTrigger className="h-10">
+                    <SelectValue placeholder="Selecione um quadro" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {boards.map((board) => (
+                      <SelectItem key={board.id} value={board.id}>
+                        {board.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="card-description" className="text-sm font-medium">Descrição</Label>
+                <Textarea
+                  id="card-description"
+                  placeholder="Adicione detalhes sobre essa tarefa..."
+                  rows={4}
+                  maxLength={CARD_DESCRIPTION_MAX_LENGTH}
+                  className="resize-none min-h-[100px] leading-relaxed text-sm"
+                  {...register("description")}
+                />
+                <p className="text-xs text-muted-foreground text-right">
+                  {descriptionLength}/{CARD_DESCRIPTION_MAX_LENGTH}
+                </p>
+                {errors.description && (
+                  <p className="text-xs text-destructive">{errors.description.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="card-due-date" className="text-sm font-medium">Prazo</Label>
+                <Input
+                  id="card-due-date"
+                  type="datetime-local"
+                  className="h-10"
+                  {...register("dueDate")}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <LabelManager
+                  boardId={card.boardId}
+                  selectedLabels={card.labels || []}
+                  onChange={handleLabelChange}
+                />
+              </div>
+
+              <div className="flex flex-col gap-2 pt-4 border-t">
+                <Button
+                  type="submit"
+                  isLoading={isSubmitting}
+                  className="w-full"
+                >
+                  Salvar Alterações
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => onOpenChange(false)}
+                  className="w-full"
+                >
+                  Cancelar
+                </Button>
+              </div>
+            </form>
           </div>
 
-          <div className="space-y-2">
-            <LabelManager
-              boardId={card.boardId}
-              selectedLabels={card.labels || []}
-              onChange={handleLabelChange}
-            />
+          {/* Middle Column - Comments */}
+          <div className="lg:col-span-1 border-r overflow-y-auto px-6 py-4 bg-muted/20">
+            <div className="sticky top-0 bg-muted/20 pb-3 mb-4 border-b z-10">
+              <h3 className="font-semibold text-base">Comentários</h3>
+              <p className="text-xs text-muted-foreground">Discussões sobre este card</p>
+            </div>
+            <CommentsSection cardId={card.id} />
           </div>
 
-          <DialogFooter className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 sm:gap-0 pt-2">
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-                className="w-full sm:w-auto"
-              >
-                Cancelar
-              </Button>
-              <Button
-                type="submit"
-                isLoading={isSubmitting}
-                className="w-full sm:w-auto min-w-[100px]"
-              >
-                Salvar
-              </Button>
+          {/* Right Column - Activity Log */}
+          <div className="lg:col-span-1 overflow-y-auto px-6 py-4 bg-muted/10">
+            <div className="sticky top-0 bg-muted/10 pb-3 mb-4 border-b z-10">
+              <h3 className="font-semibold text-base">Histórico de Atividades</h3>
+              <p className="text-xs text-muted-foreground">Registro de mudanças</p>
             </div>
-          </DialogFooter>
-        </form>
-
-        <div className="space-y-8 mt-8 border-t pt-6">
-          <CommentsSection cardId={card.id} />
-          <ActivityLogList cardId={card.id} />
+            <ActivityLogList cardId={card.id} />
+          </div>
         </div>
       </DialogContent>
     </Dialog>
