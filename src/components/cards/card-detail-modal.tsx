@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback, useRef } from "react";
+import { useEffect, useCallback, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -27,10 +27,11 @@ import {
 } from "@/components/ui/select";
 import { useBoardsStore } from "@/stores/boards.store";
 import { cardSchema, type CardFormData } from "@/lib/validations";
-import type { Card as CardType } from "@/types/card.types";
+import type { Card as CardType, Label as LabelType } from "@/types/card.types";
 import { LabelManager } from "./label-manager";
 import { CommentsSection } from "./comments-section";
 import { ActivityLogList } from "./activity-log-list";
+import { cardsService } from "@/services/cards.service";
 
 interface CardDetailModalProps {
   card: CardType;
@@ -50,6 +51,9 @@ export function CardDetailModal({
   const initialDescription = (card.description ?? "").slice(0, CARD_DESCRIPTION_MAX_LENGTH);
   const updateInProgressRef = useRef(false);
   const lastLabelIdsRef = useRef<string>("");
+  const [fullLabels, setFullLabels] = useState<LabelType[]>([]);
+  const [fullCard, setFullCard] = useState<CardType | null>(null);
+  const [loadingCard, setLoadingCard] = useState(false);
 
   const {
     register,
@@ -71,29 +75,52 @@ export function CardDetailModal({
 
   const boards = useBoardsStore((s) => s.boards);
 
+  // Fetch complete card data when modal opens
   useEffect(() => {
-    if (open) {
+    if (open && card.id) {
+      setLoadingCard(true);
+      cardsService.getById(card.id)
+        .then((fetchedCard) => {
+          setFullCard(fetchedCard);
+          setFullLabels(fetchedCard.labels || []);
+        })
+        .catch((error) => {
+          console.error('Failed to fetch card details:', error);
+          toast.error("Erro ao carregar detalhes do card");
+          // Fallback to existing card data
+          setFullCard(card);
+          if (card.labels && card.labels.length > 0 && 'id' in card.labels[0]) {
+            setFullLabels(card.labels as LabelType[]);
+          } else {
+            setFullLabels([]);
+          }
+        })
+        .finally(() => {
+          setLoadingCard(false);
+        });
+    }
+  }, [open, card.id]);
+
+  useEffect(() => {
+    if (open && fullCard) {
       let formattedDate = "";
-      if (card.dueDate) {
+      if (fullCard.dueDate) {
         // Converte para o formato YYYY-MM-DDThh:mm esperado pelo input datetime-local
-        const date = new Date(card.dueDate);
+        const date = new Date(fullCard.dueDate);
         const offset = date.getTimezoneOffset() * 60000;
         const localDate = new Date(date.getTime() - offset);
         formattedDate = localDate.toISOString().slice(0, 16);
       }
 
       reset({
-        title: card.title,
-        description: (card.description ?? "").slice(0, CARD_DESCRIPTION_MAX_LENGTH),
-        boardId: card.boardId,
+        title: fullCard.title,
+        description: (fullCard.description ?? "").slice(0, CARD_DESCRIPTION_MAX_LENGTH),
+        boardId: fullCard.boardId,
         dueDate: formattedDate,
       });
-
-      // Reset label tracking when modal opens
-      const currentLabelIds = (card.labels || []).map(l => l.id).sort().join(',');
-      lastLabelIdsRef.current = currentLabelIds;
+      lastLabelIdsRef.current = (fullCard.labels || []).map(l => l.id).sort().join(',');
     }
-  }, [open, card.id, card.title, card.description, card.boardId, card.dueDate, reset]);
+  }, [open, fullCard, reset]);
 
   const onSubmit = async (data: CardFormData) => {
     if (!isDirty) {
@@ -140,14 +167,24 @@ export function CardDetailModal({
       updateInProgressRef.current = true;
       lastLabelIdsRef.current = newLabelIds;
 
+      // Update local state immediately for UI feedback
+      setFullLabels(labels);
+
+      // Then update backend
       await onUpdate({ labels: labels.map(l => l.id) });
     } catch (error) {
       console.error('Failed to update labels:', error);
       toast.error("Erro ao atualizar etiquetas.");
+      // Revert on error - refetch card data
+      if (card.id) {
+        cardsService.getById(card.id).then((fetchedCard) => {
+          setFullLabels(fetchedCard.labels || []);
+        });
+      }
     } finally {
       updateInProgressRef.current = false;
     }
-  }, [onUpdate]);
+  }, [onUpdate, card.id]);
 
 
   return (
@@ -230,11 +267,15 @@ export function CardDetailModal({
               </div>
 
               <div className="space-y-2">
-                <LabelManager
-                  boardId={card.boardId}
-                  selectedLabels={card.labels || []}
-                  onChange={handleLabelChange}
-                />
+                {loadingCard ? (
+                  <p className="text-sm text-muted-foreground">Carregando labels...</p>
+                ) : (
+                  <LabelManager
+                    boardId={fullCard?.boardId || card.boardId}
+                    selectedLabels={fullLabels}
+                    onChange={handleLabelChange}
+                  />
+                )}
               </div>
 
               <div className="flex flex-col gap-2 pt-4 border-t">

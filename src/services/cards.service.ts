@@ -13,6 +13,11 @@ export const cardsService = {
     return data;
   },
 
+  getById: async (id: string): Promise<Card> => {
+    const { data } = await api.get<Card>(`/cards/${id}`);
+    return data;
+  },
+
   create: async (payload: CreateCardDTO): Promise<Card> => {
     const { data } = await api.post<Card>("/cards", payload);
     return data;
