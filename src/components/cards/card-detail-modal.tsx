@@ -161,16 +161,7 @@ export function CardDetailModal({
             </div>
           </div>
 
-          <DialogFooter className="flex flex-col-reverse sm:flex-row sm:justify-between gap-3 sm:gap-0 pt-2">
-            <Button
-              type="button"
-              variant="destructive"
-              className="w-full sm:w-auto"
-              onClick={onDelete}
-            >
-              <Trash className="mr-2 h-4 w-4" />
-              Excluir
-            </Button>
+          <DialogFooter className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 sm:gap-0 pt-2">
             <div className="flex flex-col sm:flex-row gap-3">
               <Button
                 type="button"
