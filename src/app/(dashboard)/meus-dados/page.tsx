@@ -79,6 +79,11 @@ export default function MeusDadosPage() {
   }, []);
 
   const onSubmit = async (data: ProfileFormData) => {
+    if (!isDirty) {
+      toast.info("Nenhuma alteração realizada.");
+      return;
+    }
+
     const payload: { name?: string; email?: string; password?: string; confirmPassword?: string } = {
       name: data.name.trim(),
       email: data.email.trim(),
@@ -228,7 +233,7 @@ export default function MeusDadosPage() {
             </div>
           </CardContent>
           <CardFooter>
-            <Button type="submit" disabled={!isDirty} isLoading={isLoading}>
+            <Button type="submit" isLoading={isLoading}>
               Salvar alterações
             </Button>
           </CardFooter>
