@@ -27,8 +27,8 @@ export function TaskCardPreview({ card }: { card: CardType }) {
       <CardContent className="p-3.5">
         <div className="flex items-start gap-2">
           {card.completed && (
-            <div className="h-4 w-4 rounded border bg-primary border-primary flex items-center justify-center shrink-0 mt-0.5">
-              <Check className="h-3 w-3 text-primary-foreground" />
+            <div className="h-4 w-4 rounded border bg-emerald-500 border-emerald-500 flex items-center justify-center shrink-0 mt-0.5">
+              <Check className="h-3 w-3 text-white" />
             </div>
           )}
           <div className="flex-1 min-w-0">
@@ -93,7 +93,7 @@ export const TaskCard = memo(function TaskCard({ card }: TaskCardProps) {
         className={cn(
           "group rounded-xl border bg-cardTask shadow-sm transition-all duration-200 hover:border-border/80 hover:shadow-md",
           isDragging && "opacity-0 pointer-events-none",
-          card.completed && "opacity-60 bg-muted/40"
+          card.completed && "opacity-95 bg-muted/30"
         )}
         {...attributes}
         {...listeners}
@@ -109,7 +109,7 @@ export const TaskCard = memo(function TaskCard({ card }: TaskCardProps) {
                   <button
                     className={cn(
                       "h-4 w-4 rounded border flex items-center justify-center transition-all mt-0.5 shrink-0",
-                      card.completed ? "bg-primary border-primary text-primary-foreground" : "border-muted-foreground/30 hover:border-primary/50"
+                      card.completed ? "bg-emerald-600 border-emerald-600 text-white" : "border-muted-foreground/30 hover:border-emerald-500/50"
                     )}
                     onClick={(e) => {
                       e.stopPropagation();
