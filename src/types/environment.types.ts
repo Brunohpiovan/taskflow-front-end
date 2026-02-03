@@ -2,8 +2,6 @@ export interface Environment {
   id: string;
   name: string;
   description?: string;
-  color?: string;
-  icon?: string;
   boardsCount?: number;
   cardsCount?: number;
   createdAt?: string;
@@ -13,8 +11,6 @@ export interface Environment {
 export interface CreateEnvironmentDTO {
   name: string;
   description?: string;
-  color?: string;
-  icon?: string;
 }
 
 export type UpdateEnvironmentDTO = Partial<CreateEnvironmentDTO>;

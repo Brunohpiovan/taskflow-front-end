@@ -25,15 +25,13 @@ export default function EnvironmentsPage() {
   const deleteEnvironment = useEnvironmentsStore((s) => s.deleteEnvironment);
 
   useEffect(() => {
-    fetchEnvironments().catch(() => {});
+    fetchEnvironments().catch(() => { });
   }, [fetchEnvironments]);
 
   const handleCreate = async (data: EnvironmentFormData) => {
     await createEnvironment({
       name: data.name,
       description: data.description,
-      color: data.color,
-      icon: data.icon,
     });
     toast.success("Ambiente criado com sucesso.");
   };
@@ -43,8 +41,6 @@ export default function EnvironmentsPage() {
     await updateEnvironment(environmentToEdit.id, {
       name: data.name,
       description: data.description,
-      color: data.color,
-      icon: data.icon,
     });
     toast.success("Ambiente atualizado com sucesso.");
     setEnvironmentToEdit(null);

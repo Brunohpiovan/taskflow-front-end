@@ -22,7 +22,7 @@ interface EnvironmentCardProps {
 export function EnvironmentCard({ environment, onEdit, onDelete }: EnvironmentCardProps) {
   const boardsCount = environment.boardsCount ?? 0;
   const cardsCount = environment.cardsCount ?? 0;
-  const accentColor = environment.color ?? "hsl(var(--primary))";
+  const accentColor = "hsl(var(--primary))";
 
   return (
     <Card
@@ -40,11 +40,7 @@ export function EnvironmentCard({ environment, onEdit, onDelete }: EnvironmentCa
           <div className="flex items-center gap-3">
             <div
               className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl shadow-sm transition-transform duration-200 group-hover:scale-105"
-              style={
-                environment.color
-                  ? { backgroundColor: `${environment.color}18`, color: environment.color }
-                  : { backgroundColor: "hsl(var(--priicommary) / 0.12)", color: "hsl(var(--icon))" }
-              }
+              style={{ backgroundColor: "hsl(var(--primary) / 0.12)", color: "hsl(var(--primary))" }}
             >
               <LayoutGrid className="h-6 w-6" strokeWidth={2} />
             </div>

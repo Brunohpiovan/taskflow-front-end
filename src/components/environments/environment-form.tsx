@@ -46,8 +46,6 @@ export function EnvironmentForm({
     defaultValues: {
       name: defaultValues?.name ?? "",
       description: defaultValues?.description ?? "",
-      color: defaultValues?.color ?? "",
-      icon: defaultValues?.icon ?? "",
     },
   });
 
@@ -56,8 +54,6 @@ export function EnvironmentForm({
       reset({
         name: defaultValues?.name ?? "",
         description: defaultValues?.description ?? "",
-        color: defaultValues?.color ?? "",
-        icon: defaultValues?.icon ?? "",
       });
     }
   }, [open, defaultValues, reset]);

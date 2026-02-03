@@ -28,8 +28,6 @@ export const registerSchema = z
 export const environmentSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório").min(2, "Nome deve ter no mínimo 2 caracteres"),
   description: z.string().optional(),
-  color: z.string().optional(),
-  icon: z.string().optional(),
 });
 
 export const boardSchema = z.object({
