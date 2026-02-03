@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useCallback, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -28,12 +28,15 @@ import {
 import { useBoardsStore } from "@/stores/boards.store";
 import { cardSchema, type CardFormData } from "@/lib/validations";
 import type { Card as CardType } from "@/types/card.types";
+import { LabelManager } from "./label-manager";
+import { CommentsSection } from "./comments-section";
+import { ActivityLogList } from "./activity-log-list";
 
 interface CardDetailModalProps {
   card: CardType;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onUpdate: (data: { title?: string; description?: string; boardId?: string; dueDate?: string }) => Promise<void>;
+  onUpdate: (data: { title?: string; description?: string; boardId?: string; dueDate?: string; labels?: string[] }) => Promise<void>;
   onDelete: () => void;
 }
 
@@ -45,6 +48,9 @@ export function CardDetailModal({
   onDelete,
 }: CardDetailModalProps) {
   const initialDescription = (card.description ?? "").slice(0, CARD_DESCRIPTION_MAX_LENGTH);
+  const updateInProgressRef = useRef(false);
+  const lastLabelIdsRef = useRef<string>("");
+
   const {
     register,
     handleSubmit,
@@ -82,6 +88,10 @@ export function CardDetailModal({
         boardId: card.boardId,
         dueDate: formattedDate,
       });
+
+      // Reset label tracking when modal opens
+      const currentLabelIds = (card.labels || []).map(l => l.id).sort().join(',');
+      lastLabelIdsRef.current = currentLabelIds;
     }
   }, [open, card.id, card.title, card.description, card.boardId, card.dueDate, reset]);
 
@@ -107,6 +117,37 @@ export function CardDetailModal({
       toast.error("Erro ao atualizar o card. Tente novamente.");
     }
   };
+
+  const handleLabelChange = useCallback(async (labels: typeof card.labels) => {
+    // Prevent concurrent updates
+    if (updateInProgressRef.current) {
+      return;
+    }
+
+    // Safety check
+    if (!labels) {
+      return;
+    }
+
+    try {
+      const newLabelIds = labels.map(l => l.id).sort().join(',');
+
+      // Only update if labels actually changed
+      if (newLabelIds === lastLabelIdsRef.current) {
+        return;
+      }
+
+      updateInProgressRef.current = true;
+      lastLabelIdsRef.current = newLabelIds;
+
+      await onUpdate({ labels: labels.map(l => l.id) });
+    } catch (error) {
+      console.error('Failed to update labels:', error);
+      toast.error("Erro ao atualizar etiquetas.");
+    } finally {
+      updateInProgressRef.current = false;
+    }
+  }, [onUpdate]);
 
 
   return (
@@ -171,15 +212,21 @@ export function CardDetailModal({
               )}
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="card-due-date" className="text-base font-medium">Prazo</Label>
-              <Input
-                id="card-due-date"
-                type="datetime-local"
-                className="h-11"
-                {...register("dueDate")}
-              />
-            </div>
+            <Label htmlFor="card-due-date" className="text-base font-medium">Prazo</Label>
+            <Input
+              id="card-due-date"
+              type="datetime-local"
+              className="h-11"
+              {...register("dueDate")}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <LabelManager
+              boardId={card.boardId}
+              selectedLabels={card.labels || []}
+              onChange={handleLabelChange}
+            />
           </div>
 
           <DialogFooter className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 sm:gap-0 pt-2">
@@ -202,6 +249,11 @@ export function CardDetailModal({
             </div>
           </DialogFooter>
         </form>
+
+        <div className="space-y-8 mt-8 border-t pt-6">
+          <CommentsSection cardId={card.id} />
+          <ActivityLogList cardId={card.id} />
+        </div>
       </DialogContent>
     </Dialog>
   );

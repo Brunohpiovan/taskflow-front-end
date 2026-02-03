@@ -1,13 +1,20 @@
+export interface Label {
+  id: string;
+  name: string;
+  color: string;
+  boardId: string;
+}
+
 export interface Card {
   id: string;
   title: string;
   description?: string;
   position: number;
   boardId: string;
-  labels?: string[];
+  labels?: Label[];
   dueDate?: string;
   createdAt?: string;
-  updatedAt?: string;
+
 }
 
 export interface CreateCardDTO {
@@ -15,7 +22,7 @@ export interface CreateCardDTO {
   description?: string;
   boardId: string;
   position?: number;
-  labels?: string[];
+  labels?: string[]; // IDs of labels
   dueDate?: string;
 }
 
@@ -23,7 +30,7 @@ export interface UpdateCardDTO {
   title?: string;
   description?: string;
   position?: number;
-  labels?: string[];
+  labels?: string[]; // IDs of labels
   dueDate?: string;
 }
 

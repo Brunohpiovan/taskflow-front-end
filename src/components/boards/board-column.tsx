@@ -60,13 +60,14 @@ export const BoardColumn = memo(function BoardColumn({ board, cards }: BoardColu
   const updateBoard = useBoardsStore((s) => s.updateBoard);
   const deleteBoard = useBoardsStore((s) => s.deleteBoard);
 
-  const handleCreateCard = async (title: string, description?: string, dueDate?: string) => {
+  const handleCreateCard = async (title: string, description?: string, dueDate?: string, labels?: string[]) => {
     await createCard({
       title,
       description,
       dueDate,
       boardId: board.id,
       position: cards.length,
+      labels,
     });
     toast.success("Card criado.");
     setCardFormOpen(false);
@@ -185,6 +186,7 @@ export const BoardColumn = memo(function BoardColumn({ board, cards }: BoardColu
           open={cardFormOpen}
           onOpenChange={setCardFormOpen}
           onSubmit={handleCreateCard}
+          boardId={board.id}
         />
       )}
 

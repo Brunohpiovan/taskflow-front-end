@@ -14,14 +14,18 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { CARD_DESCRIPTION_MAX_LENGTH } from "@/lib/constants";
+import { LabelManager } from "./label-manager";
+
+import type { Label as LabelType } from "@/types/card.types";
 
 interface CardFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (title: string, description?: string, dueDate?: string) => Promise<void>;
+  onSubmit: (title: string, description?: string, dueDate?: string, labels?: string[]) => Promise<void>;
   title?: string;
   defaultTitle?: string;
   defaultDescription?: string;
+  boardId: string;
 }
 
 export function CardForm({
@@ -31,10 +35,12 @@ export function CardForm({
   title = "Novo card",
   defaultTitle = "",
   defaultDescription = "",
+  boardId,
 }: CardFormProps) {
   const [cardTitle, setCardTitle] = useState(defaultTitle);
   const [description, setDescription] = useState(defaultDescription);
   const [dueDate, setDueDate] = useState("");
+  const [selectedLabels, setSelectedLabels] = useState<LabelType[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -55,10 +61,11 @@ export function CardForm({
 
     setIsSubmitting(true);
     try {
-      await onSubmit(trimmed, desc, date);
+      await onSubmit(trimmed, desc, date, selectedLabels.map(l => l.id));
       setCardTitle("");
       setDescription("");
       setDueDate("");
+      setSelectedLabels([]);
       onOpenChange(false);
     } catch {
       setError("Não foi possível criar o card.");
@@ -121,6 +128,13 @@ export function CardForm({
               onChange={(e) => setDueDate(e.target.value)}
             />
           </div>
+          <div className="space-y-2">
+            <LabelManager
+              boardId={boardId}
+              selectedLabels={selectedLabels}
+              onChange={(labels) => setSelectedLabels(labels)}
+            />
+          </div>
           <DialogFooter className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
             <Button
               type="button"
@@ -140,6 +154,6 @@ export function CardForm({
           </DialogFooter>
         </form>
       </DialogContent>
-    </Dialog>
+    </Dialog >
   );
 }

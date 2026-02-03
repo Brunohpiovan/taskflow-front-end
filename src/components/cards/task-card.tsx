@@ -84,6 +84,18 @@ export const TaskCard = memo(function TaskCard({ card }: TaskCardProps) {
             className="flex-1 text-left min-w-0 rounded-md -m-1 p-1 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             onClick={() => setDetailOpen(true)}
           >
+            {card.labels && card.labels.length > 0 && (
+              <div className="flex flex-wrap gap-1 mb-2">
+                {card.labels.map((label) => (
+                  <div
+                    key={label.id}
+                    className="h-1.5 w-8 rounded-full"
+                    style={{ backgroundColor: label.color }}
+                    title={label.name}
+                  />
+                ))}
+              </div>
+            )}
             <p className="font-medium text-sm truncate text-foreground">{card.title}</p>
             {card.description ? (
               <p className="text-xs text-muted-foreground line-clamp-2 mt-1 leading-relaxed">{card.description}</p>
@@ -147,11 +159,22 @@ export const TaskCard = memo(function TaskCard({ card }: TaskCardProps) {
           onOpenChange={setDetailOpen}
           onUpdate={async (data) => {
             const { boardId, ...updateData } = data;
-            if (boardId && boardId !== card.boardId) {
-              await moveCard(card.id, card.boardId, boardId, 0);
+
+            try {
+              if (boardId && boardId !== card.boardId) {
+                await moveCard(card.id, card.boardId, boardId, 0);
+              }
+
+              // Only update if there's actual data to update
+              if (Object.keys(updateData).length > 0) {
+                await updateCard(card.id, updateData);
+              }
+
+              toast.success("Card atualizado.");
+            } catch (error) {
+              console.error('Update failed:', error);
+              toast.error("Erro ao atualizar card.");
             }
-            await updateCard(card.id, updateData);
-            toast.success("Card atualizado.");
           }}
           onDelete={() => {
             setConfirmDeleteOpen(true);
@@ -180,6 +203,7 @@ export const TaskCard = memo(function TaskCard({ card }: TaskCardProps) {
     prev.card.description === next.card.description &&
     prev.card.position === next.card.position &&
     prev.card.boardId === next.card.boardId &&
-    prev.card.dueDate === next.card.dueDate
+    prev.card.dueDate === next.card.dueDate &&
+    JSON.stringify(prev.card.labels) === JSON.stringify(next.card.labels)
   );
 });
