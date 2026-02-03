@@ -107,11 +107,20 @@ export function CardForm({
               {description.length}/{CARD_DESCRIPTION_MAX_LENGTH}
             </p>
           </div>
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>
+          <DialogFooter className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => handleOpenChange(false)}
+              className="w-full sm:w-auto"
+            >
               Cancelar
             </Button>
-            <Button type="submit" isLoading={isSubmitting}>
+            <Button
+              type="submit"
+              isLoading={isSubmitting}
+              className="w-full sm:w-auto min-w-[100px]"
+            >
               Criar
             </Button>
           </DialogFooter>

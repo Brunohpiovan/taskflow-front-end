@@ -84,6 +84,7 @@ export const BoardColumn = memo(function BoardColumn({ board, cards }: BoardColu
     }
     const name = result.data.name;
     if (name === board.name) {
+      toast.info("Nenhuma alteração realizada.");
       setEditNameOpen(false);
       return;
     }
@@ -215,11 +216,20 @@ export const BoardColumn = memo(function BoardColumn({ board, cards }: BoardColu
                 onKeyDown={(e) => e.key === "Enter" && handleEditNameSubmit()}
               />
             </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setEditNameOpen(false)} disabled={editNameLoading}>
+            <DialogFooter className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setEditNameOpen(false)}
+                disabled={editNameLoading}
+                className="w-full sm:w-auto"
+              >
                 Cancelar
               </Button>
-              <Button onClick={handleEditNameSubmit} disabled={editNameLoading}>
+              <Button
+                onClick={handleEditNameSubmit}
+                disabled={editNameLoading}
+                className="w-full sm:w-auto min-w-[100px]"
+              >
                 {editNameLoading ? "Salvando…" : "Salvar"}
               </Button>
             </DialogFooter>
