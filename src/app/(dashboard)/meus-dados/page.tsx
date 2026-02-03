@@ -48,35 +48,25 @@ export default function MeusDadosPage() {
   });
 
   useEffect(() => {
-    const load = async () => {
-      if (user) {
-        reset({
-          name: user.name,
-          email: user.email,
-          password: "",
-          confirmPassword: "",
-        });
+    // Se usuário já existe, preenche form e libera
+    if (user) {
+      reset({
+        name: user.name,
+        email: user.email,
+        password: "",
+        confirmPassword: "",
+      });
+      setProfileLoaded(true);
+    }
+    // Se não existe, NÃO buscamos manualmente. Esperamos o AuthProvider.
+    // Timeout de segurança caso o AuthProvider falhe ou demore demais
+    else {
+      const timer = setTimeout(() => {
         setProfileLoaded(true);
-        return;
-      }
-      try {
-        const profile = await authService.getProfile();
-        setUser(profile);
-        reset({
-          name: profile.name,
-          email: profile.email,
-          password: "",
-          confirmPassword: "",
-        });
-      } catch (e) {
-        handleApiError(e);
-      } finally {
-        setProfileLoaded(true);
-      }
-    };
-    load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+      }, 2000); // 2 segundos de tolerância
+      return () => clearTimeout(timer);
+    }
+  }, [user, reset]);
 
   const onSubmit = async (data: ProfileFormData) => {
     if (!isDirty) {
