@@ -143,7 +143,7 @@ export const TaskCard = memo(function TaskCard({ card }: TaskCardProps) {
                 ))}
               </div>
             )}
-            <p className={cn("font-medium text-sm truncate text-foreground", card.completed && "line-through text-muted-foreground")}>{card.title}</p>
+            <p className={cn("font-medium text-sm truncate text-foreground", card.completed && " text-muted-foreground")}>{card.title}</p>
             {card.description ? (
               <p className="text-xs text-muted-foreground line-clamp-2 mt-1 leading-relaxed">{card.description}</p>
             ) : (
