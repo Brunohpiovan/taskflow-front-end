@@ -52,6 +52,7 @@ export const TaskCard = memo(function TaskCard({ card }: TaskCardProps) {
 
   const updateCard = useCardsStore((s) => s.updateCard);
   const deleteCard = useCardsStore((s) => s.deleteCard);
+  const moveCard = useCardsStore((s) => s.moveCard);
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -124,7 +125,11 @@ export const TaskCard = memo(function TaskCard({ card }: TaskCardProps) {
           open={detailOpen}
           onOpenChange={setDetailOpen}
           onUpdate={async (data) => {
-            await updateCard(card.id, data);
+            const { boardId, ...updateData } = data;
+            if (boardId && boardId !== card.boardId) {
+              await moveCard(card.id, card.boardId, boardId, 0);
+            }
+            await updateCard(card.id, updateData);
             toast.success("Card atualizado.");
           }}
           onDelete={() => {

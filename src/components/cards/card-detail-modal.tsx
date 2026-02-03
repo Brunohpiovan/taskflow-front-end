@@ -15,9 +15,17 @@ import {
   DialogContent,
   DialogDescription,
   DialogFooter,
-  DialogHeader,
   DialogTitle,
+  DialogHeader,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useBoardsStore } from "@/stores/boards.store";
 import { cardSchema, type CardFormData } from "@/lib/validations";
 import type { Card as CardType } from "@/types/card.types";
 
@@ -25,7 +33,7 @@ interface CardDetailModalProps {
   card: CardType;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onUpdate: (data: { title?: string; description?: string }) => Promise<void>;
+  onUpdate: (data: { title?: string; description?: string; boardId?: string }) => Promise<void>;
   onDelete: () => void;
 }
 
@@ -42,31 +50,37 @@ export function CardDetailModal({
     handleSubmit,
     reset,
     watch,
+    setValue,
     formState: { errors, isDirty, isSubmitting },
   } = useForm<CardFormData>({
     resolver: zodResolver(cardSchema),
     defaultValues: {
       title: card.title,
       description: initialDescription,
+      boardId: card.boardId,
     },
   });
   const descriptionValue = watch("description", initialDescription);
   const descriptionLength = (descriptionValue ?? "").length;
+
+  const boards = useBoardsStore((s) => s.boards);
 
   useEffect(() => {
     if (open) {
       reset({
         title: card.title,
         description: (card.description ?? "").slice(0, CARD_DESCRIPTION_MAX_LENGTH),
+        boardId: card.boardId,
       });
     }
-  }, [open, card.id, card.title, card.description, reset]);
+  }, [open, card.id, card.title, card.description, card.boardId, reset]);
 
   const onSubmit = async (data: CardFormData) => {
     try {
       await onUpdate({
         title: data.title,
         description: data.description,
+        boardId: data.boardId,
       });
 
       reset(data);
@@ -86,7 +100,7 @@ export function CardDetailModal({
       >
         <DialogHeader>
           <DialogTitle>Detalhes do card</DialogTitle>
-          <DialogDescription>Edite o título e a descrição do card.</DialogDescription>
+          <DialogDescription>Edite o título, a descrição e o quadro do card.</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
@@ -99,6 +113,24 @@ export function CardDetailModal({
             {errors.title && (
               <p className="text-sm text-destructive">{errors.title.message}</p>
             )}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="card-board">Quadro</Label>
+            <Select
+              onValueChange={(value) => setValue("boardId", value, { shouldDirty: true })}
+              defaultValue={card.boardId}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione um quadro" />
+              </SelectTrigger>
+              <SelectContent>
+                {boards.map((board) => (
+                  <SelectItem key={board.id} value={board.id}>
+                    {board.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-2">
             <Label htmlFor="card-description">Descrição (opcional)</Label>
