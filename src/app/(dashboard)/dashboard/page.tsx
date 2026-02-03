@@ -1,37 +1,22 @@
-"use client";
-
-import { useEffect } from "react";
 import Link from "next/link";
 import { FolderKanban, ListTodo } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useAuthStore } from "@/stores/auth.store";
-import { useEnvironmentsStore } from "@/stores/environments.store";
 import { ROUTES } from "@/lib/constants";
+import { serverEnvironmentsService } from "@/services/server-environments.service";
+import { serverAuthService } from "@/services/server-auth.service";
+import { DashboardHeader } from "./components/dashboard-header";
 
-export default function DashboardPage() {
-  const user = useAuthStore((s) => s.user);
-  const environments = useEnvironmentsStore((s) => s.environments);
-  const fetchEnvironments = useEnvironmentsStore((s) => s.fetchDashboardEnvironments);
-  const isLoading = useEnvironmentsStore((s) => s.isLoading);
-
-  useEffect(() => {
-    fetchEnvironments().catch(() => { });
-  }, [fetchEnvironments]);
+export default async function DashboardPage() {
+  const environments = await serverEnvironmentsService.getAllDashboard().catch(() => []);
+  const user = await serverAuthService.getProfile().catch(() => null);
 
   const totalCards = environments.reduce((acc, env) => acc + (env.cardsCount ?? 0), 0);
   const recentEnvironments = environments.slice(0, 3);
 
   return (
     <div className="space-y-8">
-      <div>
-        <h2 className="text-3xl font-semibold tracking-tight text-foreground">
-          Olá, {user?.name?.split(" ")[0] ?? "usuário"}
-        </h2>
-        <p className="text-muted-foreground mt-2 text-lg">
-          Bem-vindo de volta ao TaskFlow.
-        </p>
-      </div>
+      <DashboardHeader initialUser={user} />
 
       <div className="grid gap-6 md:grid-cols-2">
         <Card className="shadow-sm">
@@ -40,7 +25,7 @@ export default function DashboardPage() {
             <FolderKanban className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold tabular-nums">{isLoading ? "..." : environments.length}</div>
+            <div className="text-2xl font-bold tabular-nums">{environments.length}</div>
             <p className="text-xs text-muted-foreground mt-1">Ambientes ativos</p>
           </CardContent>
         </Card>
@@ -50,7 +35,7 @@ export default function DashboardPage() {
             <ListTodo className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold tabular-nums">{isLoading ? "..." : totalCards}</div>
+            <div className="text-2xl font-bold tabular-nums">{totalCards}</div>
             <p className="text-xs text-muted-foreground mt-1">Total acumulado</p>
           </CardContent>
         </Card>
@@ -59,28 +44,14 @@ export default function DashboardPage() {
       <div>
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-lg font-medium text-foreground">Recentes</h3>
-          {!isLoading && environments.length > 0 && (
+          {environments.length > 0 && (
             <Button variant="link" className="text-muted-foreground hover:text-foreground h-auto p-0" asChild>
               <Link href={ROUTES.ENVIRONMENTS}>Ver todos</Link>
             </Button>
           )}
         </div>
 
-        {isLoading ? (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {[1, 2, 3].map((i) => (
-              <Card key={i} className="animate-pulse shadow-sm border-muted">
-                <CardHeader>
-                  <div className="h-5 w-3/4 rounded bg-muted" />
-                  <div className="h-4 w-1/2 rounded bg-muted mt-2" />
-                </CardHeader>
-                <CardContent>
-                  <div className="h-8 w-full rounded bg-muted" />
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        ) : recentEnvironments.length === 0 ? (
+        {recentEnvironments.length === 0 ? (
           <div className="rounded-lg border border-dashed p-8 text-center animate-in fade-in-50">
             <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-muted">
               <FolderKanban className="h-5 w-5 text-muted-foreground" />
