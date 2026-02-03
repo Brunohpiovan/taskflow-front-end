@@ -4,10 +4,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import Image from "next/image";
 import {
   Card,
   CardContent,
@@ -62,11 +62,15 @@ export default function RegisterPage() {
   return (
     <Card className="border-0 shadow-soft rounded-2xl overflow-hidden">
       <CardHeader className="space-y-1 text-center pb-2">
-        <div className="flex justify-center mb-3">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-md">
-            <LayoutDashboard className="h-7 w-7" />
-          </div>
-        </div>
+              <div className="relative h-16 w-full flex justify-center mb-4">
+                <Image
+                  src="/images/icone.png"
+                  alt={APP_NAME}
+                  fill
+                  className="object-contain"
+                  priority
+                />
+              </div>
         <CardTitle className="text-2xl font-bold tracking-tight">{APP_NAME}</CardTitle>
         <CardDescription className="text-base">Crie sua conta para começar a organizar suas tarefas.</CardDescription>
       </CardHeader>
