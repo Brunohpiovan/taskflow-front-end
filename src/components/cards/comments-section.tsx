@@ -136,7 +136,7 @@ export function CommentsSection({ cardId }: CommentsSectionProps) {
                                         </button>
                                     )}
                                 </div>
-                                <p className="text-sm whitespace-pre-wrap">{comment.content}</p>
+                                <p className="text-sm whitespace-pre-wrap break-all">{comment.content}</p>
                             </div>
                         </div>
                     ))
