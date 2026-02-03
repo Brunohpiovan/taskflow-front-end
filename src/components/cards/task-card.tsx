@@ -133,7 +133,6 @@ export const TaskCard = memo(function TaskCard({ card }: TaskCardProps) {
             toast.success("Card atualizado.");
           }}
           onDelete={() => {
-            setDetailOpen(false);
             setConfirmDeleteOpen(true);
           }}
         />
