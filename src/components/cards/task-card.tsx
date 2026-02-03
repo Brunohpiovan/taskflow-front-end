@@ -90,19 +90,27 @@ export const TaskCard = memo(function TaskCard({ card }: TaskCardProps) {
             ) : (
               <p className="text-xs text-muted-foreground/70 mt-1 italic">Sem descrição</p>
             )}
-            {card.dueDate && (
-              <div className="flex items-center gap-1.5 mt-2 text-xs text-muted-foreground">
-                <Calendar className="h-3 w-3" />
-                <span>
-                  {new Date(card.dueDate).toLocaleString('pt-BR', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })}
-                </span>
-              </div>
-            )}
+            {card.dueDate && (() => {
+              const date = new Date(card.dueDate);
+              const isOverdue = new Date() > date;
+              return (
+                <div className={cn(
+                  "flex items-center gap-1.5 mt-2 text-xs",
+                  isOverdue ? "text-destructive font-medium" : "text-muted-foreground"
+                )}>
+                  <Calendar className="h-3 w-3" />
+                  <span>
+                    {date.toLocaleString('pt-BR', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </span>
+                  {isOverdue && <span className="text-[10px] uppercase tracking-wider font-semibold ml-1">(Atrasado)</span>}
+                </div>
+              );
+            })()}
           </button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
