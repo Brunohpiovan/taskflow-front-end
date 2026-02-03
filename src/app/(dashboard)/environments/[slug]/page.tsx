@@ -169,6 +169,7 @@ export default function EnvironmentBoardsPage() {
     <div className="space-y-6">
       <PageHeader
         title={environment?.name ?? "Carregando..."}
+        description={environment?.description}
         backHref={ROUTES.ENVIRONMENTS}
         backLabel="Ambientes"
         action={
