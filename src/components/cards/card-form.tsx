@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -43,6 +43,8 @@ export function CardForm({
   const [selectedLabels, setSelectedLabels] = useState<LabelType[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const lastLabelIdsRef = useRef<string>("");
+  const isUpdatingLabelsRef = useRef(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,10 +81,36 @@ export function CardForm({
       setCardTitle(defaultTitle);
       setDescription(defaultDescription);
       setDueDate("");
+      setSelectedLabels([]);
       setError(null);
+      lastLabelIdsRef.current = "";
     }
     onOpenChange(next);
   };
+
+  const handleLabelChange = useCallback((labels: LabelType[]) => {
+    // Prevent concurrent updates
+    if (isUpdatingLabelsRef.current) {
+      return;
+    }
+
+    const newLabelIds = labels.map(l => l.id).sort().join(',');
+
+    // Only update if labels actually changed
+    if (newLabelIds === lastLabelIdsRef.current) {
+      return;
+    }
+
+    isUpdatingLabelsRef.current = true;
+    lastLabelIdsRef.current = newLabelIds;
+
+    setSelectedLabels(labels);
+
+    // Reset flag after a short delay to allow React to process
+    setTimeout(() => {
+      isUpdatingLabelsRef.current = false;
+    }, 100);
+  }, []);
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -132,7 +160,7 @@ export function CardForm({
             <LabelManager
               boardId={boardId}
               selectedLabels={selectedLabels}
-              onChange={(labels) => setSelectedLabels(labels)}
+              onChange={handleLabelChange}
             />
           </div>
           <DialogFooter className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2">

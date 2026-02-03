@@ -153,7 +153,7 @@ export function CardDetailModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="max-w-[95vw] w-full max-h-[90vh] p-0 gap-0"
+        className="max-w-[95vw] w-full max-h-[98vh] p-0 gap-0"
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <DialogHeader className="px-6 pt-6 pb-4 border-b">
@@ -164,7 +164,7 @@ export function CardDetailModal({
         </DialogHeader>
 
         {/* Three Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 overflow-hidden" style={{ height: 'calc(90vh - 140px)' }}>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 overflow-hidden" style={{ height: 'calc(98vh - 140px)' }}>
 
           {/* Left Column - Form Inputs */}
           <div className="lg:col-span-1 border-r px-6 py-4">
@@ -258,8 +258,8 @@ export function CardDetailModal({
           </div>
 
           {/* Middle Column - Comments */}
-          <div className="lg:col-span-1 border-r overflow-y-auto px-6 py-4 bg-muted/20">
-            <div className="sticky top-0 bg-muted/20 pb-3 mb-4 border-b z-10">
+          <div className="lg:col-span-1 border-r overflow-y-auto px-6 bg-slate-50 dark:bg-slate-900">
+            <div className="sticky top-0 bg-slate-50 dark:bg-slate-900 pt-4 pb-3 mb-4 border-b z-10 -mx-6 px-6">
               <h3 className="font-semibold text-base">Comentários</h3>
               <p className="text-xs text-muted-foreground">Discussões sobre este card</p>
             </div>
@@ -267,8 +267,8 @@ export function CardDetailModal({
           </div>
 
           {/* Right Column - Activity Log */}
-          <div className="lg:col-span-1 overflow-y-auto px-6 py-4 bg-muted/10">
-            <div className="sticky top-0 bg-muted/10 pb-3 mb-4 border-b z-10">
+          <div className="lg:col-span-1 overflow-y-auto px-6 bg-slate-100 dark:bg-slate-950">
+            <div className="sticky top-0 bg-slate-100 dark:bg-slate-950 pt-4 pb-3 mb-4 border-b z-10 -mx-6 px-6">
               <h3 className="font-semibold text-base">Histórico de Atividades</h3>
               <p className="text-xs text-muted-foreground">Registro de mudanças</p>
             </div>
