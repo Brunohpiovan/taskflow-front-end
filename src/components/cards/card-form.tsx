@@ -18,7 +18,7 @@ import { CARD_DESCRIPTION_MAX_LENGTH } from "@/lib/constants";
 interface CardFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (title: string, description?: string) => Promise<void>;
+  onSubmit: (title: string, description?: string, dueDate?: string) => Promise<void>;
   title?: string;
   defaultTitle?: string;
   defaultDescription?: string;
@@ -34,6 +34,7 @@ export function CardForm({
 }: CardFormProps) {
   const [cardTitle, setCardTitle] = useState(defaultTitle);
   const [description, setDescription] = useState(defaultDescription);
+  const [dueDate, setDueDate] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -50,11 +51,14 @@ export function CardForm({
       setError(`A descrição deve ter no máximo ${CARD_DESCRIPTION_MAX_LENGTH} caracteres.`);
       return;
     }
+    const date = dueDate ? new Date(dueDate).toISOString() : undefined;
+
     setIsSubmitting(true);
     try {
-      await onSubmit(trimmed, desc);
+      await onSubmit(trimmed, desc, date);
       setCardTitle("");
       setDescription("");
+      setDueDate("");
       onOpenChange(false);
     } catch {
       setError("Não foi possível criar o card.");
@@ -67,6 +71,7 @@ export function CardForm({
     if (!next) {
       setCardTitle(defaultTitle);
       setDescription(defaultDescription);
+      setDueDate("");
       setError(null);
     }
     onOpenChange(next);
@@ -100,12 +105,21 @@ export function CardForm({
               value={description}
               onChange={(e) => setDescription(e.target.value.slice(0, CARD_DESCRIPTION_MAX_LENGTH))}
               maxLength={CARD_DESCRIPTION_MAX_LENGTH}
-              rows={3}
+              rows={6}
               className="resize-none"
             />
             <p className="text-xs text-muted-foreground text-right">
               {description.length}/{CARD_DESCRIPTION_MAX_LENGTH}
             </p>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="card-due-date">Prazo (opcional)</Label>
+            <Input
+              id="card-due-date"
+              type="datetime-local"
+              value={dueDate}
+              onChange={(e) => setDueDate(e.target.value)}
+            />
           </div>
           <DialogFooter className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
             <Button

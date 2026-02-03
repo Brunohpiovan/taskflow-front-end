@@ -33,7 +33,7 @@ interface CardDetailModalProps {
   card: CardType;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onUpdate: (data: { title?: string; description?: string; boardId?: string }) => Promise<void>;
+  onUpdate: (data: { title?: string; description?: string; boardId?: string; dueDate?: string }) => Promise<void>;
   onDelete: () => void;
 }
 
@@ -67,13 +67,23 @@ export function CardDetailModal({
 
   useEffect(() => {
     if (open) {
+      let formattedDate = "";
+      if (card.dueDate) {
+        // Converte para o formato YYYY-MM-DDThh:mm esperado pelo input datetime-local
+        const date = new Date(card.dueDate);
+        const offset = date.getTimezoneOffset() * 60000;
+        const localDate = new Date(date.getTime() - offset);
+        formattedDate = localDate.toISOString().slice(0, 16);
+      }
+
       reset({
         title: card.title,
         description: (card.description ?? "").slice(0, CARD_DESCRIPTION_MAX_LENGTH),
         boardId: card.boardId,
+        dueDate: formattedDate,
       });
     }
-  }, [open, card.id, card.title, card.description, card.boardId, reset]);
+  }, [open, card.id, card.title, card.description, card.boardId, card.dueDate, reset]);
 
   const onSubmit = async (data: CardFormData) => {
     if (!isDirty) {
@@ -87,6 +97,7 @@ export function CardDetailModal({
         title: data.title,
         description: data.description,
         boardId: data.boardId,
+        dueDate: data.dueDate ? new Date(data.dueDate).toISOString() : undefined,
       });
 
       reset(data);
@@ -158,6 +169,16 @@ export function CardDetailModal({
               {errors.description && (
                 <p className="text-sm text-destructive">{errors.description.message}</p>
               )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="card-due-date" className="text-base font-medium">Prazo</Label>
+              <Input
+                id="card-due-date"
+                type="datetime-local"
+                className="h-11"
+                {...register("dueDate")}
+              />
             </div>
           </div>
 

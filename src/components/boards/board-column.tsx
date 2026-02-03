@@ -60,10 +60,11 @@ export const BoardColumn = memo(function BoardColumn({ board, cards }: BoardColu
   const updateBoard = useBoardsStore((s) => s.updateBoard);
   const deleteBoard = useBoardsStore((s) => s.deleteBoard);
 
-  const handleCreateCard = async (title: string, description?: string) => {
+  const handleCreateCard = async (title: string, description?: string, dueDate?: string) => {
     await createCard({
       title,
       description,
+      dueDate,
       boardId: board.id,
       position: cards.length,
     });

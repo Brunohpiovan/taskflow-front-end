@@ -2,7 +2,7 @@
 
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash2, Calendar } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -90,6 +90,19 @@ export const TaskCard = memo(function TaskCard({ card }: TaskCardProps) {
             ) : (
               <p className="text-xs text-muted-foreground/70 mt-1 italic">Sem descrição</p>
             )}
+            {card.dueDate && (
+              <div className="flex items-center gap-1.5 mt-2 text-xs text-muted-foreground">
+                <Calendar className="h-3 w-3" />
+                <span>
+                  {new Date(card.dueDate).toLocaleString('pt-BR', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
+                </span>
+              </div>
+            )}
           </button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
@@ -158,6 +171,7 @@ export const TaskCard = memo(function TaskCard({ card }: TaskCardProps) {
     prev.card.title === next.card.title &&
     prev.card.description === next.card.description &&
     prev.card.position === next.card.position &&
-    prev.card.boardId === next.card.boardId
+    prev.card.boardId === next.card.boardId &&
+    prev.card.dueDate === next.card.dueDate
   );
 });
