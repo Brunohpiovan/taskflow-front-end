@@ -137,7 +137,12 @@ export function LabelManager({ boardId, selectedLabels, onChange }: LabelManager
                     >
                         {label.name}
                         <button
-                            onClick={() => toggleLabel(label)}
+                            type="button"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                toggleLabel(label);
+                            }}
                             className="hover:bg-black/20 rounded-full p-0.5"
                         >
                             <X className="h-3 w-3" />

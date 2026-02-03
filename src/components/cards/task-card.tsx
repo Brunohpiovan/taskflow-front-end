@@ -170,7 +170,10 @@ export const TaskCard = memo(function TaskCard({ card }: TaskCardProps) {
                 await updateCard(card.id, updateData);
               }
 
-              toast.success("Card atualizado.");
+              // Only show toast if it's not just a label update
+              if (!data.labels || Object.keys(data).length > 1) {
+                toast.success("Card atualizado.");
+              }
             } catch (error) {
               console.error('Update failed:', error);
               toast.error("Erro ao atualizar card.");
