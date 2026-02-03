@@ -6,6 +6,11 @@ import type {
 } from "@/types/environment.types";
 
 export const environmentsService = {
+  getAllDashboard: async (): Promise<Environment[]> => {
+    const { data } = await api.get<Environment[]>("/environments/dashboard");
+    return data;
+  },
+
   getAll: async (): Promise<Environment[]> => {
     const { data } = await api.get<Environment[]>("/environments");
     return data;

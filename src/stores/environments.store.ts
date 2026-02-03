@@ -13,22 +13,37 @@ interface EnvironmentsState {
   isLoading: boolean;
   error: string | null;
   fetchEnvironments: () => Promise<void>;
+  fetchDashboardEnvironments: () => Promise<void>;
   createEnvironment: (data: CreateEnvironmentDTO) => Promise<Environment>;
   updateEnvironment: (id: string, data: UpdateEnvironmentDTO) => Promise<void>;
   deleteEnvironment: (id: string) => Promise<void>;
   setCurrentEnvironment: (env: Environment | null) => void;
 }
 
-export const useEnvironmentsStore = create<EnvironmentsState>((set) => ({
+export const useEnvironmentsStore = create<EnvironmentsState>((set, get) => ({
   environments: [],
   currentEnvironment: null,
   isLoading: false,
   error: null,
 
   fetchEnvironments: async () => {
+    if (get().isLoading) return;
     set({ isLoading: true, error: null });
     try {
       const environments = await environmentsService.getAll();
+      set({ environments, isLoading: false });
+    } catch (error) {
+      set({ isLoading: false });
+      handleApiError(error);
+      throw error;
+    }
+  },
+
+  fetchDashboardEnvironments: async () => {
+    if (get().isLoading) return;
+    set({ isLoading: true, error: null });
+    try {
+      const environments = await environmentsService.getAllDashboard();
       set({ environments, isLoading: false });
     } catch (error) {
       set({ isLoading: false });

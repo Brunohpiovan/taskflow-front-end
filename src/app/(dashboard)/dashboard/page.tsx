@@ -12,7 +12,7 @@ import { ROUTES } from "@/lib/constants";
 export default function DashboardPage() {
   const user = useAuthStore((s) => s.user);
   const environments = useEnvironmentsStore((s) => s.environments);
-  const fetchEnvironments = useEnvironmentsStore((s) => s.fetchEnvironments);
+  const fetchEnvironments = useEnvironmentsStore((s) => s.fetchDashboardEnvironments);
   const isLoading = useEnvironmentsStore((s) => s.isLoading);
 
   useEffect(() => {
