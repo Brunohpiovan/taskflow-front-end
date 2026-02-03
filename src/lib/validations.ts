@@ -46,6 +46,7 @@ export const cardSchema = z.object({
     .or(z.literal("")),
   labels: z.array(z.string()).optional(),
   dueDate: z.string().optional(),
+  boardId: z.string().optional(),
 });
 
 export const profileSchema = z
