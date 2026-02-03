@@ -1,5 +1,6 @@
 export interface Board {
   id: string;
+  slug: string;
   name: string;
   description?: string;
   position: number;

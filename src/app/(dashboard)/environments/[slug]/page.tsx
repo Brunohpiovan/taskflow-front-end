@@ -29,7 +29,7 @@ import { toast } from "sonner";
 
 export default function EnvironmentBoardsPage() {
   const params = useParams();
-  const environmentId = params.environmentId as string;
+  const slug = params.slug as string;
 
   const [formOpen, setFormOpen] = useState(false);
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
@@ -48,7 +48,8 @@ export default function EnvironmentBoardsPage() {
   const fetchCards = useCardsStore((s) => s.fetchCards);
   const moveCard = useCardsStore((s) => s.moveCard);
 
-  const environment = environments.find((e) => e.id === environmentId);
+  const environment = environments.find((e) => e.slug === slug);
+  const environmentId = environment?.id;
 
   const boardIds = useMemo(() => boards.map((b) => b.id), [boards]);
 
@@ -138,6 +139,7 @@ export default function EnvironmentBoardsPage() {
   };
 
   const handleCreateBoard = async (name: string, description?: string) => {
+    if (!environmentId) return;
     await createBoard({
       name,
       description,

@@ -1,5 +1,6 @@
 export interface Environment {
   id: string;
+  slug: string;
   name: string;
   description?: string;
   boardsCount?: number;

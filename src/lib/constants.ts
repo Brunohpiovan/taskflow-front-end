@@ -12,8 +12,8 @@ export const ROUTES = {
   AUTH_CALLBACK: "/auth/callback",
   DASHBOARD: "/dashboard",
   ENVIRONMENTS: "/environments",
-  ENVIRONMENT: (id: string) => `/environments/${id}`,
-  BOARD: (envId: string, boardId: string) => `/environments/${envId}/boards/${boardId}`,
+  ENVIRONMENT: (slug: string) => `/environments/${slug}`,
+  BOARD: (envSlug: string, boardSlug: string) => `/environments/${envSlug}/boards/${boardSlug}`,
   MY_DATA: "/meus-dados",
 } as const;
 

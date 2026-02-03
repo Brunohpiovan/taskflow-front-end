@@ -34,7 +34,7 @@ export function EnvironmentCard({ environment, onEdit, onDelete }: EnvironmentCa
     >
       <CardHeader className="flex flex-row items-start justify-between gap-3 pb-3 pt-5 px-5">
         <Link
-          href={ROUTES.ENVIRONMENT(environment.id)}
+          href={ROUTES.ENVIRONMENT(environment.slug)}
           className="flex-1 min-w-0 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-lg -m-1 p-1"
         >
           <div className="flex items-center gap-3">
@@ -87,7 +87,7 @@ export function EnvironmentCard({ environment, onEdit, onDelete }: EnvironmentCa
       </CardHeader>
       <CardContent className="px-5 pb-5 pt-0">
         <Link
-          href={ROUTES.ENVIRONMENT(environment.id)}
+          href={ROUTES.ENVIRONMENT(environment.slug)}
           className="flex items-center gap-2 rounded-lg border border-border/50 bg-muted/30 px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
         >
           <span className="font-medium tabular-nums text-foreground/90">{boardsCount}</span>

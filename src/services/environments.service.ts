@@ -21,6 +21,11 @@ export const environmentsService = {
     return data;
   },
 
+  getBySlug: async (slug: string): Promise<Environment> => {
+    const { data } = await api.get<Environment>(`/environments/slug/${slug}`);
+    return data;
+  },
+
   create: async (payload: CreateEnvironmentDTO): Promise<Environment> => {
     const { data } = await api.post<Environment>("/environments", payload);
     return data;

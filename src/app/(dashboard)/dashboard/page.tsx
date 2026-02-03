@@ -65,7 +65,7 @@ export default async function DashboardPage() {
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {recentEnvironments.map((env) => (
-              <Link key={env.id} href={ROUTES.ENVIRONMENT(env.id)} className="block group">
+              <Link key={env.id} href={ROUTES.ENVIRONMENT(env.slug)} className="block group">
                 <Card className="h-full transition-colors hover:bg-muted/40 shadow-sm">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-base font-medium truncate  decoration-1 underline-offset-4">
