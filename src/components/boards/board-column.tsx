@@ -11,6 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
@@ -112,12 +113,12 @@ export const BoardColumn = memo(function BoardColumn({ board, cards }: BoardColu
   return (
     <div
       ref={setNodeRef}
-      className={
-        "shrink-0 w-[288px] ml-2 rounded-xl border bg-muted/20 transition-all duration-200 min-h-[620px] max-h-[630px] shadow-sm " +
-        (isOverBoard
-          ? "bg-muted/40 ring-2 ring-primary/20 shadow-md"
-          : "bg-muted/10 border border-transparent hover:border-border/40 hover:bg-muted/20")
-      }
+      className={cn(
+        "shrink-0 w-[288px] ml-2 rounded-xl transition-all duration-200 min-h-[620px] max-h-[630px] border",
+        isOverBoard
+          ? "bg-muted/60 border-primary/20 ring-2 ring-primary/20 shadow-md"
+          : "bg-secondary/50 border-border/80 hover:border-border hover:bg-secondary/70 shadow-sm"
+      )}
     >
       <Card className="h-full flex flex-col rounded-xl border-0 bg-card/80 shadow-none">
         <CardHeader className="flex flex-row items-center justify-between gap-2 px-4 pt-4 pb-3 space-y-0">
