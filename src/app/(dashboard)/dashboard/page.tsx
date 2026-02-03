@@ -16,95 +16,102 @@ export default function DashboardPage() {
   const isLoading = useEnvironmentsStore((s) => s.isLoading);
 
   useEffect(() => {
-    fetchEnvironments().catch(() => {});
+    fetchEnvironments().catch(() => { });
   }, [fetchEnvironments]);
 
   const totalCards = environments.reduce((acc, env) => acc + (env.cardsCount ?? 0), 0);
   const recentEnvironments = environments.slice(0, 3);
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight text-foreground md:text-3xl">
-          Olá, {user?.name?.split(" ")[0] ?? "usuário"}!
+        <h2 className="text-3xl font-semibold tracking-tight text-foreground">
+          Olá, {user?.name?.split(" ")[0] ?? "usuário"}
         </h2>
-        <p className="text-muted-foreground mt-1 text-base">
-          Aqui está um resumo das suas atividades.
+        <p className="text-muted-foreground mt-2 text-lg">
+          Bem-vindo de volta ao TaskFlow.
         </p>
       </div>
 
-      <div className="grid gap-5 md:grid-cols-2">
-        <Card className="overflow-hidden">
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card className="shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Ambientes</CardTitle>
-            <div className="rounded-lg bg-primary/10 p-2">
-              <FolderKanban className="h-4 w-4 text-icon" />
-            </div>
+            <FolderKanban className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold tabular-nums">{isLoading ? "..." : environments.length}</div>
-            <p className="text-xs text-muted-foreground mt-1">Total de ambientes criados</p>
+            <p className="text-xs text-muted-foreground mt-1">Ambientes ativos</p>
           </CardContent>
         </Card>
-        <Card className="overflow-hidden">
+        <Card className="shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Tarefas</CardTitle>
-            <div className="rounded-lg bg-primary/10 p-2">
-              <ListTodo className="h-4 w-4 text-icon" />
-            </div>
+            <ListTodo className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold tabular-nums">{isLoading ? "..." : totalCards}</div>
-            <p className="text-xs text-muted-foreground mt-1">Total de cards em todos os quadros</p>
+            <p className="text-xs text-muted-foreground mt-1">Total acumulado</p>
           </CardContent>
         </Card>
       </div>
 
       <div>
-        <h3 className="mb-5 text-lg font-semibold text-foreground">Ambientes recentes</h3>
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-lg font-medium text-foreground">Recentes</h3>
+          {!isLoading && environments.length > 0 && (
+            <Button variant="link" className="text-muted-foreground hover:text-foreground h-auto p-0" asChild>
+              <Link href={ROUTES.ENVIRONMENTS}>Ver todos</Link>
+            </Button>
+          )}
+        </div>
+
         {isLoading ? (
-          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3].map((i) => (
-              <Card key={i} className="animate-pulse">
+              <Card key={i} className="animate-pulse shadow-sm border-muted">
                 <CardHeader>
-                  <div className="h-6 w-32 rounded-lg bg-muted" />
-                  <div className="h-4 w-24 rounded-lg bg-muted mt-2" />
+                  <div className="h-5 w-3/4 rounded bg-muted" />
+                  <div className="h-4 w-1/2 rounded bg-muted mt-2" />
                 </CardHeader>
+                <CardContent>
+                  <div className="h-8 w-full rounded bg-muted" />
+                </CardContent>
               </Card>
             ))}
           </div>
         ) : recentEnvironments.length === 0 ? (
-          <Card>
-            <CardContent className="flex flex-col items-center justify-center py-14">
-              <FolderKanban className="h-12 w-12 text-muted-foreground mb-4" />
-              <p className="text-muted-foreground text-center mb-5 max-w-sm">
-                Você ainda não tem ambientes. Crie seu primeiro ambiente para começar.
-              </p>
-              <Button asChild>
-                <Link href={ROUTES.ENVIRONMENTS}>Ir para Ambientes</Link>
-              </Button>
-            </CardContent>
-          </Card>
+          <div className="rounded-lg border border-dashed p-8 text-center animate-in fade-in-50">
+            <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-muted">
+              <FolderKanban className="h-5 w-5 text-muted-foreground" />
+            </div>
+            <h3 className="mt-4 text-sm font-semibold text-foreground">Sem ambientes</h3>
+            <p className="mt-1 text-sm text-muted-foreground">Comece criando um novo ambiente de trabalho.</p>
+            <Button asChild variant="outline" size="sm" className="mt-4">
+              <Link href={ROUTES.ENVIRONMENTS}>Criar ambiente</Link>
+            </Button>
+          </div>
         ) : (
-          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {recentEnvironments.map((env) => (
-              <Link key={env.id} href={ROUTES.ENVIRONMENT(env.id)}>
-                <Card className="hover:bg-accent/50 transition-all duration-200 cursor-pointer h-full border-2 hover:border-primary/20">
-                  <CardHeader>
-                    <CardTitle className="text-base font-semibold">{env.name}</CardTitle>
+              <Link key={env.id} href={ROUTES.ENVIRONMENT(env.id)} className="block group">
+                <Card className="h-full transition-colors hover:bg-muted/40 shadow-sm">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-base font-medium truncate  decoration-1 underline-offset-4">
+                      {env.name}
+                    </CardTitle>
                   </CardHeader>
-                  <CardContent className="text-sm text-muted-foreground">
-                    {env.boardsCount ?? 0} quadros · {env.cardsCount ?? 0} tarefas
+                  <CardContent>
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                      <span>{env.boardsCount ?? 0} quadros</span>
+                      <span>•</span>
+                      <span>{env.cardsCount ?? 0} tarefas</span>
+                    </div>
                   </CardContent>
                 </Card>
               </Link>
             ))}
           </div>
-        )}
-        {!isLoading && environments.length > 0 && (
-          <Button variant="outline" className="mt-5 rounded-lg" asChild>
-            <Link href={ROUTES.ENVIRONMENTS}>Ver todos os ambientes</Link>
-          </Button>
         )}
       </div>
     </div>
