@@ -269,13 +269,21 @@ export function CardDetailModal({
               <div className="space-y-2">
                 {loadingCard ? (
                   <p className="text-sm text-muted-foreground">Carregando labels...</p>
-                ) : (
-                  <LabelManager
-                    boardId={fullCard?.boardId || card.boardId}
-                    selectedLabels={fullLabels}
-                    onChange={handleLabelChange}
-                  />
-                )}
+                ) : (() => {
+                  // Get environmentId from the board
+                  const currentBoard = boards.find(b => b.id === (fullCard?.boardId || card.boardId));
+                  const environmentId = currentBoard?.environmentId || '';
+
+                  return environmentId ? (
+                    <LabelManager
+                      environmentId={environmentId}
+                      selectedLabels={fullLabels}
+                      onChange={handleLabelChange}
+                    />
+                  ) : (
+                    <p className="text-sm text-muted-foreground">Carregando...</p>
+                  );
+                })()}
               </div>
 
               <div className="flex flex-col gap-2 pt-4 border-t">

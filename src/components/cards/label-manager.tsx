@@ -14,7 +14,7 @@ import { Label as LabelType } from "@/types/card.types";
 import { cn } from "@/lib/utils";
 
 interface LabelManagerProps {
-    boardId: string;
+    environmentId: string;
     selectedLabels: LabelType[];
     onChange: (labels: LabelType[]) => void;
 }
@@ -30,7 +30,7 @@ const COLORS = [
     "#ec4899", // pink-500
 ];
 
-export function LabelManager({ boardId, selectedLabels, onChange }: LabelManagerProps) {
+export function LabelManager({ environmentId, selectedLabels, onChange }: LabelManagerProps) {
     const [availableLabels, setAvailableLabels] = useState<LabelType[]>([]);
     const [loading, setLoading] = useState(false);
     const [isCreating, setIsCreating] = useState(false);
@@ -41,12 +41,12 @@ export function LabelManager({ boardId, selectedLabels, onChange }: LabelManager
 
     useEffect(() => {
         loadLabels();
-    }, [boardId]);
+    }, [environmentId]);
 
     const loadLabels = async () => {
         try {
             setLoading(true);
-            const data = await labelsService.getByBoardId(boardId);
+            const data = await labelsService.getByEnvironmentId(environmentId);
             setAvailableLabels(Array.isArray(data) ? data : []);
         } catch (error) {
             console.error("Failed to load labels", error);
@@ -71,7 +71,7 @@ export function LabelManager({ boardId, selectedLabels, onChange }: LabelManager
         if (!newLabelName.trim()) return;
         try {
             const label = await labelsService.create({
-                boardId,
+                environmentId,
                 name: newLabelName.trim(),
                 color: newLabelColor,
             });

@@ -2,7 +2,7 @@ export interface Label {
   id: string;
   name: string;
   color: string;
-  boardId: string;
+  environmentId: string;
 }
 
 export interface Card {

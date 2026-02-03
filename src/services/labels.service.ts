@@ -4,7 +4,7 @@ import { Label } from "@/types/card.types";
 export interface CreateLabelDTO {
     name: string;
     color: string;
-    boardId: string;
+    environmentId: string;
 }
 
 export interface UpdateLabelDTO {
@@ -13,9 +13,9 @@ export interface UpdateLabelDTO {
 }
 
 export const labelsService = {
-    getByBoardId: async (boardId: string): Promise<Label[]> => {
+    getByEnvironmentId: async (environmentId: string): Promise<Label[]> => {
         const response = await api.get("/labels", {
-            params: { boardId },
+            params: { environmentId },
         });
         const result = response.data;
         return Array.isArray(result) ? result : (result.data || []);
