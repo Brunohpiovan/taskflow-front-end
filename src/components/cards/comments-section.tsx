@@ -108,7 +108,7 @@ export function CommentsSection({ cardId }: CommentsSectionProps) {
                                 <AvatarImage src={comment.user?.avatar} />
                                 <AvatarFallback>{comment.user?.name?.charAt(0).toUpperCase() || '?'}</AvatarFallback>
                             </Avatar>
-                            <div className="flex-1 bg-muted/50 p-3 rounded-md space-y-1">
+                            <div className="flex-1 bg-slate-200 dark:bg-slate-950 p-3 rounded-md space-y-1 shadow-sm">
                                 <div className="flex justify-between items-start">
                                     <div className="flex items-center gap-2">
                                         <span className="font-medium text-sm">{comment.user?.name || 'Usuário'}</span>
