@@ -174,38 +174,36 @@ function ResetPasswordForm() {
 
 export default function ResetPasswordPage() {
     return (
-        <div className="flex min-h-screen items-center justify-center p-4 bg-muted/30">
-            <Card className="w-full max-w-sm border-0 shadow-soft rounded-2xl overflow-hidden">
-                <CardHeader className="space-y-1 text-center pb-2">
-                    <div className="relative h-16 w-full flex justify-center mb-4">
-                        <Image
-                            src="/images/icone.png"
-                            alt={APP_NAME}
-                            fill
-                            className="object-contain"
-                            priority
-                        />
-                    </div>
-                    <CardTitle className="text-2xl font-bold tracking-tight">Redefinir senha</CardTitle>
-                    <CardDescription className="text-base">
-                        Crie uma nova senha para sua conta.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <Suspense fallback={<div className="text-center">Carregando...</div>}>
-                        <ResetPasswordForm />
-                    </Suspense>
-                </CardContent>
-                <CardFooter className="flex justify-center border-t p-4">
-                    <Link
-                        href="/login"
-                        className="flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                        <ArrowLeft className="mr-2 h-4 w-4" />
-                        Voltar para o login
-                    </Link>
-                </CardFooter>
-            </Card>
-        </div>
+        <Card className="border-0 shadow-soft rounded-2xl overflow-hidden">
+            <CardHeader className="space-y-1 text-center pb-2">
+                <div className="relative h-16 w-full flex justify-center mb-4">
+                    <Image
+                        src="/images/icone.png"
+                        alt={APP_NAME}
+                        fill
+                        className="object-contain"
+                        priority
+                    />
+                </div>
+                <CardTitle className="text-2xl font-bold tracking-tight">Redefinir senha</CardTitle>
+                <CardDescription className="text-base">
+                    Crie uma nova senha para sua conta.
+                </CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Suspense fallback={<div className="text-center">Carregando...</div>}>
+                    <ResetPasswordForm />
+                </Suspense>
+            </CardContent>
+            <CardFooter className="flex justify-center border-t p-4">
+                <Link
+                    href="/login"
+                    className="flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Voltar para o login
+                </Link>
+            </CardFooter>
+        </Card>
     );
 }

@@ -54,71 +54,69 @@ export default function ForgotPasswordPage() {
     };
 
     return (
-        <div className="flex min-h-screen items-center justify-center p-4 bg-muted/30">
-            <Card className="w-full max-w-sm border-0 shadow-soft rounded-2xl overflow-hidden">
-                <CardHeader className="space-y-1 text-center pb-2">
-                    <div className="relative h-16 w-full flex justify-center mb-4">
-                        <Image
-                            src="/images/icone.png"
-                            alt={APP_NAME}
-                            fill
-                            className="object-contain"
-                            priority
-                        />
-                    </div>
-                    <CardTitle className="text-2xl font-bold tracking-tight">Recuperar senha</CardTitle>
-                    <CardDescription className="text-base">
-                        Digite seu email para receber um link de redefinição.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    {success ? (
-                        <div className="flex flex-col items-center justify-center space-y-4 text-center">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400">
-                                <Mail className="h-6 w-6" />
-                            </div>
-                            <div className="space-y-2">
-                                <h3 className="font-medium">Email enviado!</h3>
-                                <p className="text-sm text-muted-foreground">
-                                    Verifique sua caixa de entrada e siga as instruções para redefinir sua senha.
-                                </p>
-                            </div>
-                            <Button asChild variant="outline" className="w-full h-11 text-base font-medium">
-                                <Link href="/login">Voltar para o login</Link>
-                            </Button>
+        <Card className="border-0 shadow-soft rounded-2xl overflow-hidden">
+            <CardHeader className="space-y-1 text-center pb-2">
+                <div className="relative h-16 w-full flex justify-center mb-4">
+                    <Image
+                        src="/images/icone.png"
+                        alt={APP_NAME}
+                        fill
+                        className="object-contain"
+                        priority
+                    />
+                </div>
+                <CardTitle className="text-2xl font-bold tracking-tight">Recuperar senha</CardTitle>
+                <CardDescription className="text-base">
+                    Digite seu email para receber um link de redefinição.
+                </CardDescription>
+            </CardHeader>
+            <CardContent>
+                {success ? (
+                    <div className="flex flex-col items-center justify-center space-y-4 text-center">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400">
+                            <Mail className="h-6 w-6" />
                         </div>
-                    ) : (
-                        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="email">Email</Label>
-                                <Input
-                                    id="email"
-                                    type="email"
-                                    placeholder="seu@email.com"
-                                    {...register("email")}
-                                />
-                                {errors.email && (
-                                    <p className="text-sm text-destructive">{errors.email.message}</p>
-                                )}
-                            </div>
-                            <Button type="submit" className="w-full h-11 text-base font-medium" isLoading={isSubmitting}>
-                                Enviar link
-                            </Button>
-                        </form>
-                    )}
-                </CardContent>
-                {!success && (
-                    <CardFooter className="flex justify-center border-t p-4">
-                        <Link
-                            href="/login"
-                            className="flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors"
-                        >
-                            <ArrowLeft className="mr-2 h-4 w-4" />
-                            Voltar para o login
-                        </Link>
-                    </CardFooter>
+                        <div className="space-y-2">
+                            <h3 className="font-medium">Email enviado!</h3>
+                            <p className="text-sm text-muted-foreground">
+                                Verifique sua caixa de entrada e siga as instruções para redefinir sua senha.
+                            </p>
+                        </div>
+                        <Button asChild variant="outline" className="w-full h-11 text-base font-medium">
+                            <Link href="/login">Voltar para o login</Link>
+                        </Button>
+                    </div>
+                ) : (
+                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="email">Email</Label>
+                            <Input
+                                id="email"
+                                type="email"
+                                placeholder="seu@email.com"
+                                {...register("email")}
+                            />
+                            {errors.email && (
+                                <p className="text-sm text-destructive">{errors.email.message}</p>
+                            )}
+                        </div>
+                        <Button type="submit" className="w-full h-11 text-base font-medium" isLoading={isSubmitting}>
+                            Enviar link
+                        </Button>
+                    </form>
                 )}
-            </Card>
-        </div>
+            </CardContent>
+            {!success && (
+                <CardFooter className="flex justify-center border-t p-4">
+                    <Link
+                        href="/login"
+                        className="flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                        <ArrowLeft className="mr-2 h-4 w-4" />
+                        Voltar para o login
+                    </Link>
+                </CardFooter>
+            )}
+        </Card>
     );
 }
