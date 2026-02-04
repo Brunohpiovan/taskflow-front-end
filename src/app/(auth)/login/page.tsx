@@ -119,6 +119,14 @@ function LoginContent() {
                 )}
               </Button>
             </div>
+            <div className="flex justify-end mt-1 relative z-10">
+              <Link
+                href="/forgot-password"
+                className="text-xs text-muted-foreground hover:text-foreground hover:underline px-1 py-0.5"
+              >
+                Esqueci minha senha
+              </Link>
+            </div>
             {errors.password && (
               <p className="text-sm text-destructive">{errors.password.message}</p>
             )}

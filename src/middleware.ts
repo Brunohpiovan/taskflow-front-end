@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { STORAGE_KEYS } from "@/lib/constants";
 
-const publicRoutes = ["/login", "/register", "/auth/callback"];
+const publicRoutes = ["/login", "/register", "/auth/callback", "/forgot-password", "/reset-password"];
 
 export function middleware(request: NextRequest) {
   const token = request.cookies.get(STORAGE_KEYS.AUTH_TOKEN)?.value;
