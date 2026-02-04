@@ -50,6 +50,7 @@ interface TaskCardProps {
 export const TaskCard = memo(function TaskCard({ card }: TaskCardProps) {
   const [detailOpen, setDetailOpen] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const {
     attributes,
@@ -97,6 +98,10 @@ export const TaskCard = memo(function TaskCard({ card }: TaskCardProps) {
         )}
         {...attributes}
         {...listeners}
+        onContextMenu={(e) => {
+          e.preventDefault();
+          if (!isDragging) setMenuOpen(true);
+        }}
       >
         <CardContent className="p-3.5 flex flex-row items-start gap-2">
           <div className={cn(
@@ -172,7 +177,7 @@ export const TaskCard = memo(function TaskCard({ card }: TaskCardProps) {
               );
             })()}
           </button>
-          <DropdownMenu>
+          <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
             <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
               <Button
                 variant="ghost"
