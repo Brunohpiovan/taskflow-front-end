@@ -54,13 +54,15 @@ export function Header() {
       <div className="flex-1">
         <div
           onClick={() => router.push("/dashboard")}
-          className="relative h-9 w-18 max-w-18 cursor-pointer hover:opacity-80 transition-opacity"
+          className="w-fit  cursor-pointer hover:opacity-80 transition-opacity"
         >
           <Image
             src="/images/logo.png"
             alt={APP_NAME}
-            fill
-            className="object-contain object-left  !max-h-20"
+            width={0}
+            height={0}
+            sizes="100vw"
+            className="h-9 w-auto"
             priority
           />
         </div>
