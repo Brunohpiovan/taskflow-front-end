@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { Plus, Users } from "lucide-react";
 import {
   DndContext,
   DragEndEvent,
@@ -26,17 +26,30 @@ import { useBoardsStore } from "@/stores/boards.store";
 import { useCardsStore } from "@/stores/cards.store";
 import { ROUTES } from "@/lib/constants";
 import { toast } from "sonner";
+import { MembersList } from "@/components/environments/members-list";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useSocket } from "@/lib/socket";
+import { useAuthStore } from "@/stores/auth.store";
+import type { Card } from "@/types/card.types";
+
 
 export default function EnvironmentBoardsPage() {
   const params = useParams();
   const slug = params.slug as string;
 
   const [formOpen, setFormOpen] = useState(false);
+  const [membersOpen, setMembersOpen] = useState(false);
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
 
   const environments = useEnvironmentsStore((s) => s.environments);
   const fetchEnvironments = useEnvironmentsStore((s) => s.fetchEnvironments);
   const setCurrentEnvironment = useEnvironmentsStore((s) => s.setCurrentEnvironment);
+
+  const environment = useMemo(
+    () => environments.find((e) => e.slug === slug),
+    [environments, slug]
+  );
+  const environmentId = environment?.id;
 
   const boards = useBoardsStore((s) => s.boards);
   const isLoading = useBoardsStore((s) => s.isLoading);
@@ -44,12 +57,12 @@ export default function EnvironmentBoardsPage() {
   const createBoard = useBoardsStore((s) => s.createBoard);
   const clearBoards = useBoardsStore((s) => s.clearBoards);
 
+
   const cardsByBoard = useCardsStore((s) => s.cards);
   const fetchCards = useCardsStore((s) => s.fetchCards);
   const moveCard = useCardsStore((s) => s.moveCard);
 
-  const environment = environments.find((e) => e.slug === slug);
-  const environmentId = environment?.id;
+
 
   const boardIds = useMemo(() => boards.map((b) => b.id), [boards]);
 
@@ -150,6 +163,56 @@ export default function EnvironmentBoardsPage() {
     setFormOpen(false);
   };
 
+  /* ... inside component ... */
+  const { socket } = useSocket(environmentId);
+  const { user } = useAuthStore();
+  const syncCardMove = useCardsStore((s) => s.syncCardMove);
+  const syncCardCreated = useCardsStore((s) => s.syncCardCreated);
+  const syncCardUpdated = useCardsStore((s) => s.syncCardUpdated);
+  const syncCardDeleted = useCardsStore((s) => s.syncCardDeleted);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const onCardMoved = (data: {
+      cardId: string;
+      fromBoardId: string;
+      toBoardId: string;
+      newPosition: number;
+      userId: string;
+    }) => {
+      if (data.userId === user?.id) return;
+      syncCardMove(data.cardId, data.fromBoardId, data.toBoardId, data.newPosition);
+    };
+
+    const onCardCreated = (data: Card & { userId: string }) => {
+      if (data.userId === user?.id) return;
+      syncCardCreated(data);
+    };
+
+    const onCardUpdated = (data: Card & { userId: string }) => {
+      if (data.userId === user?.id) return;
+      syncCardUpdated(data);
+    };
+
+    const onCardDeleted = (data: { cardId: string; boardId: string; userId: string }) => {
+      if (data.userId === user?.id) return;
+      syncCardDeleted(data.cardId, data.boardId);
+    };
+
+    socket.on("cardMoved", onCardMoved);
+    socket.on("cardCreated", onCardCreated);
+    socket.on("cardUpdated", onCardUpdated);
+    socket.on("cardDeleted", onCardDeleted);
+
+    return () => {
+      socket.off("cardMoved", onCardMoved);
+      socket.off("cardCreated", onCardCreated);
+      socket.off("cardUpdated", onCardUpdated);
+      socket.off("cardDeleted", onCardDeleted);
+    };
+  }, [socket, user, syncCardMove, syncCardCreated, syncCardUpdated, syncCardDeleted]);
+
   if (!environment && environments.length > 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12">
@@ -173,12 +236,27 @@ export default function EnvironmentBoardsPage() {
         backHref={ROUTES.ENVIRONMENTS}
         backLabel="Ambientes"
         action={
-          <Button onClick={() => setFormOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            Novo quadro
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setMembersOpen(true)}>
+              <Users className="mr-2 h-4 w-4" />
+              Membros
+            </Button>
+            <Button onClick={() => setFormOpen(true)}>
+              <Plus className="mr-2 h-4 w-4" />
+              Novo quadro
+            </Button>
+          </div>
         }
       />
+
+      <Dialog open={membersOpen} onOpenChange={setMembersOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Gerenciar Membros</DialogTitle>
+          </DialogHeader>
+          {environmentId && <MembersList environmentId={environmentId} />}
+        </DialogContent>
+      </Dialog>
 
       {/* Área dos quadros com margem lateral reduzida */}
       <div className="-mx-2 sm:-mx-4 md:-mx-6 lg:-mx-8">

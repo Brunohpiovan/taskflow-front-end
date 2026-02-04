@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { STORAGE_KEYS } from "@/lib/constants";
 
-const publicRoutes = ["/login", "/register", "/auth/callback", "/forgot-password", "/reset-password"];
+const publicRoutes = ["/login", "/register", "/auth/callback", "/forgot-password", "/reset-password", "/join"];
 
 export function middleware(request: NextRequest) {
   const token = request.cookies.get(STORAGE_KEYS.AUTH_TOKEN)?.value;
@@ -12,7 +12,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL(token ? "/dashboard" : "/login", request.url));
   }
 
-  if (publicRoutes.includes(pathname) && token) {
+  if (publicRoutes.includes(pathname) && token && pathname !== "/join") {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 

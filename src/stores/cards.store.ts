@@ -21,6 +21,10 @@ interface CardsState {
     newIndex: number
   ) => Promise<void>;
   setCardsForBoard: (boardId: string, cards: Card[]) => void;
+  syncCardMove: (cardId: string, fromBoardId: string, toBoardId: string, newIndex: number) => void;
+  syncCardCreated: (card: Card) => void;
+  syncCardUpdated: (card: Card) => void;
+  syncCardDeleted: (cardId: string, boardId: string) => void;
   clearCards: () => void;
 }
 
@@ -158,6 +162,78 @@ export const useCardsStore = create<CardsState>((set, get) => ({
     set((state) => ({
       cards: { ...state.cards, [boardId]: cards },
     }));
+  },
+
+  syncCardMove: (cardId, fromBoardId, toBoardId, newIndex) => {
+    const prevCards = get().cards;
+    const fromCards = prevCards[fromBoardId] ?? [];
+    const card = fromCards.find((c) => c.id === cardId);
+
+    if (!card) return;
+
+    const sameBoard = fromBoardId === toBoardId;
+
+    set((state) => {
+      const newFrom = state.cards[fromBoardId]?.filter((c) => c.id !== cardId) ?? [];
+      const updatedCard = { ...card, boardId: toBoardId };
+
+      if (sameBoard) {
+        const insertIndex = Math.min(newIndex, newFrom.length);
+        const newTo = [...newFrom];
+        newTo.splice(insertIndex, 0, updatedCard);
+        const sorted = newTo.map((c, i) => ({ ...c, position: i }));
+        return { cards: { ...state.cards, [fromBoardId]: sorted } };
+      }
+
+      const newTo = [...(state.cards[toBoardId] ?? [])];
+      newTo.splice(newIndex, 0, updatedCard);
+
+      const newToSorted = newTo.map((c, i) => ({ ...c, position: i }));
+      const newFromSorted = newFrom.map((c, i) => ({ ...c, position: i }));
+
+      return {
+        cards: {
+          ...state.cards,
+          [fromBoardId]: newFromSorted,
+          [toBoardId]: newToSorted,
+        },
+      };
+    });
+  },
+
+  syncCardCreated: (card) => {
+    set((state) => {
+      const boardCards = state.cards[card.boardId] ?? [];
+      // Avoid duplicate if already exists (shouldn't happen with optimistic, but safety)
+      if (boardCards.some((c) => c.id === card.id)) return {};
+
+      const newCards = [...boardCards, card].sort((a, b) => a.position - b.position);
+      return { cards: { ...state.cards, [card.boardId]: newCards } };
+    });
+  },
+
+  syncCardUpdated: (card) => {
+    set((state) => {
+      const boardCards = state.cards[card.boardId];
+      if (!boardCards) return {};
+
+      const idx = boardCards.findIndex((c) => c.id === card.id);
+      if (idx === -1) return {};
+
+      const newCards = [...boardCards];
+      newCards[idx] = { ...newCards[idx], ...card };
+      return { cards: { ...state.cards, [card.boardId]: newCards } };
+    });
+  },
+
+  syncCardDeleted: (cardId, boardId) => {
+    set((state) => {
+      const boardCards = state.cards[boardId];
+      if (!boardCards) return {};
+
+      const newCards = boardCards.filter((c) => c.id !== cardId);
+      return { cards: { ...state.cards, [boardId]: newCards } };
+    });
   },
 
   clearCards: () => set({ cards: {} }),
