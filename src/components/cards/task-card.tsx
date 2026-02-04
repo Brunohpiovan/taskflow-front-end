@@ -92,8 +92,8 @@ export const TaskCard = memo(function TaskCard({ card }: TaskCardProps) {
         style={style}
         className={cn(
           "group rounded-xl border bg-cardTask shadow-sm transition-all duration-200 hover:border-border/80 hover:shadow-md",
-          isDragging && "opacity-0 pointer-events-none",
-          card.completed && "opacity-95 bg-muted/30"
+          card.completed && "opacity-95 bg-muted/30",
+          isDragging && "opacity-0 pointer-events-none"
         )}
         {...attributes}
         {...listeners}
