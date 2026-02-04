@@ -45,7 +45,7 @@ export const BoardColumn = memo(function BoardColumn({ board, cards }: BoardColu
   const [editNameLoading, setEditNameLoading] = useState(false);
 
   const { setNodeRef } = useDroppable({ id: board.id });
-  const { active, over } = useDndContext();
+  const { over } = useDndContext();
 
   const isOverBoard = useMemo(() => {
     if (!over) return false;

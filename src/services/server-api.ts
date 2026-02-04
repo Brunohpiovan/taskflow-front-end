@@ -51,14 +51,14 @@ export const serverApi = {
     get: <T>(endpoint: string, config?: RequestConfig) =>
         fetchAPI<T>(endpoint, { ...config, method: "GET" }),
 
-    post: <T>(endpoint: string, body: any, config?: RequestConfig) =>
+    post: <T>(endpoint: string, body: unknown, config?: RequestConfig) =>
         fetchAPI<T>(endpoint, {
             ...config,
             method: "POST",
             body: JSON.stringify(body),
         }),
 
-    put: <T>(endpoint: string, body: any, config?: RequestConfig) =>
+    put: <T>(endpoint: string, body: unknown, config?: RequestConfig) =>
         fetchAPI<T>(endpoint, {
             ...config,
             method: "PUT",

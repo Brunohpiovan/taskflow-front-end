@@ -16,20 +16,19 @@ export function ActivityLogList({ cardId }: ActivityLogProps) {
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
+        const loadLogs = async () => {
+            try {
+                setLoading(true);
+                const data = await activityLogsService.getByCardId(cardId);
+                setLogs(Array.isArray(data) ? data : []);
+            } catch (error) {
+                console.error("Failed to load activity logs", error);
+            } finally {
+                setLoading(false);
+            }
+        };
         loadLogs();
     }, [cardId]);
-
-    const loadLogs = async () => {
-        try {
-            setLoading(true);
-            const data = await activityLogsService.getByCardId(cardId);
-            setLogs(Array.isArray(data) ? data : []);
-        } catch (error) {
-            console.error("Failed to load activity logs", error);
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const getActionText = (action: string) => {
         switch (action) {

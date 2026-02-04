@@ -37,7 +37,7 @@ export function CardForm({
   title = "Novo card",
   defaultTitle = "",
   defaultDescription = "",
-  boardId,
+  // boardId,
   environmentId,
 }: CardFormProps) {
   const [cardTitle, setCardTitle] = useState(defaultTitle);

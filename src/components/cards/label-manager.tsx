@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, X, Tag, Trash2 } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { Plus, X, Trash2 } from "lucide-react";
+// import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,7 +33,7 @@ const COLORS = [
 
 export function LabelManager({ environmentId, selectedLabels, onChange }: LabelManagerProps) {
     const [availableLabels, setAvailableLabels] = useState<LabelType[]>([]);
-    const [loading, setLoading] = useState(false);
+    const [, setLoading] = useState(false);
     const [isCreating, setIsCreating] = useState(false);
     const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
     const [labelToDelete, setLabelToDelete] = useState<LabelType | null>(null);
@@ -43,20 +43,19 @@ export function LabelManager({ environmentId, selectedLabels, onChange }: LabelM
     const [newLabelColor, setNewLabelColor] = useState(COLORS[0]);
 
     useEffect(() => {
+        const loadLabels = async () => {
+            try {
+                setLoading(true);
+                const data = await labelsService.getByEnvironmentId(environmentId);
+                setAvailableLabels(Array.isArray(data) ? data : []);
+            } catch (error) {
+                console.error("Failed to load labels", error);
+            } finally {
+                setLoading(false);
+            }
+        };
         loadLabels();
     }, [environmentId]);
-
-    const loadLabels = async () => {
-        try {
-            setLoading(true);
-            const data = await labelsService.getByEnvironmentId(environmentId);
-            setAvailableLabels(Array.isArray(data) ? data : []);
-        } catch (error) {
-            console.error("Failed to load labels", error);
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const selectedIds = selectedLabels.map(l => l.id);
 
@@ -84,7 +83,7 @@ export function LabelManager({ environmentId, selectedLabels, onChange }: LabelM
             // Auto-select the new label
             onChange([...selectedLabels, label]);
             toast.success("Etiqueta criada");
-        } catch (error) {
+        } catch {
             toast.error("Erro ao criar etiqueta");
         }
     };
@@ -103,7 +102,7 @@ export function LabelManager({ environmentId, selectedLabels, onChange }: LabelM
                 onChange(selectedLabels.filter((l) => l.id !== labelToDelete.id));
             }
             toast.success("Etiqueta excluída");
-        } catch (error) {
+        } catch {
             toast.error("Erro ao excluir etiqueta");
         } finally {
             setLabelToDelete(null);

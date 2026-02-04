@@ -9,13 +9,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CARD_DESCRIPTION_MAX_LENGTH } from "@/lib/constants";
-import { Trash } from "lucide-react";
+// import { Trash } from "lucide-react";
 import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
+  //   DialogFooter,
   DialogTitle,
   DialogHeader,
 } from "@/components/ui/dialog";
@@ -47,7 +47,7 @@ export function CardDetailModal({
   open,
   onOpenChange,
   onUpdate,
-  onDelete,
+  // onDelete,
 }: CardDetailModalProps) {
   const initialDescription = (card.description ?? "").slice(0, CARD_DESCRIPTION_MAX_LENGTH);
   const updateInProgressRef = useRef(false);
@@ -101,7 +101,7 @@ export function CardDetailModal({
           setLoadingCard(false);
         });
     }
-  }, [open, card.id]);
+  }, [open, card]);
 
   useEffect(() => {
     if (open && fullCard) {
@@ -144,7 +144,7 @@ export function CardDetailModal({
       reset(data);
 
       onOpenChange(false);
-    } catch (error) {
+    } catch {
       toast.error("Erro ao atualizar o card. Tente novamente.");
     }
   };
@@ -188,7 +188,7 @@ export function CardDetailModal({
     } finally {
       updateInProgressRef.current = false;
     }
-  }, [onUpdate, card.id]);
+  }, [onUpdate, card]);
 
 
   return (

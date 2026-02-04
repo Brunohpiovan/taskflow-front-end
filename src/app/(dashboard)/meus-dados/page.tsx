@@ -19,14 +19,14 @@ import {
 import { PageHeader } from "@/components/shared/page-header";
 import { profileSchema, type ProfileFormData } from "@/lib/validations";
 import { useAuthStore } from "@/stores/auth.store";
-import { authService } from "@/services/auth.service";
-import { handleApiError } from "@/lib/api-error-handler";
+// import { authService } from "@/services/auth.service";
+// import { handleApiError } from "@/lib/api-error-handler";
 import { toast } from "sonner";
 
 export default function MeusDadosPage() {
   const user = useAuthStore((s) => s.user);
   const updateProfile = useAuthStore((s) => s.updateProfile);
-  const setUser = useAuthStore((s) => s.setUser);
+  // const setUser = useAuthStore((s) => s.setUser);
   const isLoading = useAuthStore((s) => s.isLoading);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);

@@ -23,20 +23,19 @@ export function CommentsSection({ cardId }: CommentsSectionProps) {
     const { user } = useAuthStore();
 
     useEffect(() => {
+        const loadComments = async () => {
+            try {
+                setLoading(true);
+                const data = await commentsService.getByCardId(cardId);
+                setComments(Array.isArray(data) ? data : []);
+            } catch (error) {
+                console.error("Failed to load comments", error);
+            } finally {
+                setLoading(false);
+            }
+        };
         loadComments();
     }, [cardId]);
-
-    const loadComments = async () => {
-        try {
-            setLoading(true);
-            const data = await commentsService.getByCardId(cardId);
-            setComments(Array.isArray(data) ? data : []);
-        } catch (error) {
-            console.error("Failed to load comments", error);
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const handleSubmit = async () => {
         if (!newComment.trim()) return;
@@ -50,7 +49,7 @@ export function CommentsSection({ cardId }: CommentsSectionProps) {
             setComments([comment, ...comments]);
             setNewComment("");
             toast.success("Comentário adicionado");
-        } catch (error) {
+        } catch {
             toast.error("Erro ao adicionar comentário");
         } finally {
             setSubmitting(false);
@@ -62,7 +61,7 @@ export function CommentsSection({ cardId }: CommentsSectionProps) {
             await commentsService.delete(id);
             setComments(comments.filter((c) => c.id !== id));
             toast.success("Comentário removido");
-        } catch (error) {
+        } catch {
             toast.error("Erro ao remover comentário");
         }
     };

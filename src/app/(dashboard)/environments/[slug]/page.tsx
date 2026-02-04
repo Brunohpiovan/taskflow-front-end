@@ -76,7 +76,7 @@ export default function EnvironmentBoardsPage() {
 
   useEffect(() => {
     boardIds.forEach((id) => fetchCards(id).catch(() => { }));
-  }, [boardIds.join(","), fetchCards]);
+  }, [boardIds, fetchCards]);
 
   const activeCard = useMemo(() => {
     if (!activeCardId) return null;

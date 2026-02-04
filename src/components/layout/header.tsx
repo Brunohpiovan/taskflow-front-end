@@ -2,7 +2,7 @@
 
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
-import { Moon, Sun, Bell, Menu } from "lucide-react";
+import { Moon, Sun, Menu } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
@@ -52,18 +52,18 @@ export function Header() {
         <Menu className="h-5 w-5" />
       </Button>
       <div className="flex-1">
-      <div
-        onClick={() => router.push("/dashboard")}
-                className="relative h-9 w-18 max-w-18 cursor-pointer hover:opacity-80 transition-opacity"
-      >
-        <Image
-          src="/images/logo.png"
-          alt={APP_NAME}
-          fill
-                  className="object-contain object-left  !max-h-20"
-          priority
-        />
-      </div>
+        <div
+          onClick={() => router.push("/dashboard")}
+          className="relative h-9 w-18 max-w-18 cursor-pointer hover:opacity-80 transition-opacity"
+        >
+          <Image
+            src="/images/logo.png"
+            alt={APP_NAME}
+            fill
+            className="object-contain object-left  !max-h-20"
+            priority
+          />
+        </div>
       </div>
       <div className="flex items-center gap-2">
         <Button
