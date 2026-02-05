@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { Plus, Users } from "lucide-react";
@@ -64,7 +64,9 @@ export default function EnvironmentBoardsPage() {
 
 
 
-  const boardIds = useMemo(() => boards.map((b) => b.id), [boards]);
+  // Stabilize board IDs to prevent unnecessary re-fetches
+  const boardIds = useMemo(() => boards.map((b) => b.id).sort(), [boards]);
+  const prevBoardIdsRef = useRef<string[]>([]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -88,6 +90,14 @@ export default function EnvironmentBoardsPage() {
   }, [environment, setCurrentEnvironment]);
 
   useEffect(() => {
+    // Deep comparison of board IDs
+    const prevIds = prevBoardIdsRef.current;
+    const isSame = boardIds.length === prevIds.length &&
+      boardIds.every((id, i) => id === prevIds[i]);
+
+    if (isSame) return;
+
+    prevBoardIdsRef.current = boardIds;
     boardIds.forEach((id) => fetchCards(id).catch(() => { }));
   }, [boardIds, fetchCards]);
 
