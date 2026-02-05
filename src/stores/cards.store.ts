@@ -33,7 +33,12 @@ export const useCardsStore = create<CardsState>((set, get) => ({
   isLoading: false,
 
   fetchCards: async (boardId) => {
-    if (get().isLoading) return;
+    const state = get();
+    // Check if this specific board is already being fetched
+    if (state.isLoading && state.cards[boardId] !== undefined) {
+      return; // Only skip if we're loading AND this board already has data
+    }
+
     set((state) => ({ cards: { ...state.cards }, isLoading: true }));
     try {
       const cards = await cardsService.getByBoardId(boardId);

@@ -22,7 +22,6 @@ export const useBoardsStore = create<BoardsState>((set, get) => ({
   isLoading: false,
 
   fetchBoards: async (environmentId) => {
-    if (get().isLoading) return;
     set({ isLoading: true });
     try {
       const boards = await boardsService.getByEnvironmentId(environmentId);
