@@ -33,6 +33,7 @@ export const useCardsStore = create<CardsState>((set, get) => ({
   isLoading: false,
 
   fetchCards: async (boardId) => {
+    if (get().isLoading) return;
     set((state) => ({ cards: { ...state.cards }, isLoading: true }));
     try {
       const cards = await cardsService.getByBoardId(boardId);

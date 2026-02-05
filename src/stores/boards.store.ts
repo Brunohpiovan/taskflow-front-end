@@ -17,11 +17,12 @@ interface BoardsState {
   syncBoardDeleted: (boardId: string) => void;
 }
 
-export const useBoardsStore = create<BoardsState>((set) => ({
+export const useBoardsStore = create<BoardsState>((set, get) => ({
   boards: [],
   isLoading: false,
 
   fetchBoards: async (environmentId) => {
+    if (get().isLoading) return;
     set({ isLoading: true });
     try {
       const boards = await boardsService.getByEnvironmentId(environmentId);
