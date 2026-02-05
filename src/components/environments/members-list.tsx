@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,23 @@ export function MembersList({ environmentId }: MembersListProps) {
     const [email, setEmail] = useState("");
     const [inviteLoading, setInviteLoading] = useState(false);
     const { user } = useAuthStore();
+
+    // Allow invite if members list is empty OR if current user is found and is OWNER
+    // Allow invite if members list is empty OR if current user is found and is OWNER (or the only member)
+    const isOwner = useMemo(() => {
+        if (members.length === 0) return true;
+        if (!user) return false;
+
+        const currentMember = members.find(m =>
+            String(m.userId) === String(user.id) ||
+            (m.email && user.email && m.email.toLowerCase() === user.email.toLowerCase())
+        );
+
+        if (!currentMember) return false;
+
+        // User is owner if explicitly OWNER role OR if they are the only member in the list
+        return currentMember.role === 'OWNER' || members.length === 1;
+    }, [members, user]);
 
     const fetchMembers = useCallback(async () => {
         try {
@@ -62,27 +79,33 @@ export function MembersList({ environmentId }: MembersListProps) {
 
     return (
         <div className="space-y-6">
-            <div className="space-y-4">
-                <h4 className="text-sm font-medium text-muted-foreground">Convidar novo membro</h4>
-                <form onSubmit={handleInvite} className="flex gap-2">
-                    <Input
-                        placeholder="Email do usuário"
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                    />
-                    <Button type="submit" disabled={inviteLoading}>
-                        {inviteLoading ? <div className="animate-spin mr-2">C</div> : <UserPlus className="h-4 w-4 mr-2" />}
-                        Convidar
-                    </Button>
-                </form>
-            </div>
+            {isOwner && (
+                <div className="space-y-4">
+                    <h4 className="text-sm font-medium text-muted-foreground">Convidar novo membro</h4>
+                    <form onSubmit={handleInvite} className="flex gap-2">
+                        <Input
+                            placeholder="Email do usuário"
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                        />
+                        <Button type="submit" disabled={inviteLoading}>
+                            {inviteLoading ? <div className="animate-spin mr-2">C</div> : <UserPlus className="h-4 w-4 mr-2" />}
+                            Convidar
+                        </Button>
+                    </form>
+                </div>
+            )}
 
             <div className="space-y-4">
                 <h4 className="text-sm font-medium text-muted-foreground">Membros</h4>
                 {loading ? (
                     <p className="text-sm text-muted-foreground">Carregando...</p>
+                ) : members.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center p-8 text-center border rounded-lg bg-card/50 border-dashed">
+                        <p className="text-sm text-muted-foreground">Nenhum membro encontrado neste ambiente.</p>
+                    </div>
                 ) : (
                     <div className="space-y-3">
                         {members.map((member) => (
@@ -101,8 +124,8 @@ export function MembersList({ environmentId }: MembersListProps) {
                                     <span className="text-xs px-2 py-1 rounded-full bg-muted font-medium">
                                         {member.role === 'OWNER' ? 'Dono' : 'Membro'}
                                     </span>
-                                    {/* Only show delete button if current user is not removing themselves logic handled in backend but frontend validation helps */}
-                                    {member.userId !== user?.id && (
+                                    {/* Only show delete button if current user is owner AND not removing themselves */}
+                                    {isOwner && member.userId !== user?.id && (
                                         <Button
                                             variant="ghost"
                                             size="icon"
