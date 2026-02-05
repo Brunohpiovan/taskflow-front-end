@@ -42,6 +42,7 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true });
         try {
           const { user, token } = await authService.login(credentials);
+          setAuthCookie(token);
           set({
             user,
             token,

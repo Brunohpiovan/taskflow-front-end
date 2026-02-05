@@ -59,23 +59,12 @@ function JoinContent() {
                     </div>
                     <CardTitle className="text-2xl font-bold tracking-tight">Você foi convidado!</CardTitle>
                     <CardDescription className="text-base">
-                        Faça login ou crie uma conta para aceitar o convite e colaborar.
+                        Faça login para aceitar o convite e colaborar.
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <Button asChild className="w-full h-11 text-base font-medium">
-                        <Link href={`/login?callbackUrl=/join?token=${token}`}>Entrar</Link>
-                    </Button>
-                    <div className="relative w-full">
-                        <div className="absolute inset-0 flex items-center">
-                            <span className="w-full border-t border-border" />
-                        </div>
-                        <div className="relative flex justify-center text-xs uppercase tracking-wider text-muted-foreground">
-                            <span className="bg-card px-3">ou</span>
-                        </div>
-                    </div>
-                    <Button asChild variant="outline" className="w-full h-11 border-2">
-                        <Link href={`/register?callbackUrl=/join?token=${token}`}>Criar conta</Link>
+                        <Link href={`/login?callbackUrl=${encodeURIComponent(`/join?token=${token}`)}`}>Entrar</Link>
                     </Button>
                 </CardContent>
             </Card>

@@ -34,7 +34,13 @@ function AuthCallbackContent() {
       .then(() => {
         if (!cancelled) {
           toast.success("Login realizado com sucesso.");
-          router.replace(ROUTES.DASHBOARD);
+          const callbackUrl = sessionStorage.getItem("auth_callback_url");
+          if (callbackUrl) {
+            sessionStorage.removeItem("auth_callback_url");
+            router.replace(callbackUrl);
+          } else {
+            router.replace(ROUTES.DASHBOARD);
+          }
           router.refresh();
         }
       })

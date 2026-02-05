@@ -51,7 +51,12 @@ function LoginContent() {
     setLoginError(null);
     try {
       await login(data);
-      router.push("/dashboard");
+      const callbackUrl = searchParams.get("callbackUrl");
+      if (callbackUrl) {
+        router.push(callbackUrl);
+      } else {
+        router.push("/dashboard");
+      }
       router.refresh();
     } catch (err: unknown) {
       const status = (err as { response?: { status?: number } })?.response?.status;
@@ -152,7 +157,13 @@ function LoginContent() {
               type="button"
               variant="outline"
               className="w-full gap-2 h-11 border-2"
-              onClick={() => (window.location.href = `${API_BASE_URL}/auth/google`)}
+              onClick={() => {
+                const callbackUrl = searchParams.get("callbackUrl");
+                if (callbackUrl) {
+                  sessionStorage.setItem("auth_callback_url", callbackUrl);
+                }
+                window.location.href = `${API_BASE_URL}/auth/google`;
+              }}
             >
               <GoogleIcon size={18} />
               Google
@@ -161,7 +172,13 @@ function LoginContent() {
               type="button"
               variant="outline"
               className="w-full gap-2 h-11 border-2"
-              onClick={() => (window.location.href = `${API_BASE_URL}/auth/github`)}
+              onClick={() => {
+                const callbackUrl = searchParams.get("callbackUrl");
+                if (callbackUrl) {
+                  sessionStorage.setItem("auth_callback_url", callbackUrl);
+                }
+                window.location.href = `${API_BASE_URL}/auth/github`;
+              }}
             >
               <GitHubIcon size={18} />
               GitHub
