@@ -171,6 +171,10 @@ export default function EnvironmentBoardsPage() {
   const syncCardUpdated = useCardsStore((s) => s.syncCardUpdated);
   const syncCardDeleted = useCardsStore((s) => s.syncCardDeleted);
 
+  const syncBoardCreated = useBoardsStore((s) => s.syncBoardCreated);
+  const syncBoardUpdated = useBoardsStore((s) => s.syncBoardUpdated);
+  const syncBoardDeleted = useBoardsStore((s) => s.syncBoardDeleted);
+
   useEffect(() => {
     if (!socket) return;
 
@@ -200,18 +204,58 @@ export default function EnvironmentBoardsPage() {
       syncCardDeleted(data.cardId, data.boardId);
     };
 
+    // Board Events
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const onBoardCreated = (data: any) => {
+      const board = data.board || data;
+      if (data.userId === user?.id) return;
+      syncBoardCreated(board);
+    };
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const onBoardUpdated = (data: any) => {
+      const board = data.board || data;
+      if (data.userId === user?.id) return;
+      syncBoardUpdated(board);
+    };
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const onBoardDeleted = (data: any) => {
+      const boardId = data.boardId || data.id || data; // handle { boardId: ... } or { id: ... } or "id"
+      if (data.userId === user?.id) return;
+      syncBoardDeleted(boardId);
+    };
+
     socket.on("cardMoved", onCardMoved);
     socket.on("cardCreated", onCardCreated);
     socket.on("cardUpdated", onCardUpdated);
     socket.on("cardDeleted", onCardDeleted);
+
+    socket.on("boardCreated", onBoardCreated);
+    socket.on("boardUpdated", onBoardUpdated);
+    socket.on("boardDeleted", onBoardDeleted);
 
     return () => {
       socket.off("cardMoved", onCardMoved);
       socket.off("cardCreated", onCardCreated);
       socket.off("cardUpdated", onCardUpdated);
       socket.off("cardDeleted", onCardDeleted);
+
+      socket.off("boardCreated", onBoardCreated);
+      socket.off("boardUpdated", onBoardUpdated);
+      socket.off("boardDeleted", onBoardDeleted);
     };
-  }, [socket, user, syncCardMove, syncCardCreated, syncCardUpdated, syncCardDeleted]);
+  }, [
+    socket,
+    user,
+    syncCardMove,
+    syncCardCreated,
+    syncCardUpdated,
+    syncCardDeleted,
+    syncBoardCreated,
+    syncBoardUpdated,
+    syncBoardDeleted,
+  ]);
 
   if (!environment && environments.length > 0) {
     return (

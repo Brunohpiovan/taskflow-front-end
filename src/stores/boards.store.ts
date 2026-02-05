@@ -12,6 +12,9 @@ interface BoardsState {
   deleteBoard: (id: string) => Promise<void>;
   reorderBoards: (boards: Board[]) => void;
   clearBoards: () => void;
+  syncBoardCreated: (board: Board) => void;
+  syncBoardUpdated: (board: Board) => void;
+  syncBoardDeleted: (boardId: string) => void;
 }
 
 export const useBoardsStore = create<BoardsState>((set) => ({
@@ -79,4 +82,19 @@ export const useBoardsStore = create<BoardsState>((set) => ({
   reorderBoards: (boards) => set({ boards }),
 
   clearBoards: () => set({ boards: [] }),
+
+  syncBoardCreated: (board) =>
+    set((state) => ({
+      boards: [...state.boards, board].sort((a, b) => a.position - b.position),
+    })),
+
+  syncBoardUpdated: (board) =>
+    set((state) => ({
+      boards: state.boards.map((b) => (b.id === board.id ? board : b)).sort((a, b) => a.position - b.position),
+    })),
+
+  syncBoardDeleted: (boardId) =>
+    set((state) => ({
+      boards: state.boards.filter((b) => b.id !== boardId),
+    })),
 }));
