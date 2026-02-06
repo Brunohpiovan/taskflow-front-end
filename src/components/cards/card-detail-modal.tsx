@@ -52,9 +52,10 @@ export function CardDetailModal({
   const initialDescription = (card.description ?? "").slice(0, CARD_DESCRIPTION_MAX_LENGTH);
   const updateInProgressRef = useRef(false);
   const lastLabelIdsRef = useRef<string>("");
-  const [fullLabels, setFullLabels] = useState<LabelType[]>([]);
+  const [localLabels, setLocalLabels] = useState<LabelType[]>([]);
   const [fullCard, setFullCard] = useState<CardType | null>(null);
   const [loadingCard, setLoadingCard] = useState(false);
+  const hasInitializedRef = useRef(false);
 
   const {
     register,
@@ -81,10 +82,12 @@ export function CardDetailModal({
   useEffect(() => {
     if (open && card.id) {
       setLoadingCard(true);
+      hasInitializedRef.current = false;
       cardsService.getById(card.id)
         .then((fetchedCard) => {
           setFullCard(fetchedCard);
-          setFullLabels(fetchedCard.labels || []);
+          setLocalLabels(fetchedCard.labels || []);
+          lastLabelIdsRef.current = (fetchedCard.labels || []).map(l => l.id).sort().join(',');
         })
         .catch((error) => {
           console.error('Failed to fetch card details:', error);
@@ -92,16 +95,19 @@ export function CardDetailModal({
           // Fallback to existing card data
           setFullCard(card);
           if (card.labels && card.labels.length > 0 && 'id' in card.labels[0]) {
-            setFullLabels(card.labels as LabelType[]);
+            setLocalLabels(card.labels as LabelType[]);
           } else {
-            setFullLabels([]);
+            setLocalLabels([]);
           }
         })
         .finally(() => {
           setLoadingCard(false);
         });
+    } else if (!open) {
+      // Reset when modal closes
+      hasInitializedRef.current = false;
     }
-  }, [open, card]);
+  }, [open, card.id]);
 
   useEffect(() => {
     if (open && fullCard) {
@@ -114,19 +120,39 @@ export function CardDetailModal({
         formattedDate = localDate.toISOString().slice(0, 16);
       }
 
-      reset({
-        title: fullCard.title,
-        description: (fullCard.description ?? "").slice(0, CARD_DESCRIPTION_MAX_LENGTH),
-        boardId: fullCard.boardId,
-        dueDate: formattedDate,
-        completed: fullCard.completed,
-      });
-      lastLabelIdsRef.current = (fullCard.labels || []).map(l => l.id).sort().join(',');
+      // Only reset form if non-label fields have changed
+      // This prevents flickering when labels are updated
+      const currentLabelIds = (fullCard.labels || []).map(l => l.id).sort().join(',');
+      const labelsChanged = currentLabelIds !== lastLabelIdsRef.current;
+
+      // Check if other fields changed
+      const otherFieldsChanged =
+        fullCard.title !== watch('title') ||
+        (fullCard.description ?? "").slice(0, CARD_DESCRIPTION_MAX_LENGTH) !== watch('description') ||
+        fullCard.boardId !== watch('boardId') ||
+        formattedDate !== watch('dueDate') ||
+        fullCard.completed !== watch('completed');
+
+      if (otherFieldsChanged || !lastLabelIdsRef.current) {
+        reset({
+          title: fullCard.title,
+          description: (fullCard.description ?? "").slice(0, CARD_DESCRIPTION_MAX_LENGTH),
+          boardId: fullCard.boardId,
+          dueDate: formattedDate,
+          completed: fullCard.completed,
+        });
+      }
+
+      if (labelsChanged) {
+        lastLabelIdsRef.current = currentLabelIds;
+      }
     }
-  }, [open, fullCard, reset]);
+  }, [open, fullCard, reset, watch]);
 
   const onSubmit = async (data: CardFormData) => {
-    if (!isDirty) {
+    const labelsChanged = lastLabelIdsRef.current !== localLabels.map(l => l.id).sort().join(',');
+
+    if (!isDirty && !labelsChanged) {
       toast.info("Nenhuma alteração realizada.");
       onOpenChange(false);
       return;
@@ -139,9 +165,11 @@ export function CardDetailModal({
         boardId: data.boardId,
         completed: data.completed,
         dueDate: data.dueDate ? new Date(data.dueDate).toISOString() : undefined,
+        labels: localLabels.map(l => l.id),
       });
 
       reset(data);
+      lastLabelIdsRef.current = localLabels.map(l => l.id).sort().join(',');
 
       onOpenChange(false);
     } catch {
@@ -149,46 +177,30 @@ export function CardDetailModal({
     }
   };
 
-  const handleLabelChange = useCallback(async (labels: typeof card.labels) => {
+  const handleLabelChange = useCallback((labels: LabelType[]) => {
     // Prevent concurrent updates
     if (updateInProgressRef.current) {
       return;
     }
 
-    // Safety check
-    if (!labels) {
+    const newLabelIds = labels.map(l => l.id).sort().join(',');
+    const currentLabelIds = localLabels.map(l => l.id).sort().join(',');
+
+    // Only update if labels actually changed
+    if (newLabelIds === currentLabelIds) {
       return;
     }
 
-    try {
-      const newLabelIds = labels.map(l => l.id).sort().join(',');
+    updateInProgressRef.current = true;
 
-      // Only update if labels actually changed
-      if (newLabelIds === lastLabelIdsRef.current) {
-        return;
-      }
+    // Update local state immediately for UI feedback
+    setLocalLabels(labels);
 
-      updateInProgressRef.current = true;
-      lastLabelIdsRef.current = newLabelIds;
-
-      // Update local state immediately for UI feedback
-      setFullLabels(labels);
-
-      // Then update backend
-      await onUpdate({ labels: labels.map(l => l.id) });
-    } catch (error) {
-      console.error('Failed to update labels:', error);
-      toast.error("Erro ao atualizar etiquetas.");
-      // Revert on error - refetch card data
-      if (card.id) {
-        cardsService.getById(card.id).then((fetchedCard) => {
-          setFullLabels(fetchedCard.labels || []);
-        });
-      }
-    } finally {
+    // Reset flag after a short delay
+    setTimeout(() => {
       updateInProgressRef.current = false;
-    }
-  }, [onUpdate, card]);
+    }, 100);
+  }, [localLabels]);
 
 
   return (
@@ -209,7 +221,7 @@ export function CardDetailModal({
 
           {/* Left Column - Form Inputs */}
           <div className="lg:col-span-1 border-r px-6 py-4">
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
               <div className="space-y-2">
                 <Label htmlFor="card-title" className="text-sm font-medium">Título</Label>
                 <Input
@@ -258,9 +270,9 @@ export function CardDetailModal({
                 <Textarea
                   id="card-description"
                   placeholder="Adicione detalhes sobre essa tarefa..."
-                  rows={4}
+                  rows={3}
                   maxLength={CARD_DESCRIPTION_MAX_LENGTH}
-                  className="resize-none min-h-[100px] leading-relaxed text-sm"
+                  className="resize-none min-h-[80px] leading-relaxed text-sm"
                   {...register("description")}
                 />
                 <p className="text-xs text-muted-foreground text-right">
@@ -292,7 +304,7 @@ export function CardDetailModal({
                   return environmentId ? (
                     <LabelManager
                       environmentId={environmentId}
-                      selectedLabels={fullLabels}
+                      selectedLabels={localLabels}
                       onChange={handleLabelChange}
                     />
                   ) : (

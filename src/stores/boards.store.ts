@@ -17,7 +17,7 @@ interface BoardsState {
   syncBoardDeleted: (boardId: string) => void;
 }
 
-export const useBoardsStore = create<BoardsState>((set, get) => ({
+export const useBoardsStore = create<BoardsState>((set) => ({
   boards: [],
   isLoading: false,
 
