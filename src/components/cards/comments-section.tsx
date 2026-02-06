@@ -8,6 +8,16 @@ import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { commentsService, Comment } from "@/services/comments.service";
 import { useAuthStore } from "@/stores/auth.store";
 
@@ -21,6 +31,7 @@ export function CommentsSection({ cardId, isOwner = false }: CommentsSectionProp
     const [loading, setLoading] = useState(false);
     const [newComment, setNewComment] = useState("");
     const [submitting, setSubmitting] = useState(false);
+    const [commentToDelete, setCommentToDelete] = useState<string | null>(null);
     const { user } = useAuthStore();
 
     useEffect(() => {
@@ -57,13 +68,17 @@ export function CommentsSection({ cardId, isOwner = false }: CommentsSectionProp
         }
     };
 
-    const handleDelete = async (id: string) => {
+    const handleDelete = async () => {
+        if (!commentToDelete) return;
+
         try {
-            await commentsService.delete(id);
-            setComments(comments.filter((c) => c.id !== id));
+            await commentsService.delete(commentToDelete);
+            setComments(comments.filter((c) => c.id !== commentToDelete));
             toast.success("Comentário removido");
         } catch {
             toast.error("Erro ao remover comentário");
+        } finally {
+            setCommentToDelete(null);
         }
     };
 
@@ -129,7 +144,7 @@ export function CommentsSection({ cardId, isOwner = false }: CommentsSectionProp
                                     </div>
                                     {(isOwner || user?.id === comment.userId) && (
                                         <button
-                                            onClick={() => handleDelete(comment.id)}
+                                            onClick={() => setCommentToDelete(comment.id)}
                                             className="text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
                                         >
                                             <Trash className="h-3 w-3" />
@@ -142,6 +157,23 @@ export function CommentsSection({ cardId, isOwner = false }: CommentsSectionProp
                     ))
                 )}
             </div>
+
+            <AlertDialog open={!!commentToDelete} onOpenChange={(open) => !open && setCommentToDelete(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Tem certeza que deseja deletar este comentário? Esta ação não pode ser desfeita.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">
+                            Deletar
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 }
