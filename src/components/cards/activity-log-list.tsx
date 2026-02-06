@@ -55,7 +55,7 @@ export function ActivityLogList({ cardId }: ActivityLogProps) {
                     logs.map((log) => (
                         <div key={log.id} className="flex gap-3 text-sm">
                             <Avatar className="h-6 w-6 mt-0.5">
-                                <AvatarImage src={log.user?.avatar} />
+                                {log.user?.avatar && <AvatarImage src={log.user.avatar} />}
                                 <AvatarFallback className="text-[10px]">{log.user?.name?.charAt(0).toUpperCase() || '?'}</AvatarFallback>
                             </Avatar>
                             <div className="flex-1">

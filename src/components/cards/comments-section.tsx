@@ -72,7 +72,7 @@ export function CommentsSection({ cardId }: CommentsSectionProps) {
 
             <div className="flex gap-3">
                 <Avatar className="h-8 w-8">
-                    <AvatarImage src={user?.avatar} />
+                    <AvatarImage src={user?.avatar} referrerPolicy="no-referrer" />
                     <AvatarFallback>{user?.name?.charAt(0).toUpperCase()}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1 space-y-2">
@@ -104,7 +104,7 @@ export function CommentsSection({ cardId }: CommentsSectionProps) {
                     comments.map((comment) => (
                         <div key={comment.id} className="flex gap-3 group">
                             <Avatar className="h-8 w-8 mt-1">
-                                <AvatarImage src={comment.user?.avatar} />
+                                <AvatarImage src={comment.user?.avatar} referrerPolicy="no-referrer" />
                                 <AvatarFallback>{comment.user?.name?.charAt(0).toUpperCase() || '?'}</AvatarFallback>
                             </Avatar>
                             <div className="flex-1 bg-slate-200 dark:bg-slate-950 p-3 rounded-md space-y-1 shadow-sm">
