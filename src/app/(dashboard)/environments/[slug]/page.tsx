@@ -61,6 +61,7 @@ export default function EnvironmentBoardsPage() {
   const cardsByBoard = useCardsStore((s) => s.cards);
   const fetchCards = useCardsStore((s) => s.fetchCards);
   const moveCard = useCardsStore((s) => s.moveCard);
+  const clearCards = useCardsStore((s) => s.clearCards);
 
 
 
@@ -81,9 +82,12 @@ export default function EnvironmentBoardsPage() {
   useEffect(() => {
     if (environmentId) {
       fetchBoards(environmentId).catch(() => { });
-      return () => clearBoards();
+      return () => {
+        clearBoards();
+        clearCards();
+      };
     }
-  }, [environmentId, fetchBoards, clearBoards]);
+  }, [environmentId, fetchBoards, clearBoards, clearCards]);
 
   useEffect(() => {
     if (environment) setCurrentEnvironment(environment);
