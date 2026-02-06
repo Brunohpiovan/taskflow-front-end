@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback, useRef, useState } from "react";
+import { useEffect, useCallback, useRef, useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -29,10 +29,13 @@ import {
 import { useBoardsStore } from "@/stores/boards.store";
 import { cardSchema, type CardFormData } from "@/lib/validations";
 import type { Card as CardType, Label as LabelType } from "@/types/card.types";
+import type { EnvironmentMember } from "@/types/environment.types";
 import { LabelManager } from "./label-manager";
 import { CommentsSection } from "./comments-section";
 import { ActivityLogList } from "./activity-log-list";
 import { cardsService } from "@/services/cards.service";
+import { environmentsService } from "@/services/environments.service";
+import { useAuthStore } from "@/stores/auth.store";
 
 interface CardDetailModalProps {
   card: CardType;
@@ -56,6 +59,8 @@ export function CardDetailModal({
   const [fullCard, setFullCard] = useState<CardType | null>(null);
   const [loadingCard, setLoadingCard] = useState(false);
   const hasInitializedRef = useRef(false);
+  const [environmentMembers, setEnvironmentMembers] = useState<EnvironmentMember[]>([]);
+  const { user } = useAuthStore();
 
   const {
     register,
@@ -77,6 +82,22 @@ export function CardDetailModal({
   const descriptionLength = (descriptionValue ?? "").length;
 
   const boards = useBoardsStore((s) => s.boards);
+
+  // Determine if the current user is an OWNER of the environment
+  const isOwner = useMemo(() => {
+    if (environmentMembers.length === 0) return false;
+    if (!user) return false;
+
+    const currentMember = environmentMembers.find(m =>
+      String(m.userId) === String(user.id) ||
+      (m.email && user.email && m.email.toLowerCase() === user.email.toLowerCase())
+    );
+
+    if (!currentMember) return false;
+
+    // User is owner if explicitly OWNER role OR if they are the only member in the list
+    return currentMember.role === 'OWNER' || environmentMembers.length === 1;
+  }, [environmentMembers, user]);
 
   // Fetch complete card data when modal opens
   useEffect(() => {
@@ -103,11 +124,24 @@ export function CardDetailModal({
         .finally(() => {
           setLoadingCard(false);
         });
+
+      // Fetch environment members to determine if user is owner
+      const currentBoard = boards.find(b => b.id === card.boardId);
+      if (currentBoard?.environmentId) {
+        environmentsService.getMembers(currentBoard.environmentId)
+          .then((members) => {
+            setEnvironmentMembers(members);
+          })
+          .catch((error) => {
+            console.error('Failed to fetch environment members:', error);
+          });
+      }
     } else if (!open) {
       // Reset when modal closes
       hasInitializedRef.current = false;
+      setEnvironmentMembers([]);
     }
-  }, [open, card.id]);
+  }, [open, card.id, card.boardId, boards]);
 
   useEffect(() => {
     if (open && fullCard) {
@@ -339,7 +373,7 @@ export function CardDetailModal({
               <h3 className="font-semibold text-base">Comentários</h3>
               <p className="text-xs text-muted-foreground">Discussões sobre este card</p>
             </div>
-            <CommentsSection cardId={card.id} />
+            <CommentsSection cardId={card.id} isOwner={isOwner} />
           </div>
 
           {/* Right Column - Activity Log */}

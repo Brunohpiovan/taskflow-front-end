@@ -13,9 +13,10 @@ import { useAuthStore } from "@/stores/auth.store";
 
 interface CommentsSectionProps {
     cardId: string;
+    isOwner?: boolean;
 }
 
-export function CommentsSection({ cardId }: CommentsSectionProps) {
+export function CommentsSection({ cardId, isOwner = false }: CommentsSectionProps) {
     const [comments, setComments] = useState<Comment[]>([]);
     const [loading, setLoading] = useState(false);
     const [newComment, setNewComment] = useState("");
@@ -126,7 +127,7 @@ export function CommentsSection({ cardId }: CommentsSectionProps) {
                                             })()}
                                         </span>
                                     </div>
-                                    {user?.id === comment.userId && (
+                                    {(isOwner || user?.id === comment.userId) && (
                                         <button
                                             onClick={() => handleDelete(comment.id)}
                                             className="text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
