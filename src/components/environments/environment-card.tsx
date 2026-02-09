@@ -40,7 +40,7 @@ export function EnvironmentCard({ environment, onEdit, onDelete }: EnvironmentCa
           <div className="flex items-center gap-3">
             <div
               className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl shadow-sm transition-transform duration-200 group-hover:scale-105"
-              style={{ backgroundColor: "hsl(var(--primary) / 0.12)", color: "hsl(var(--primary))" }}
+              style={{ backgroundColor: "hsl(var(--icon) / 0.12)", color: "hsl(var(--icon))" }}
             >
               <LayoutGrid className="h-6 w-6" strokeWidth={2} />
             </div>

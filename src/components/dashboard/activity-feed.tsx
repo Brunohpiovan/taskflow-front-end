@@ -53,7 +53,7 @@ export function ActivityFeed({ activities }: ActivityFeedProps) {
                                 </p>
                                 {activity.cardTitle && (
                                     <p className="text-sm text-icon font-medium truncate">
-                                        "{activity.cardTitle}"
+                                        &quot;{activity.cardTitle}&quot;
                                     </p>
                                 )}
                                 <p className="text-xs text-muted-foreground">

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { FolderKanban, ListTodo, TrendingUp, Clock, CheckCircle2, AlertCircle } from "lucide-react";
+import { FolderKanban, ListTodo, TrendingUp, CheckCircle2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";

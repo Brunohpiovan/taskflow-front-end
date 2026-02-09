@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo, useRef } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Plus, Users } from "lucide-react";
 import {
@@ -26,6 +26,7 @@ import { useBoardsStore } from "@/stores/boards.store";
 import { useCardsStore } from "@/stores/cards.store";
 import { ROUTES } from "@/lib/constants";
 import { toast } from "sonner";
+import { AxiosError } from "axios";
 import { MembersList } from "@/components/environments/members-list";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useSocket } from "@/lib/socket";
@@ -35,11 +36,14 @@ import type { Card } from "@/types/card.types";
 
 export default function EnvironmentBoardsPage() {
   const params = useParams();
+  const router = useRouter();
   const slug = params.slug as string;
 
   const [formOpen, setFormOpen] = useState(false);
   const [membersOpen, setMembersOpen] = useState(false);
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
+  const [accessDenied, setAccessDenied] = useState(false);
+  const [environmentsLoaded, setEnvironmentsLoaded] = useState(false);
 
   const environments = useEnvironmentsStore((s) => s.environments);
   const fetchEnvironments = useEnvironmentsStore((s) => s.fetchEnvironments);
@@ -76,18 +80,32 @@ export default function EnvironmentBoardsPage() {
   );
 
   useEffect(() => {
-    fetchEnvironments().catch(() => { });
+    fetchEnvironments()
+      .then(() => setEnvironmentsLoaded(true))
+      .catch(() => setEnvironmentsLoaded(true));
   }, [fetchEnvironments]);
 
   useEffect(() => {
     if (environmentId) {
-      fetchBoards(environmentId).catch(() => { });
+      fetchBoards(environmentId).catch((error) => {
+        // Check if it's an access denied error (403 or 401)
+        if (error instanceof AxiosError) {
+          const status = error.response?.status;
+          if (status === 403 || status === 401) {
+            setAccessDenied(true);
+            toast.error("Você não tem mais acesso a este ambiente.");
+            setTimeout(() => {
+              router.push(ROUTES.ENVIRONMENTS);
+            }, 1500);
+          }
+        }
+      });
       return () => {
         clearBoards();
         clearCards();
       };
     }
-  }, [environmentId, fetchBoards, clearBoards, clearCards]);
+  }, [environmentId, fetchBoards, clearBoards, clearCards, router]);
 
   useEffect(() => {
     if (environment) setCurrentEnvironment(environment);
@@ -271,19 +289,33 @@ export default function EnvironmentBoardsPage() {
     syncBoardDeleted,
   ]);
 
-  if (!environment && environments.length > 0) {
+  if (accessDenied) {
     return (
       <div className="flex flex-col items-center justify-center py-12">
-        <p className="text-muted-foreground">Ambiente não encontrado.</p>
-        <Button asChild className="mt-4">
-          <Link href={ROUTES.ENVIRONMENTS}>Voltar aos ambientes</Link>
-        </Button>
+        <p className="text-muted-foreground mb-2">Você não tem mais acesso a este ambiente.</p>
+        <p className="text-sm text-muted-foreground">Redirecionando...</p>
       </div>
     );
   }
 
-  if (!environment && !isLoading) {
+  // Show loading skeleton while environments are being fetched
+  if (!environmentsLoaded) {
     return <Skeleton className="h-64 w-full" />;
+  }
+
+  // If environments are loaded but this specific environment is not found
+  if (!environment) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12">
+        <p className="text-muted-foreground mb-2">Ambiente não encontrado.</p>
+        <p className="text-sm text-muted-foreground mb-4">
+          Você pode não ter acesso a este ambiente ou ele pode ter sido removido.
+        </p>
+        <Button asChild>
+          <Link href={ROUTES.ENVIRONMENTS}>Voltar aos ambientes</Link>
+        </Button>
+      </div>
+    );
   }
 
   return (
