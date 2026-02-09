@@ -52,7 +52,7 @@ export function ActivityFeed({ activities }: ActivityFeedProps) {
                                     {activity.action} o card
                                 </p>
                                 {activity.cardTitle && (
-                                    <p className="text-sm text-primary font-medium truncate">
+                                    <p className="text-sm text-icon font-medium truncate">
                                         "{activity.cardTitle}"
                                     </p>
                                 )}
