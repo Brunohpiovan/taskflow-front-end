@@ -66,11 +66,10 @@ export default async function DashboardPage() {
 
       {/* Metrics Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {metrics.map((metric, index) => (
+        {metrics.map((metric) => (
           <Card
             key={metric.title}
-            className="relative overflow-hidden transition-all hover:shadow-md animate-in fade-in-50 slide-in-from-bottom-4"
-            style={{ animationDelay: `${index * 50}ms` }}
+            className="relative overflow-hidden transition-all hover:shadow-md"
           >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -130,12 +129,11 @@ export default async function DashboardPage() {
           </Card>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {recentEnvironments.map((env, index) => (
+            {recentEnvironments.map((env) => (
               <Link
                 key={env.id}
                 href={ROUTES.ENVIRONMENT(env.slug)}
-                className="block group animate-in fade-in-50 slide-in-from-bottom-4"
-                style={{ animationDelay: `${index * 50}ms` }}
+                className="block group"
               >
                 <Card className="h-full transition-all hover:shadow-md hover:border-primary/50 group-hover:scale-[1.02]">
                   <CardHeader className="pb-3">
