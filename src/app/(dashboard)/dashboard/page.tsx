@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { ROUTES } from "@/lib/constants";
 import { serverEnvironmentsService } from "@/services/server-environments.service";
 import { serverAuthService } from "@/services/server-auth.service";
+import { serverMetricsService } from "@/services/server-metrics.service";
 import { DashboardHeader } from "./components/dashboard-header";
 import { cn } from "@/lib/utils";
 
@@ -13,13 +14,19 @@ export default async function DashboardPage() {
   const environments = await serverEnvironmentsService.getAllDashboard().catch(() => []);
   const user = await serverAuthService.getProfile().catch(() => null);
 
-  const totalCards = environments.reduce((acc, env) => acc + (env.cardsCount ?? 0), 0);
-  const totalBoards = environments.reduce((acc, env) => acc + (env.boardsCount ?? 0), 0);
-  const recentEnvironments = environments.slice(0, 6);
+  // Buscar métricas reais do backend
+  const metricsData = await serverMetricsService.getMetrics().catch(() => null);
 
-  // Simular algumas métricas adicionais (em produção viriam do backend)
-  const completedCards = Math.floor(totalCards * 0.6); // 60% concluídas
-  const completionRate = totalCards > 0 ? Math.round((completedCards / totalCards) * 100) : 0;
+  // Usar dados reais do backend ou fallback para cálculos locais
+  const totalBoards = metricsData?.totalBoards ?? environments.reduce((acc, env) => acc + (env.boardsCount ?? 0), 0);
+  const totalCards = metricsData?.totalCards ?? environments.reduce((acc, env) => acc + (env.cardsCount ?? 0), 0);
+  const completionRate = metricsData?.completionRate ?? 0;
+  const completedCards = totalCards > 0 ? Math.round((totalCards * completionRate) / 100) : 0;
+  const cardsCompletedLast7Days = metricsData?.cardsCompletedLast7Days ?? 0;
+
+  const environmentsTrend = "Ambientes ativos";
+
+  const recentEnvironments = environments.slice(0, 6);
 
   const metrics = [
     {
@@ -27,7 +34,7 @@ export default async function DashboardPage() {
       value: environments.length,
       description: "Total de ambientes",
       icon: FolderKanban,
-      trend: "+2 este mês",
+      trend: environmentsTrend,
       color: "text-blue-600 dark:text-blue-400",
       bgColor: "bg-blue-50 dark:bg-blue-950/30",
     },
@@ -54,7 +61,7 @@ export default async function DashboardPage() {
       value: `${completionRate}%`,
       description: "Cards concluídos",
       icon: TrendingUp,
-      trend: completionRate >= 50 ? "Ótimo progresso!" : "Continue assim!",
+      trend: cardsCompletedLast7Days > 0 ? `${cardsCompletedLast7Days} nos últimos 7 dias` : "Nenhuma concluída recentemente",
       color: "text-orange-600 dark:text-orange-400",
       bgColor: "bg-orange-50 dark:bg-orange-950/30",
     },
@@ -139,7 +146,7 @@ export default async function DashboardPage() {
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between">
                       <div className="flex-1 min-w-0">
-                        <CardTitle className="text-base font-semibold truncate group-hover:text-primary transition-colors">
+                        <CardTitle className="text-base font-semibold truncate group-hover:text-icon transition-colors">
                           {env.name}
                         </CardTitle>
                       </div>

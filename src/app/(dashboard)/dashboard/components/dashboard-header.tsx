@@ -28,7 +28,7 @@ export function DashboardHeader({ initialUser }: DashboardHeaderProps) {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-6 border-b">
             <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                    <Sparkles className="h-5 w-5 text-primary" />
+                    <Sparkles className="h-5 w-5 text-icon" />
                     <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
                         {getGreeting()}, {user?.name?.split(" ")[0] ?? "usuário"}!
                     </h1>
