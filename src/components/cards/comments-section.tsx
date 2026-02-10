@@ -3,7 +3,7 @@
 import { useRef, useEffect, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Send, Trash, Paperclip, FileText, X } from "lucide-react";
+import { Send, Trash, Paperclip, FileText, X, Download } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -18,7 +18,8 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { commentsService, Comment } from "@/services/comments.service";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { commentsService, Comment, Attachment } from "@/services/comments.service";
 import { useAuthStore } from "@/stores/auth.store";
 
 interface CommentsSectionProps {
@@ -34,6 +35,7 @@ export function CommentsSection({ cardId, isOwner = false }: CommentsSectionProp
     const [commentToDelete, setCommentToDelete] = useState<string | null>(null);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const [previewAttachment, setPreviewAttachment] = useState<Attachment | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { user } = useAuthStore();
 
@@ -284,10 +286,9 @@ export function CommentsSection({ cardId, isOwner = false }: CommentsSectionProp
                                             {comment.attachments.map((attachment) => (
                                                 <div key={attachment.id} className="inline-block">
                                                     {attachment.type.startsWith("image/") ? (
-                                                        <a
-                                                            href={attachment.url}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setPreviewAttachment(attachment)}
                                                             className="block overflow-hidden rounded-lg border hover:ring-2 hover:ring-primary/50 transition-all max-w-[200px]"
                                                         >
                                                             <img
@@ -295,18 +296,17 @@ export function CommentsSection({ cardId, isOwner = false }: CommentsSectionProp
                                                                 alt={attachment.filename}
                                                                 className="max-h-40 w-auto object-cover hover:scale-105 transition-transform duration-300"
                                                             />
-                                                        </a>
+                                                        </button>
                                                     ) : (
-                                                        <a
-                                                            href={attachment.url}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-lg border hover:bg-slate-100 dark:hover:bg-slate-700 hover:border-primary/30 transition-all group/file"
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setPreviewAttachment(attachment)}
+                                                            className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-lg border hover:bg-slate-100 dark:hover:bg-slate-700 hover:border-primary/30 transition-all group/file w-full text-left"
                                                         >
                                                             <div className="p-2 bg-white dark:bg-slate-900 rounded border text-blue-600 dark:text-blue-400 group-hover/file:text-primary transition-colors">
                                                                 <FileText className="h-5 w-5" />
                                                             </div>
-                                                            <div className="flex flex-col">
+                                                            <div className="flex flex-col min-w-0">
                                                                 <span className="text-sm font-medium truncate max-w-[150px] decoration-primary/30 group-hover/file:underline">
                                                                     {attachment.filename}
                                                                 </span>
@@ -314,7 +314,7 @@ export function CommentsSection({ cardId, isOwner = false }: CommentsSectionProp
                                                                     {attachment.filename.split('.').pop() || 'Arquivo'}
                                                                 </span>
                                                             </div>
-                                                        </a>
+                                                        </button>
                                                     )}
                                                 </div>
                                             ))}
@@ -343,6 +343,57 @@ export function CommentsSection({ cardId, isOwner = false }: CommentsSectionProp
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
-        </div>
+
+
+            <Dialog open={!!previewAttachment} onOpenChange={(open) => !open && setPreviewAttachment(null)}>
+                <DialogContent className="max-w-3xl w-full p-0 overflow-hidden bg-transparent border-none shadow-none md:bg-white md:dark:bg-slate-950 md:border md:shadow-lg md:rounded-lg">
+                    {previewAttachment && (
+                        <div className="relative flex flex-col h-[80vh] md:h-auto md:max-h-[85vh]">
+                            <div className="absolute top-2 right-2 z-50 flex gap-2">
+                                <Button
+                                    size="icon"
+                                    variant="secondary"
+                                    className="h-8 w-8 rounded-full opacity-80 hover:opacity-100"
+                                    asChild
+                                >
+                                    <a href={previewAttachment.url} download target="_blank" rel="noopener noreferrer" title="Baixar">
+                                        <Download className="h-4 w-4" />
+                                    </a>
+                                </Button>
+                                <Button
+                                    size="icon"
+                                    variant="destructive"
+                                    className="h-8 w-8 rounded-full opacity-80 hover:opacity-100"
+                                    onClick={() => setPreviewAttachment(null)}
+                                    title="Fechar"
+                                >
+                                    <X className="h-4 w-4" />
+                                </Button>
+                            </div>
+
+                            <div className="flex-1 overflow-auto flex items-center justify-center bg-black/80 backdrop-blur-sm md:bg-slate-100 md:dark:bg-slate-900 min-h-[50vh]">
+                                {previewAttachment.type.startsWith("image/") ? (
+                                    <img
+                                        src={previewAttachment.url}
+                                        alt={previewAttachment.filename}
+                                        className="max-h-full max-w-full object-contain"
+                                    />
+                                ) : (
+                                    <iframe
+                                        src={`https://docs.google.com/gview?url=${encodeURIComponent(previewAttachment.url)}&embedded=true`}
+                                        className="w-full h-full min-h-[50vh]"
+                                        title={previewAttachment.filename}
+                                    />
+                                )}
+                            </div>
+
+                            <div className="p-4 bg-white dark:bg-slate-950 hidden md:block">
+                                <h4 className="font-medium truncate">{previewAttachment.filename}</h4>
+                            </div>
+                        </div>
+                    )}
+                </DialogContent>
+            </Dialog>
+        </div >
     );
 }
