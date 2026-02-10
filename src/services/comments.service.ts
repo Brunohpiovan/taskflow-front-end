@@ -6,6 +6,13 @@ export interface User {
     avatar?: string;
 }
 
+export interface Attachment {
+    id: string;
+    url: string;
+    filename: string;
+    type: string;
+}
+
 export interface Comment {
     id: string;
     content: string;
@@ -13,11 +20,13 @@ export interface Comment {
     userId: string;
     createdAt: string;
     user: User;
+    attachments?: Attachment[];
 }
 
 export interface CreateCommentDTO {
     content: string;
     cardId: string;
+    file?: File;
 }
 
 export const commentsService = {
@@ -32,7 +41,22 @@ export const commentsService = {
     },
 
     create: async (dto: CreateCommentDTO): Promise<Comment> => {
-        const response = await api.post("/comments", dto);
+        let response;
+        if (dto.file) {
+            const formData = new FormData();
+            formData.append("content", dto.content);
+            formData.append("cardId", dto.cardId);
+            formData.append("file", dto.file);
+
+            response = await api.post("/comments", formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            });
+        } else {
+            response = await api.post("/comments", dto);
+        }
+
         const result = response.data;
         return result.data || result;
     },
