@@ -368,7 +368,7 @@ export function CardDetailModal({
           </div>
 
           {/* Middle Column - Comments */}
-          <div className="lg:col-span-1 border-b lg:border-b-0 lg:border-r overflow-y-auto px-6 bg-slate-50 dark:bg-slate-900">
+          <div className="lg:col-span-1 border-b lg:border-b-0 lg:border-r overflow-y-auto px-6 pb-6 bg-slate-50 dark:bg-slate-900">
             <div className="sticky top-0 bg-slate-50 dark:bg-slate-900 pt-4 pb-3 mb-4 border-b z-10 -mx-6 px-6">
               <h3 className="font-semibold text-base">Comentários</h3>
               <p className="text-xs text-muted-foreground">Discussões sobre este card</p>
@@ -377,7 +377,7 @@ export function CardDetailModal({
           </div>
 
           {/* Right Column - Activity Log */}
-          <div className="lg:col-span-1 overflow-y-auto px-6 bg-slate-100 dark:bg-slate-950">
+          <div className="lg:col-span-1 overflow-y-auto px-6 pb-6 bg-slate-100 dark:bg-slate-950">
             <div className="sticky top-0 bg-slate-100 dark:bg-slate-950 pt-4 pb-3 mb-4 border-b z-10 -mx-6 px-6">
               <h3 className="font-semibold text-base">Histórico de Atividades</h3>
               <p className="text-xs text-muted-foreground">Registro de mudanças</p>
