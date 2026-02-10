@@ -64,4 +64,9 @@ export const commentsService = {
     delete: async (id: string): Promise<void> => {
         await api.delete(`/comments/${id}`);
     },
+
+    getDownloadUrl: async (attachmentId: string): Promise<{ url: string }> => {
+        const response = await api.get(`/comments/attachment/${attachmentId}/download`);
+        return response.data;
+    },
 };

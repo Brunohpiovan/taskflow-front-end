@@ -18,7 +18,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { commentsService, Comment, Attachment } from "@/services/comments.service";
 import { useAuthStore } from "@/stores/auth.store";
 
@@ -346,7 +346,11 @@ export function CommentsSection({ cardId, isOwner = false }: CommentsSectionProp
 
 
             <Dialog open={!!previewAttachment} onOpenChange={(open) => !open && setPreviewAttachment(null)}>
-                <DialogContent className="max-w-3xl w-full p-0 overflow-hidden bg-transparent border-none shadow-none md:bg-white md:dark:bg-slate-950 md:border md:shadow-lg md:rounded-lg">
+                <DialogContent className="max-w-3xl w-full p-0 overflow-hidden bg-transparent border-none shadow-none md:bg-white md:dark:bg-slate-950 md:border md:shadow-lg md:rounded-lg" aria-describedby="dialog-description">
+                    <DialogTitle className="sr-only">Visualização do Anexo</DialogTitle>
+                    <DialogDescription id="dialog-description" className="sr-only">
+                        Pré-visualização do arquivo anexo.
+                    </DialogDescription>
                     {previewAttachment && (
                         <div className="relative flex flex-col h-[80vh] md:h-auto md:max-h-[85vh]">
                             <div className="absolute top-2 right-2 z-50 flex gap-2">
@@ -354,11 +358,28 @@ export function CommentsSection({ cardId, isOwner = false }: CommentsSectionProp
                                     size="icon"
                                     variant="secondary"
                                     className="h-8 w-8 rounded-full opacity-80 hover:opacity-100"
-                                    asChild
+                                    onClick={async () => {
+                                        if (!previewAttachment) return;
+                                        try {
+                                            const { url } = await commentsService.getDownloadUrl(previewAttachment.id);
+
+                                            // Create a temporary link to trigger download
+                                            const a = document.createElement('a');
+                                            a.style.display = 'none';
+                                            a.href = url;
+                                            a.download = previewAttachment.filename; // S3 content-disposition will also help
+                                            document.body.appendChild(a);
+                                            a.click();
+                                            document.body.removeChild(a);
+                                        } catch (error) {
+                                            console.error('Download failed:', error);
+                                            // Fallback to opening in new tab if backend fails
+                                            window.open(previewAttachment.url, '_blank');
+                                        }
+                                    }}
+                                    title="Baixar"
                                 >
-                                    <a href={previewAttachment.url} download target="_blank" rel="noopener noreferrer" title="Baixar">
-                                        <Download className="h-4 w-4" />
-                                    </a>
+                                    <Download className="h-4 w-4" />
                                 </Button>
                                 <Button
                                     size="icon"
