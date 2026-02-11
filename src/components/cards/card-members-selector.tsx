@@ -18,8 +18,8 @@ interface CardMembersSelectorProps {
     cardId: string;
     currentMembers: CardMember[];
     environmentMembers: EnvironmentMember[];
-    onAddMember: (userId: string) => Promise<void>;
-    onRemoveMember: (userId: string) => Promise<void>;
+    onAddMember: (userId: string) => void;
+    onRemoveMember: (userId: string) => void;
 }
 
 export function CardMembersSelector({
@@ -29,7 +29,6 @@ export function CardMembersSelector({
     onAddMember,
     onRemoveMember,
 }: CardMembersSelectorProps) {
-    const [isAdding, setIsAdding] = useState(false);
     const [removingUserId, setRemovingUserId] = useState<string | null>(null);
 
     // Filter environment members who are not already assigned
@@ -37,40 +36,12 @@ export function CardMembersSelector({
         (envMember) => !currentMembers.some((cm) => cm.userId === envMember.userId)
     );
 
-    const handleAddMember = async (userId: string) => {
-        setIsAdding(true);
-        try {
-            await onAddMember(userId);
-            // Only show toast for existing cards (not during creation)
-            if (cardId) {
-                toast.success("Membro adicionado ao card");
-            }
-        } catch (error) {
-            console.error("Failed to add member:", error);
-            if (cardId) {
-                toast.error("Erro ao adicionar membro");
-            }
-        } finally {
-            setIsAdding(false);
-        }
+    const handleAddMember = (userId: string) => {
+        onAddMember(userId);
     };
 
-    const handleRemoveMember = async (userId: string) => {
-        setRemovingUserId(userId);
-        try {
-            await onRemoveMember(userId);
-            // Only show toast for existing cards (not during creation)
-            if (cardId) {
-                toast.success("Membro removido do card");
-            }
-        } catch (error) {
-            console.error("Failed to remove member:", error);
-            if (cardId) {
-                toast.error("Erro ao remover membro");
-            }
-        } finally {
-            setRemovingUserId(null);
-        }
+    const handleRemoveMember = (userId: string) => {
+        onRemoveMember(userId);
     };
 
     const getInitials = (name: string) => {
@@ -94,7 +65,6 @@ export function CardMembersSelector({
                                 variant="ghost"
                                 size="sm"
                                 className="h-8 gap-1"
-                                disabled={isAdding}
                             >
                                 <UserPlus className="h-3.5 w-3.5" />
                                 <span className="text-xs">Adicionar</span>
@@ -109,7 +79,6 @@ export function CardMembersSelector({
                                     <button
                                         key={member.userId}
                                         onClick={() => handleAddMember(member.userId)}
-                                        disabled={isAdding}
                                         className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-accent text-left transition-colors disabled:opacity-50"
                                     >
                                         <Avatar className="h-6 w-6">
