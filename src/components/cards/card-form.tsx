@@ -174,10 +174,9 @@ export function CardForm({
           </div>
           <div className="space-y-2">
             <CardMembersSelector
-              cardId=""
               currentMembers={selectedMembers}
               environmentMembers={environmentMembers}
-              onAddMember={async (userId) => {
+              onAddMember={(userId) => {
                 const member = environmentMembers.find(m => m.userId === userId);
                 if (member) {
                   setSelectedMembers(prev => [...prev, {
@@ -190,7 +189,7 @@ export function CardForm({
                   }]);
                 }
               }}
-              onRemoveMember={async (userId) => {
+              onRemoveMember={(userId) => {
                 setSelectedMembers(prev => prev.filter(m => m.userId !== userId));
               }}
             />

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+
 import { X, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -10,12 +10,10 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover";
-import { toast } from "sonner";
 import type { CardMember } from "@/types/card.types";
 import type { EnvironmentMember } from "@/types/environment.types";
 
 interface CardMembersSelectorProps {
-    cardId: string;
     currentMembers: CardMember[];
     environmentMembers: EnvironmentMember[];
     onAddMember: (userId: string) => void;
@@ -23,13 +21,11 @@ interface CardMembersSelectorProps {
 }
 
 export function CardMembersSelector({
-    cardId,
     currentMembers,
     environmentMembers,
     onAddMember,
     onRemoveMember,
 }: CardMembersSelectorProps) {
-    const [removingUserId, setRemovingUserId] = useState<string | null>(null);
 
     // Filter environment members who are not already assigned
     const availableMembers = environmentMembers.filter(
@@ -123,7 +119,6 @@ export function CardMembersSelector({
                             </span>
                             <button
                                 onClick={() => handleRemoveMember(member.userId)}
-                                disabled={removingUserId === member.userId}
                                 className="opacity-0 group-hover:opacity-100 hover:bg-destructive/20 rounded p-0.5 transition-all disabled:opacity-50"
                                 title="Remover membro"
                             >

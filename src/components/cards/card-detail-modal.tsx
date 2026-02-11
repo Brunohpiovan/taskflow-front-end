@@ -417,7 +417,6 @@ export function CardDetailModal({
                   <p className="text-sm text-muted-foreground">Carregando membros...</p>
                 ) : (
                   <CardMembersSelector
-                    cardId={card.id}
                     currentMembers={cardMembers}
                     environmentMembers={environmentMembers}
                     onAddMember={handleAddMember}
