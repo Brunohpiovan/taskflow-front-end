@@ -109,22 +109,26 @@ export function CardDetailModal({
       hasInitializedRef.current = false;
       cardsService.getById(card.id)
         .then((fetchedCard) => {
+          const labels = (fetchedCard.labels || []) as LabelType[];
+          const members = (fetchedCard.members || []) as CardMember[];
           setFullCard(fetchedCard);
-          setLocalLabels(fetchedCard.labels || []);
-          setCardMembers(fetchedCard.members || []);
-          lastLabelIdsRef.current = (fetchedCard.labels || []).map(l => l.id).sort().join(',');
+          setLocalLabels(labels);
+          setCardMembers(members);
+          lastLabelIdsRef.current = labels.map(l => l.id).sort().join(',');
         })
         .catch((error) => {
           console.error('Failed to fetch card details:', error);
           toast.error("Erro ao carregar detalhes do card");
-          // Fallback to existing card data
+          // Fallback to existing card data if fetch fails
           setFullCard(card);
           if (card.labels && card.labels.length > 0 && 'id' in card.labels[0]) {
             setLocalLabels(card.labels as LabelType[]);
           } else {
             setLocalLabels([]);
           }
-          setCardMembers(card.members || []);
+          // List view members are minimal (avatar only), so we can't use them for the manager which needs userId
+          // So we default to empty list if fetch fails
+          setCardMembers([]);
         })
         .finally(() => {
           setLoadingCard(false);
@@ -162,7 +166,8 @@ export function CardDetailModal({
 
       // Only reset form if non-label fields have changed
       // This prevents flickering when labels are updated
-      const currentLabelIds = (fullCard.labels || []).map(l => l.id).sort().join(',');
+      const currentLabels = (fullCard.labels || []) as LabelType[];
+      const currentLabelIds = currentLabels.map(l => l.id).sort().join(',');
       const labelsChanged = currentLabelIds !== lastLabelIdsRef.current;
 
       // Check if other fields changed
