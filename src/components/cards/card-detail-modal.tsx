@@ -275,13 +275,13 @@ export function CardDetailModal({
 
           {/* Left Column - Form Inputs */}
           <div className="lg:col-span-1 border-b lg:border-b-0 lg:border-r overflow-y-auto px-6 py-4">
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
-              <div className="space-y-2">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-2.5">
+              <div className="space-y-1">
                 <Label htmlFor="card-title" className="text-sm font-medium">Título</Label>
                 <Input
                   id="card-title"
                   placeholder="Título do card"
-                  className="h-10"
+                  className="h-9"
                   {...register("title")}
                 />
                 {errors.title && (
@@ -289,7 +289,7 @@ export function CardDetailModal({
                 )}
               </div>
 
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 py-1">
                 <Checkbox
                   id="card-completed"
                   checked={watch("completed")}
@@ -300,13 +300,13 @@ export function CardDetailModal({
                 </Label>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <Label htmlFor="card-board" className="text-sm font-medium">Quadro</Label>
                 <Select
                   onValueChange={(value) => setValue("boardId", value, { shouldDirty: true })}
                   defaultValue={card.boardId}
                 >
-                  <SelectTrigger className="h-10">
+                  <SelectTrigger className="h-9">
                     <SelectValue placeholder="Selecione um quadro" />
                   </SelectTrigger>
                   <SelectContent>
@@ -319,14 +319,14 @@ export function CardDetailModal({
                 </Select>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <Label htmlFor="card-description" className="text-sm font-medium">Descrição</Label>
                 <Textarea
                   id="card-description"
                   placeholder="Adicione detalhes sobre essa tarefa..."
-                  rows={3}
+                  rows={2}
                   maxLength={CARD_DESCRIPTION_MAX_LENGTH}
-                  className="resize-none min-h-[80px] leading-relaxed text-sm"
+                  className="resize-none min-h-[60px] leading-relaxed text-sm"
                   {...register("description")}
                 />
                 <p className="text-xs text-muted-foreground text-right">
@@ -337,17 +337,17 @@ export function CardDetailModal({
                 )}
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <Label htmlFor="card-due-date" className="text-sm font-medium">Prazo</Label>
                 <Input
                   id="card-due-date"
                   type="datetime-local"
-                  className="h-10"
+                  className="h-9"
                   {...register("dueDate")}
                 />
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-1">
                 {loadingCard ? (
                   <p className="text-sm text-muted-foreground">Carregando labels...</p>
                 ) : (() => {
@@ -368,7 +368,7 @@ export function CardDetailModal({
               </div>
 
               {/* Card Members */}
-              <div className="space-y-2">
+              <div className="space-y-1">
                 {loadingCard ? (
                   <p className="text-sm text-muted-foreground">Carregando membros...</p>
                 ) : (
@@ -382,11 +382,11 @@ export function CardDetailModal({
                 )}
               </div>
 
-              <div className="flex flex-col gap-2 pt-4 border-t">
+              <div className="flex flex-col gap-2 pt-3 border-t mt-3">
                 <Button
                   type="submit"
                   isLoading={isSubmitting}
-                  className="w-full"
+                  className="w-full h-9"
                 >
                   Salvar Alterações
                 </Button>
@@ -394,7 +394,7 @@ export function CardDetailModal({
                   type="button"
                   variant="outline"
                   onClick={() => onOpenChange(false)}
-                  className="w-full"
+                  className="w-full h-9"
                 >
                   Cancelar
                 </Button>
