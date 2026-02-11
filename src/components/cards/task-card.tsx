@@ -11,6 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { CardDetailModal } from "@/components/cards/card-detail-modal";
 import { useCardsStore } from "@/stores/cards.store";
 import { cn } from "@/lib/utils";
@@ -136,14 +137,14 @@ export const TaskCard = memo(function TaskCard({ card }: TaskCardProps) {
             className="flex-1 text-left min-w-0 rounded-md -m-1 p-1 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             onClick={() => setDetailOpen(true)}
           >
+            {/* Label indicators - Simplified for list view */}
             {card.labels && card.labels.length > 0 && (
               <div className="flex flex-wrap gap-1 mb-2">
-                {card.labels.map((label) => (
+                {card.labels.map((label, idx) => (
                   <div
-                    key={label.id}
+                    key={idx}
                     className="h-1.5 w-8 rounded-full"
                     style={{ backgroundColor: label.color }}
-                    title={label.name}
                   />
                 ))}
               </div>
@@ -176,6 +177,24 @@ export const TaskCard = memo(function TaskCard({ card }: TaskCardProps) {
                 </div>
               );
             })()}
+            {/* Card Members - Simplified for list view */}
+            {card.members && card.members.length > 0 && (
+              <div className="flex items-center gap-1 mt-2">
+                <div className="flex -space-x-1.5">
+                  {card.members.slice(0, 3).map((member, idx) => (
+                    <Avatar key={idx} className="h-5 w-5 border-2 border-background">
+                      <AvatarImage src={member.avatar} />
+                      <AvatarFallback className="text-[9px] font-medium">?</AvatarFallback>
+                    </Avatar>
+                  ))}
+                  {card.members.length > 3 && (
+                    <div className="h-5 w-5 rounded-full bg-muted border-2 border-background flex items-center justify-center">
+                      <span className="text-[9px] font-semibold text-muted-foreground">+{card.members.length - 3}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </button>
           <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
             <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
@@ -261,6 +280,7 @@ export const TaskCard = memo(function TaskCard({ card }: TaskCardProps) {
     prev.card.boardId === next.card.boardId &&
     prev.card.dueDate === next.card.dueDate &&
     prev.card.completed === next.card.completed &&
-    JSON.stringify(prev.card.labels) === JSON.stringify(next.card.labels)
+    JSON.stringify(prev.card.labels) === JSON.stringify(next.card.labels) &&
+    JSON.stringify(prev.card.members) === JSON.stringify(next.card.members)
   );
 });

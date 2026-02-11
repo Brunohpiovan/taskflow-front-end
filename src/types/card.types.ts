@@ -5,6 +5,24 @@ export interface Label {
   environmentId: string;
 }
 
+export interface CardMember {
+  id: string;
+  userId: string;
+  name: string;
+  email: string;
+  avatar?: string;
+  assignedAt: string;
+}
+
+// Minimal types for list view (optimized payload)
+export interface CardMemberMinimal {
+  avatar?: string;
+}
+
+export interface LabelMinimal {
+  color: string;
+}
+
 export interface Card {
   id: string;
   title: string;
@@ -12,7 +30,8 @@ export interface Card {
   completed: boolean;
   position: number;
   boardId: string;
-  labels?: Label[];
+  labels?: Label[] | LabelMinimal[]; // Full for detail, minimal for list
+  members?: CardMember[] | CardMemberMinimal[]; // Full for detail, minimal for list
   dueDate?: string;
   createdAt?: string;
 
@@ -24,6 +43,7 @@ export interface CreateCardDTO {
   boardId: string;
   position?: number;
   labels?: string[]; // IDs of labels
+  members?: string[]; // IDs of users
   dueDate?: string;
 }
 

@@ -1,34 +1,44 @@
+"use client";
+
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { FolderKanban, ListTodo, TrendingUp, CheckCircle2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ROUTES } from "@/lib/constants";
-import { serverEnvironmentsService } from "@/services/server-environments.service";
-import { serverAuthService } from "@/services/server-auth.service";
-import { serverMetricsService } from "@/services/server-metrics.service";
 import { DashboardHeader } from "./components/dashboard-header";
 import { cn } from "@/lib/utils";
+import { useMetricsStore } from "@/stores/metrics.store";
+import { useEnvironmentsStore } from "@/stores/environments.store";
+import { useAuthStore } from "@/stores/auth.store";
 
-export default async function DashboardPage() {
-  const environments = await serverEnvironmentsService.getAllDashboard().catch(() => []);
-  const user = await serverAuthService.getProfile().catch(() => null);
+export default function DashboardPage() {
+  const { user } = useAuthStore();
+  const { metrics, fetchMetrics } = useMetricsStore();
+  const { environments, fetchDashboardEnvironments } = useEnvironmentsStore();
+  const hasFetched = useRef(false);
 
-  // Buscar métricas reais do backend
-  const metricsData = await serverMetricsService.getMetrics().catch(() => null);
+  useEffect(() => {
+    if (!hasFetched.current) {
+      hasFetched.current = true;
+      fetchMetrics().catch(() => { });
+      fetchDashboardEnvironments().catch(() => { });
+    }
+  }, [fetchMetrics, fetchDashboardEnvironments]);
 
   // Usar dados reais do backend ou fallback para cálculos locais
-  const totalBoards = metricsData?.totalBoards ?? environments.reduce((acc, env) => acc + (env.boardsCount ?? 0), 0);
-  const totalCards = metricsData?.totalCards ?? environments.reduce((acc, env) => acc + (env.cardsCount ?? 0), 0);
-  const completionRate = metricsData?.completionRate ?? 0;
+  const totalBoards = metrics?.totalBoards ?? environments.reduce((acc, env) => acc + (env.boardsCount ?? 0), 0);
+  const totalCards = metrics?.totalCards ?? environments.reduce((acc, env) => acc + (env.cardsCount ?? 0), 0);
+  const completionRate = metrics?.completionRate ?? 0;
   const completedCards = totalCards > 0 ? Math.round((totalCards * completionRate) / 100) : 0;
-  const cardsCompletedLast7Days = metricsData?.cardsCompletedLast7Days ?? 0;
+  const cardsCompletedLast7Days = metrics?.cardsCompletedLast7Days ?? 0;
 
   const environmentsTrend = "Ambientes ativos";
 
   const recentEnvironments = environments.slice(0, 6);
 
-  const metrics = [
+  const metricsList = [
     {
       title: "Ambientes",
       value: environments.length,
@@ -73,7 +83,7 @@ export default async function DashboardPage() {
 
       {/* Metrics Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {metrics.map((metric) => (
+        {metricsList.map((metric) => (
           <Card
             key={metric.title}
             className="relative overflow-hidden transition-all hover:shadow-md"

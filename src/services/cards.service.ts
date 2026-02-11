@@ -36,4 +36,19 @@ export const cardsService = {
   delete: async (id: string): Promise<void> => {
     await api.delete(`/cards/${id}`);
   },
+
+  // Card Members
+  getCardMembers: async (cardId: string) => {
+    const { data } = await api.get(`/cards/${cardId}/members`);
+    return data;
+  },
+
+  addCardMember: async (cardId: string, userId: string) => {
+    const { data } = await api.post(`/cards/${cardId}/members`, { userId });
+    return data;
+  },
+
+  removeCardMember: async (cardId: string, userId: string) => {
+    await api.delete(`/cards/${cardId}/members/${userId}`);
+  },
 };
