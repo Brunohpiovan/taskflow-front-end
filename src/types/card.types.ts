@@ -5,6 +5,15 @@ export interface Label {
   environmentId: string;
 }
 
+export interface CardMember {
+  id: string;
+  userId: string;
+  name: string;
+  email: string;
+  avatar?: string;
+  assignedAt: string;
+}
+
 export interface Card {
   id: string;
   title: string;
@@ -13,6 +22,7 @@ export interface Card {
   position: number;
   boardId: string;
   labels?: Label[];
+  members?: CardMember[];
   dueDate?: string;
   createdAt?: string;
 

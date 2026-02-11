@@ -11,6 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { CardDetailModal } from "@/components/cards/card-detail-modal";
 import { useCardsStore } from "@/stores/cards.store";
 import { cn } from "@/lib/utils";
@@ -176,6 +177,42 @@ export const TaskCard = memo(function TaskCard({ card }: TaskCardProps) {
                 </div>
               );
             })()}
+            {/* Card Members */}
+            {card.members && card.members.length > 0 && (
+              <div className="flex items-center gap-1 mt-2">
+                <TooltipProvider>
+                  <div className="flex -space-x-1.5">
+                    {card.members.slice(0, 3).map((member) => (
+                      <Tooltip key={member.id}>
+                        <TooltipTrigger asChild>
+                          <Avatar className="h-5 w-5 border-2 border-background">
+                            <AvatarImage src={member.avatar} alt={member.name} />
+                            <AvatarFallback className="text-[9px] font-medium">
+                              {member.name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)}
+                            </AvatarFallback>
+                          </Avatar>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{member.name}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    ))}
+                    {card.members.length > 3 && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="h-5 w-5 rounded-full bg-muted border-2 border-background flex items-center justify-center">
+                            <span className="text-[9px] font-semibold text-muted-foreground">+{card.members.length - 3}</span>
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{card.members.slice(3).map(m => m.name).join(", ")}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
+                  </div>
+                </TooltipProvider>
+              </div>
+            )}
           </button>
           <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
             <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
@@ -261,6 +298,7 @@ export const TaskCard = memo(function TaskCard({ card }: TaskCardProps) {
     prev.card.boardId === next.card.boardId &&
     prev.card.dueDate === next.card.dueDate &&
     prev.card.completed === next.card.completed &&
-    JSON.stringify(prev.card.labels) === JSON.stringify(next.card.labels)
+    JSON.stringify(prev.card.labels) === JSON.stringify(next.card.labels) &&
+    JSON.stringify(prev.card.members) === JSON.stringify(next.card.members)
   );
 });

@@ -33,9 +33,11 @@ import type { EnvironmentMember } from "@/types/environment.types";
 import { LabelManager } from "./label-manager";
 import { CommentsSection } from "./comments-section";
 import { ActivityLogList } from "./activity-log-list";
+import { CardMembersSelector } from "./card-members-selector";
 import { cardsService } from "@/services/cards.service";
 import { environmentsService } from "@/services/environments.service";
 import { useAuthStore } from "@/stores/auth.store";
+import type { CardMember } from "@/types/card.types";
 
 interface CardDetailModalProps {
   card: CardType;
@@ -60,6 +62,7 @@ export function CardDetailModal({
   const [loadingCard, setLoadingCard] = useState(false);
   const hasInitializedRef = useRef(false);
   const [environmentMembers, setEnvironmentMembers] = useState<EnvironmentMember[]>([]);
+  const [cardMembers, setCardMembers] = useState<CardMember[]>([]);
   const { user } = useAuthStore();
 
   const {
@@ -108,6 +111,7 @@ export function CardDetailModal({
         .then((fetchedCard) => {
           setFullCard(fetchedCard);
           setLocalLabels(fetchedCard.labels || []);
+          setCardMembers(fetchedCard.members || []);
           lastLabelIdsRef.current = (fetchedCard.labels || []).map(l => l.id).sort().join(',');
         })
         .catch((error) => {
@@ -120,6 +124,7 @@ export function CardDetailModal({
           } else {
             setLocalLabels([]);
           }
+          setCardMembers(card.members || []);
         })
         .finally(() => {
           setLoadingCard(false);
@@ -140,6 +145,7 @@ export function CardDetailModal({
       // Reset when modal closes
       hasInitializedRef.current = false;
       setEnvironmentMembers([]);
+      setCardMembers([]);
     }
   }, [open, card.id, card.boardId, boards]);
 
@@ -235,6 +241,20 @@ export function CardDetailModal({
       updateInProgressRef.current = false;
     }, 100);
   }, [localLabels]);
+
+  const handleAddMember = async (userId: string) => {
+    await cardsService.addCardMember(card.id, userId);
+    // Refresh card members
+    const members = await cardsService.getCardMembers(card.id);
+    setCardMembers(members);
+  };
+
+  const handleRemoveMember = async (userId: string) => {
+    await cardsService.removeCardMember(card.id, userId);
+    // Remove from local state immediately
+    setCardMembers(prev => prev.filter(m => m.userId !== userId));
+  };
+
 
 
   return (
@@ -345,6 +365,21 @@ export function CardDetailModal({
                     <p className="text-sm text-muted-foreground">Carregando...</p>
                   );
                 })()}
+              </div>
+
+              {/* Card Members */}
+              <div className="space-y-2">
+                {loadingCard ? (
+                  <p className="text-sm text-muted-foreground">Carregando membros...</p>
+                ) : (
+                  <CardMembersSelector
+                    cardId={card.id}
+                    currentMembers={cardMembers}
+                    environmentMembers={environmentMembers}
+                    onAddMember={handleAddMember}
+                    onRemoveMember={handleRemoveMember}
+                  />
+                )}
               </div>
 
               <div className="flex flex-col gap-2 pt-4 border-t">
