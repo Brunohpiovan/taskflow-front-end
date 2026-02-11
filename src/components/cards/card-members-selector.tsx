@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+
 import { X, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -10,67 +10,34 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover";
-import { toast } from "sonner";
 import type { CardMember } from "@/types/card.types";
 import type { EnvironmentMember } from "@/types/environment.types";
 
 interface CardMembersSelectorProps {
-    cardId: string;
     currentMembers: CardMember[];
     environmentMembers: EnvironmentMember[];
-    onAddMember: (userId: string) => Promise<void>;
-    onRemoveMember: (userId: string) => Promise<void>;
+    onAddMember: (userId: string) => void;
+    onRemoveMember: (userId: string) => void;
 }
 
 export function CardMembersSelector({
-    cardId,
     currentMembers,
     environmentMembers,
     onAddMember,
     onRemoveMember,
 }: CardMembersSelectorProps) {
-    const [isAdding, setIsAdding] = useState(false);
-    const [removingUserId, setRemovingUserId] = useState<string | null>(null);
 
     // Filter environment members who are not already assigned
     const availableMembers = environmentMembers.filter(
         (envMember) => !currentMembers.some((cm) => cm.userId === envMember.userId)
     );
 
-    const handleAddMember = async (userId: string) => {
-        setIsAdding(true);
-        try {
-            await onAddMember(userId);
-            // Only show toast for existing cards (not during creation)
-            if (cardId) {
-                toast.success("Membro adicionado ao card");
-            }
-        } catch (error) {
-            console.error("Failed to add member:", error);
-            if (cardId) {
-                toast.error("Erro ao adicionar membro");
-            }
-        } finally {
-            setIsAdding(false);
-        }
+    const handleAddMember = (userId: string) => {
+        onAddMember(userId);
     };
 
-    const handleRemoveMember = async (userId: string) => {
-        setRemovingUserId(userId);
-        try {
-            await onRemoveMember(userId);
-            // Only show toast for existing cards (not during creation)
-            if (cardId) {
-                toast.success("Membro removido do card");
-            }
-        } catch (error) {
-            console.error("Failed to remove member:", error);
-            if (cardId) {
-                toast.error("Erro ao remover membro");
-            }
-        } finally {
-            setRemovingUserId(null);
-        }
+    const handleRemoveMember = (userId: string) => {
+        onRemoveMember(userId);
     };
 
     const getInitials = (name: string) => {
@@ -94,7 +61,6 @@ export function CardMembersSelector({
                                 variant="ghost"
                                 size="sm"
                                 className="h-8 gap-1"
-                                disabled={isAdding}
                             >
                                 <UserPlus className="h-3.5 w-3.5" />
                                 <span className="text-xs">Adicionar</span>
@@ -109,7 +75,6 @@ export function CardMembersSelector({
                                     <button
                                         key={member.userId}
                                         onClick={() => handleAddMember(member.userId)}
-                                        disabled={isAdding}
                                         className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-accent text-left transition-colors disabled:opacity-50"
                                     >
                                         <Avatar className="h-6 w-6">
@@ -154,7 +119,6 @@ export function CardMembersSelector({
                             </span>
                             <button
                                 onClick={() => handleRemoveMember(member.userId)}
-                                disabled={removingUserId === member.userId}
                                 className="opacity-0 group-hover:opacity-100 hover:bg-destructive/20 rounded p-0.5 transition-all disabled:opacity-50"
                                 title="Remover membro"
                             >

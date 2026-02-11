@@ -57,6 +57,7 @@ export function CardDetailModal({
   const initialDescription = (card.description ?? "").slice(0, CARD_DESCRIPTION_MAX_LENGTH);
   const updateInProgressRef = useRef(false);
   const lastLabelIdsRef = useRef<string>("");
+  const initialMembersRef = useRef<CardMember[]>([]);
   const [localLabels, setLocalLabels] = useState<LabelType[]>([]);
   const [fullCard, setFullCard] = useState<CardType | null>(null);
   const [loadingCard, setLoadingCard] = useState(false);
@@ -114,6 +115,7 @@ export function CardDetailModal({
           setFullCard(fetchedCard);
           setLocalLabels(labels);
           setCardMembers(members);
+          initialMembersRef.current = members;
           lastLabelIdsRef.current = labels.map(l => l.id).sort().join(',');
         })
         .catch((error) => {
@@ -129,6 +131,7 @@ export function CardDetailModal({
           // List view members are minimal (avatar only), so we can't use them for the manager which needs userId
           // So we default to empty list if fetch fails
           setCardMembers([]);
+          initialMembersRef.current = [];
         })
         .finally(() => {
           setLoadingCard(false);
@@ -150,6 +153,7 @@ export function CardDetailModal({
       hasInitializedRef.current = false;
       setEnvironmentMembers([]);
       setCardMembers([]);
+      initialMembersRef.current = [];
     }
   }, [open, card, card.id, card.boardId, boards]);
 
@@ -197,13 +201,39 @@ export function CardDetailModal({
   const onSubmit = async (data: CardFormData) => {
     const labelsChanged = lastLabelIdsRef.current !== localLabels.map(l => l.id).sort().join(',');
 
-    if (!isDirty && !labelsChanged) {
+    // Check for member changes
+    const currentMemberIds = cardMembers.map(m => m.userId).sort().join(',');
+    const initialMemberIds = initialMembersRef.current.map(m => m.userId).sort().join(',');
+    const membersChanged = currentMemberIds !== initialMemberIds;
+
+    if (!isDirty && !labelsChanged && !membersChanged) {
       toast.info("Nenhuma alteração realizada.");
       onOpenChange(false);
       return;
     }
 
     try {
+      // Handle member updates
+      const initialUserIds = initialMembersRef.current.map(m => m.userId);
+      const currentUserIds = cardMembers.map(m => m.userId);
+
+      const membersToAdd = currentUserIds.filter(id => !initialUserIds.includes(id));
+      const membersToRemove = initialUserIds.filter(id => !currentUserIds.includes(id));
+
+      const memberPromises: Promise<void>[] = [];
+
+      membersToAdd.forEach(userId => {
+        memberPromises.push(cardsService.addCardMember(card.id, userId));
+      });
+
+      membersToRemove.forEach(userId => {
+        memberPromises.push(cardsService.removeCardMember(card.id, userId));
+      });
+
+      // Execute member updates first to ensure DB is consistent before board refresh
+      await Promise.all(memberPromises);
+
+      // Update card details (which might trigger board refresh)
       await onUpdate({
         title: data.title,
         description: data.description,
@@ -213,8 +243,10 @@ export function CardDetailModal({
         labels: localLabels.map(l => l.id),
       });
 
+      // Refresh card data if modal stays open (though we close it here)
       reset(data);
       lastLabelIdsRef.current = localLabels.map(l => l.id).sort().join(',');
+      initialMembersRef.current = cardMembers;
 
       onOpenChange(false);
     } catch {
@@ -247,16 +279,23 @@ export function CardDetailModal({
     }, 100);
   }, [localLabels]);
 
-  const handleAddMember = async (userId: string) => {
-    await cardsService.addCardMember(card.id, userId);
-    // Refresh card members
-    const members = await cardsService.getCardMembers(card.id);
-    setCardMembers(members);
+  const handleAddMember = (userId: string) => {
+    const memberEnv = environmentMembers.find(m => m.userId === userId);
+    if (!memberEnv) return;
+
+    const newMember: CardMember = {
+      id: `temp-${Date.now()}-${userId}`, // Temp ID strictly for local keying
+      userId: memberEnv.userId,
+      name: memberEnv.name,
+      email: memberEnv.email || "",
+      avatar: memberEnv.avatar,
+      assignedAt: new Date().toISOString()
+    };
+
+    setCardMembers(prev => [...prev, newMember]);
   };
 
-  const handleRemoveMember = async (userId: string) => {
-    await cardsService.removeCardMember(card.id, userId);
-    // Remove from local state immediately
+  const handleRemoveMember = (userId: string) => {
     setCardMembers(prev => prev.filter(m => m.userId !== userId));
   };
 
@@ -378,7 +417,6 @@ export function CardDetailModal({
                   <p className="text-sm text-muted-foreground">Carregando membros...</p>
                 ) : (
                   <CardMembersSelector
-                    cardId={card.id}
                     currentMembers={cardMembers}
                     environmentMembers={environmentMembers}
                     onAddMember={handleAddMember}
