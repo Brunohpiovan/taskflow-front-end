@@ -1,6 +1,6 @@
 "use client";
 
-import { useDndContext, useDroppable } from "@dnd-kit/core";
+import { useDroppable } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { ListTodo, MoreHorizontal, Pencil, Trash2, Plus } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -29,7 +29,7 @@ import { useBoardsStore } from "@/stores/boards.store";
 import type { Board } from "@/types/board.types";
 import type { Card as CardType } from "@/types/card.types";
 import type { EnvironmentMember } from "@/types/environment.types";
-import { useMemo, useState, memo, useEffect } from "react";
+import { useState, memo, useEffect } from "react";
 import { toast } from "sonner";
 import { boardSchema } from "@/lib/validations";
 import { environmentsService } from "@/services/environments.service";
@@ -39,6 +39,92 @@ interface BoardColumnProps {
   cards: CardType[];
 }
 
+// Inner component to isolate re-renders of the content list
+const BoardColumnContent = memo(function BoardColumnContent({
+  board,
+  cards,
+  onAddCard,
+  onEditName,
+  onDeleteBoard
+}: {
+  board: Board;
+  cards: CardType[];
+  onAddCard: () => void;
+  onEditName: () => void;
+  onDeleteBoard: () => void;
+}) {
+  return (
+    <Card className="h-full flex flex-col rounded-xl border-0 bg-card/80 shadow-none">
+      <CardHeader className="flex flex-row items-center justify-between gap-2 px-4 pt-4 pb-3 space-y-0">
+        <div className="flex items-center gap-2 min-w-0 flex-1">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-icon">
+            <ListTodo className="h-4 w-4" strokeWidth={2} />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h3 className="font-semibold text-sm truncate text-foreground">{board.name}</h3>
+            <p className="text-xs text-muted-foreground tabular-nums">
+              {cards.length} {cards.length === 1 ? "card" : "cards"}
+            </p>
+          </div>
+        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 shrink-0 rounded-lg opacity-70 hover:opacity-100 hover:bg-muted"
+              aria-label="Menu do quadro"
+            >
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem onClick={onAddCard}>
+              <Plus className="mr-2 h-4 w-4" />
+              Adicionar card
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={onEditName}>
+              <Pencil className="mr-2 h-4 w-4" />
+              Editar nome
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={onDeleteBoard}
+              className="text-destructive focus:text-destructive"
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Excluir quadro
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </CardHeader>
+      <CardContent className="flex-1 flex flex-col gap-3 overflow-y-auto overflow-x-hidden px-4 pb-4 pt-0">
+        <SortableContext items={cards.map((c) => c.id)} strategy={verticalListSortingStrategy}>
+          {cards.map((card) => (
+            <TaskCard key={card.id} card={card} />
+          ))}
+        </SortableContext>
+        <Button
+          variant="ghost"
+          className="mt-1 w-full justify-start rounded-lg border border-dashed border-border/80 py-2.5 text-sm text-muted-foreground hover:border-primary/40 hover:bg-primary/5 hover:text-foreground"
+          onClick={onAddCard}
+        >
+          + Adicionar card
+        </Button>
+      </CardContent>
+    </Card>
+  );
+}, (prev, next) => {
+  if (prev.board.id !== next.board.id) return false;
+  if (prev.board.name !== next.board.name) return false;
+  // Shallow compare cards
+  if (prev.cards === next.cards) return true;
+  if (prev.cards.length !== next.cards.length) return false;
+  // Deep check if cards changed - needed because dragging changes order but not necessarily length
+  // However, simple reference equality check on cards array is usually enough if store is immutable
+  // But let's be safe for drag scenarios
+  return prev.cards.every((c, i) => c === next.cards[i]);
+});
+
 export const BoardColumn = memo(function BoardColumn({ board, cards }: BoardColumnProps) {
   const [cardFormOpen, setCardFormOpen] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
@@ -47,23 +133,22 @@ export const BoardColumn = memo(function BoardColumn({ board, cards }: BoardColu
   const [editNameLoading, setEditNameLoading] = useState(false);
   const [environmentMembers, setEnvironmentMembers] = useState<EnvironmentMember[]>([]);
 
-  const { setNodeRef } = useDroppable({ id: board.id });
-  const { over } = useDndContext();
-
-  const isOverBoard = useMemo(() => {
-    if (!over) return false;
-    // Highlight if over the board itself
-    if (over.id === board.id) return true;
-    // Highlight if over any card in this board
-    const overCardId = String(over.id);
-    return cards.some((c) => c.id === overCardId);
-  }, [board.id, over, cards]);
+  // OPTIMIZATION: Use local useDroppable state instead of global useDndContext
+  // This prevents the entire column (and its children) from re-rendering just because
+  // the user is dragging something somewhere else on the screen.
+  // The 'isOver' prop here only updates for THIS specific column.
+  const { setNodeRef, isOver } = useDroppable({
+    id: board.id,
+    data: {
+      type: "Board",
+      board
+    }
+  });
 
   const createCard = useCardsStore((s) => s.createCard);
   const updateBoard = useBoardsStore((s) => s.updateBoard);
   const deleteBoard = useBoardsStore((s) => s.deleteBoard);
 
-  // Fetch environment members when component mounts
   useEffect(() => {
     if (board.environmentId) {
       environmentsService.getMembers(board.environmentId)
@@ -73,7 +158,6 @@ export const BoardColumn = memo(function BoardColumn({ board, cards }: BoardColu
   }, [board.environmentId]);
 
   const handleCreateCard = async (title: string, description?: string, dueDate?: string, labels?: string[], members?: string[]) => {
-    console.log("Creating card with members:", members);
     await createCard({
       title,
       description,
@@ -131,69 +215,18 @@ export const BoardColumn = memo(function BoardColumn({ board, cards }: BoardColu
       ref={setNodeRef}
       className={cn(
         "shrink-0 w-[288px] ml-2 rounded-xl transition-all duration-200 min-h-[620px] max-h-[630px] border",
-        isOverBoard
+        isOver
           ? "bg-muted/60 border-primary/20 ring-2 ring-primary/20 shadow-md"
           : "bg-secondary/50 border-border/80 hover:border-border hover:bg-secondary/70 shadow-sm"
       )}
     >
-      <Card className="h-full flex flex-col rounded-xl border-0 bg-card/80 shadow-none">
-        <CardHeader className="flex flex-row items-center justify-between gap-2 px-4 pt-4 pb-3 space-y-0">
-          <div className="flex items-center gap-2 min-w-0 flex-1">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-icon">
-              <ListTodo className="h-4 w-4" strokeWidth={2} />
-            </div>
-            <div className="min-w-0 flex-1">
-              <h3 className="font-semibold text-sm truncate text-foreground">{board.name}</h3>
-              <p className="text-xs text-muted-foreground tabular-nums">
-                {cards.length} {cards.length === 1 ? "card" : "cards"}
-              </p>
-            </div>
-          </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 shrink-0 rounded-lg opacity-70 hover:opacity-100 hover:bg-muted"
-                aria-label="Menu do quadro"
-              >
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem onClick={() => setCardFormOpen(true)}>
-                <Plus className="mr-2 h-4 w-4" />
-                Adicionar card
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleEditNameOpen(true)}>
-                <Pencil className="mr-2 h-4 w-4" />
-                Editar nome
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => setConfirmDeleteOpen(true)}
-                className="text-destructive focus:text-destructive"
-              >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Excluir quadro
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </CardHeader>
-        <CardContent className="flex-1 flex flex-col gap-3 overflow-y-auto overflow-x-hidden px-4 pb-4 pt-0">
-          <SortableContext items={cards.map((c) => c.id)} strategy={verticalListSortingStrategy}>
-            {cards.map((card) => (
-              <TaskCard key={card.id} card={card} />
-            ))}
-          </SortableContext>
-          <Button
-            variant="ghost"
-            className="mt-1 w-full justify-start rounded-lg border border-dashed border-border/80 py-2.5 text-sm text-muted-foreground hover:border-primary/40 hover:bg-primary/5 hover:text-foreground"
-            onClick={() => setCardFormOpen(true)}
-          >
-            + Adicionar card
-          </Button>
-        </CardContent>
-      </Card>
+      <BoardColumnContent
+        board={board}
+        cards={cards}
+        onAddCard={() => setCardFormOpen(true)}
+        onEditName={() => handleEditNameOpen(true)}
+        onDeleteBoard={() => setConfirmDeleteOpen(true)}
+      />
 
       {cardFormOpen && (
         <CardForm
@@ -261,13 +294,9 @@ export const BoardColumn = memo(function BoardColumn({ board, cards }: BoardColu
 }, (prev: BoardColumnProps, next: BoardColumnProps) => {
   if (prev.board.id !== next.board.id) return false;
   if (prev.board.name !== next.board.name) return false;
-  if (prev.cards.length !== next.cards.length) return false;
 
-  // Shallow comparison for cards array (assuming immutable updates)
-  // If card instances change but IDs/content are same, we can rely on TaskCard's own memo.
-  // However, dragging changes internal order, so cards list reference will change.
-  // We want to re-render if the list of cards changes.
-  if (prev.cards !== next.cards) return false;
-
-  return true;
+  // Checking cards array reference should be enough for performance
+  // The deep check inside BoardColumnContent's memo handles the granular re-renders
+  // But for the container, we want to update if dragging might have changed sort order
+  return prev.cards === next.cards;
 });
