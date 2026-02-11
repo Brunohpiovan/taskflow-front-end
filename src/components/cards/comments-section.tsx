@@ -172,6 +172,7 @@ export function CommentsSection({ cardId, isOwner = false }: CommentsSectionProp
                             <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800/50 border rounded-lg animate-in fade-in slide-in-from-top-2 duration-200">
                                 {previewUrl ? (
                                     <div className="relative h-12 w-12 shrink-0 rounded overflow-hidden border">
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
                                         <img src={previewUrl} alt="Preview" className="h-full w-full object-cover" />
                                     </div>
                                 ) : (
@@ -291,6 +292,7 @@ export function CommentsSection({ cardId, isOwner = false }: CommentsSectionProp
                                                             onClick={() => setPreviewAttachment(attachment)}
                                                             className="block overflow-hidden rounded-lg border hover:ring-2 hover:ring-primary/50 transition-all max-w-[200px]"
                                                         >
+                                                            {/* eslint-disable-next-line @next/next/no-img-element */}
                                                             <img
                                                                 src={attachment.url}
                                                                 alt={attachment.filename}
@@ -394,11 +396,14 @@ export function CommentsSection({ cardId, isOwner = false }: CommentsSectionProp
 
                             <div className="flex-1 overflow-auto flex items-center justify-center bg-black/80 backdrop-blur-sm md:bg-slate-100 md:dark:bg-slate-900 min-h-[50vh]">
                                 {previewAttachment.type.startsWith("image/") ? (
-                                    <img
-                                        src={previewAttachment.url}
-                                        alt={previewAttachment.filename}
-                                        className="max-h-full max-w-full object-contain"
-                                    />
+                                    <>
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img
+                                            src={previewAttachment.url}
+                                            alt={previewAttachment.filename}
+                                            className="max-h-full max-w-full object-contain"
+                                        />
+                                    </>
                                 ) : (
                                     <iframe
                                         src={`https://docs.google.com/gview?url=${encodeURIComponent(previewAttachment.url)}&embedded=true`}

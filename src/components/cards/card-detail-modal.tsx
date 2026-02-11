@@ -151,7 +151,7 @@ export function CardDetailModal({
       setEnvironmentMembers([]);
       setCardMembers([]);
     }
-  }, [open, card.id, card.boardId, boards]);
+  }, [open, card, card.id, card.boardId, boards]);
 
   useEffect(() => {
     if (open && fullCard) {
