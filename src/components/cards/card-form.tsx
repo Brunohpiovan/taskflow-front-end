@@ -15,19 +15,21 @@ import {
 } from "@/components/ui/dialog";
 import { CARD_DESCRIPTION_MAX_LENGTH } from "@/lib/constants";
 import { LabelManager } from "./label-manager";
-
-import type { Label as LabelType } from "@/types/card.types";
+import { CardMembersSelector } from "./card-members-selector";
+import type { Label as LabelType, CardMember } from "@/types/card.types";
+import type { EnvironmentMember } from "@/types/environment.types";
 
 interface CardFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (title: string, description?: string, dueDate?: string, labels?: string[]) => Promise<void>;
+  onSubmit: (title: string, description?: string, dueDate?: string, labels?: string[], members?: string[]) => Promise<void>;
   title?: string;
   defaultTitle?: string;
   defaultDescription?: string;
 
   boardId: string;
   environmentId: string;
+  environmentMembers: EnvironmentMember[];
 }
 
 export function CardForm({
@@ -39,11 +41,13 @@ export function CardForm({
   defaultDescription = "",
   // boardId,
   environmentId,
+  environmentMembers,
 }: CardFormProps) {
   const [cardTitle, setCardTitle] = useState(defaultTitle);
   const [description, setDescription] = useState(defaultDescription);
   const [dueDate, setDueDate] = useState("");
   const [selectedLabels, setSelectedLabels] = useState<LabelType[]>([]);
+  const [selectedMembers, setSelectedMembers] = useState<CardMember[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const lastLabelIdsRef = useRef<string>("");
@@ -66,11 +70,12 @@ export function CardForm({
 
     setIsSubmitting(true);
     try {
-      await onSubmit(trimmed, desc, date, selectedLabels.map(l => l.id));
+      await onSubmit(trimmed, desc, date, selectedLabels.map(l => l.id), selectedMembers.map(m => m.userId));
       setCardTitle("");
       setDescription("");
       setDueDate("");
       setSelectedLabels([]);
+      setSelectedMembers([]);
       onOpenChange(false);
     } catch {
       setError("Não foi possível criar o card.");
@@ -85,6 +90,7 @@ export function CardForm({
       setDescription(defaultDescription);
       setDueDate("");
       setSelectedLabels([]);
+      setSelectedMembers([]);
       setError(null);
       lastLabelIdsRef.current = "";
     }
@@ -164,6 +170,29 @@ export function CardForm({
               environmentId={environmentId}
               selectedLabels={selectedLabels}
               onChange={handleLabelChange}
+            />
+          </div>
+          <div className="space-y-2">
+            <CardMembersSelector
+              cardId=""
+              currentMembers={selectedMembers}
+              environmentMembers={environmentMembers}
+              onAddMember={async (userId) => {
+                const member = environmentMembers.find(m => m.userId === userId);
+                if (member) {
+                  setSelectedMembers(prev => [...prev, {
+                    id: '',
+                    userId: member.userId,
+                    name: member.name,
+                    email: member.email,
+                    avatar: member.avatar,
+                    assignedAt: new Date().toISOString(),
+                  }]);
+                }
+              }}
+              onRemoveMember={async (userId) => {
+                setSelectedMembers(prev => prev.filter(m => m.userId !== userId));
+              }}
             />
           </div>
           <DialogFooter className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2">

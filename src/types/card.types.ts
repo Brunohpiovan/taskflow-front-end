@@ -43,6 +43,7 @@ export interface CreateCardDTO {
   boardId: string;
   position?: number;
   labels?: string[]; // IDs of labels
+  members?: string[]; // IDs of users
   dueDate?: string;
 }
 

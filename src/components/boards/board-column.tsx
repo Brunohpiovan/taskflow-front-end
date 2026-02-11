@@ -28,9 +28,11 @@ import { useCardsStore } from "@/stores/cards.store";
 import { useBoardsStore } from "@/stores/boards.store";
 import type { Board } from "@/types/board.types";
 import type { Card as CardType } from "@/types/card.types";
-import { useMemo, useState, memo } from "react";
+import type { EnvironmentMember } from "@/types/environment.types";
+import { useMemo, useState, memo, useEffect } from "react";
 import { toast } from "sonner";
 import { boardSchema } from "@/lib/validations";
+import { environmentsService } from "@/services/environments.service";
 
 interface BoardColumnProps {
   board: Board;
@@ -43,6 +45,7 @@ export const BoardColumn = memo(function BoardColumn({ board, cards }: BoardColu
   const [editNameOpen, setEditNameOpen] = useState(false);
   const [editNameValue, setEditNameValue] = useState(board.name);
   const [editNameLoading, setEditNameLoading] = useState(false);
+  const [environmentMembers, setEnvironmentMembers] = useState<EnvironmentMember[]>([]);
 
   const { setNodeRef } = useDroppable({ id: board.id });
   const { over } = useDndContext();
@@ -60,7 +63,17 @@ export const BoardColumn = memo(function BoardColumn({ board, cards }: BoardColu
   const updateBoard = useBoardsStore((s) => s.updateBoard);
   const deleteBoard = useBoardsStore((s) => s.deleteBoard);
 
-  const handleCreateCard = async (title: string, description?: string, dueDate?: string, labels?: string[]) => {
+  // Fetch environment members when component mounts
+  useEffect(() => {
+    if (board.environmentId) {
+      environmentsService.getMembers(board.environmentId)
+        .then(setEnvironmentMembers)
+        .catch(() => setEnvironmentMembers([]));
+    }
+  }, [board.environmentId]);
+
+  const handleCreateCard = async (title: string, description?: string, dueDate?: string, labels?: string[], members?: string[]) => {
+    console.log("Creating card with members:", members);
     await createCard({
       title,
       description,
@@ -68,6 +81,7 @@ export const BoardColumn = memo(function BoardColumn({ board, cards }: BoardColu
       boardId: board.id,
       position: cards.length,
       labels,
+      members,
     });
     toast.success("Card criado.");
     setCardFormOpen(false);
@@ -188,6 +202,7 @@ export const BoardColumn = memo(function BoardColumn({ board, cards }: BoardColu
           onSubmit={handleCreateCard}
           boardId={board.id}
           environmentId={board.environmentId}
+          environmentMembers={environmentMembers}
         />
       )}
 

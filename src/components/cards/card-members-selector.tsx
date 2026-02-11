@@ -41,10 +41,15 @@ export function CardMembersSelector({
         setIsAdding(true);
         try {
             await onAddMember(userId);
-            toast.success("Membro adicionado ao card");
+            // Only show toast for existing cards (not during creation)
+            if (cardId) {
+                toast.success("Membro adicionado ao card");
+            }
         } catch (error) {
             console.error("Failed to add member:", error);
-            toast.error("Erro ao adicionar membro");
+            if (cardId) {
+                toast.error("Erro ao adicionar membro");
+            }
         } finally {
             setIsAdding(false);
         }
@@ -54,10 +59,15 @@ export function CardMembersSelector({
         setRemovingUserId(userId);
         try {
             await onRemoveMember(userId);
-            toast.success("Membro removido do card");
+            // Only show toast for existing cards (not during creation)
+            if (cardId) {
+                toast.success("Membro removido do card");
+            }
         } catch (error) {
             console.error("Failed to remove member:", error);
-            toast.error("Erro ao remover membro");
+            if (cardId) {
+                toast.error("Erro ao remover membro");
+            }
         } finally {
             setRemovingUserId(null);
         }
@@ -80,6 +90,7 @@ export function CardMembersSelector({
                     <Popover>
                         <PopoverTrigger asChild>
                             <Button
+                                type="button"
                                 variant="ghost"
                                 size="sm"
                                 className="h-8 gap-1"
@@ -129,7 +140,7 @@ export function CardMembersSelector({
                 <div className="flex flex-wrap gap-1.5">
                     {currentMembers.map((member) => (
                         <div
-                            key={member.id}
+                            key={member.userId || member.id}
                             className="flex items-center gap-1.5 bg-accent rounded-md pl-1.5 pr-1 py-1 group"
                         >
                             <Avatar className="h-5 w-5">
