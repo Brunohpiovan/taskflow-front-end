@@ -68,7 +68,7 @@ export default async function DashboardPage() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="min-h-full space-y-6 pb-6">
       <DashboardHeader initialUser={user} />
 
       {/* Metrics Grid */}

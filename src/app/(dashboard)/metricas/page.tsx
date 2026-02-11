@@ -21,7 +21,7 @@ export default function MetricsPage() {
 
     if (isLoading) {
         return (
-            <div className="h-full flex flex-col space-y-2 p-4">
+            <div className="min-h-full flex flex-col space-y-2 p-4 pb-6">
                 <div className="flex items-center justify-between">
                     <h2 className="text-xl font-bold tracking-tight">Métricas</h2>
                 </div>
@@ -42,7 +42,7 @@ export default function MetricsPage() {
 
     if (!metrics) {
         return (
-            <div className="h-full flex flex-col space-y-2 p-4">
+            <div className="min-h-full flex flex-col space-y-2 p-4 pb-6">
                 <div className="flex items-center justify-between">
                     <h2 className="text-xl font-bold tracking-tight">Métricas</h2>
                 </div>
@@ -58,7 +58,7 @@ export default function MetricsPage() {
     }
 
     return (
-        <div className="h-full flex flex-col space-y-2 p-4 overflow-hidden">
+        <div className="min-h-full flex flex-col space-y-2 p-4 pb-6">
             <div className="flex items-center justify-between flex-shrink-0">
                 <h2 className="text-xl font-bold tracking-tight">Métricas</h2>
             </div>
@@ -69,7 +69,7 @@ export default function MetricsPage() {
             </div>
 
             {/* Gráficos e Atividades */}
-            <div className="grid gap-2 lg:grid-cols-3 flex-1 min-h-0">
+            <div className="grid gap-2 lg:grid-cols-3">
                 <div className="lg:col-span-2">
                     <ChartsSection
                         cardsByBoard={metrics.cardsByBoard}
