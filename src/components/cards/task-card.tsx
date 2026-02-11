@@ -137,14 +137,14 @@ export const TaskCard = memo(function TaskCard({ card }: TaskCardProps) {
             className="flex-1 text-left min-w-0 rounded-md -m-1 p-1 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             onClick={() => setDetailOpen(true)}
           >
+            {/* Label indicators - Simplified for list view */}
             {card.labels && card.labels.length > 0 && (
               <div className="flex flex-wrap gap-1 mb-2">
-                {card.labels.map((label) => (
+                {card.labels.map((label, idx) => (
                   <div
-                    key={label.id}
+                    key={idx}
                     className="h-1.5 w-8 rounded-full"
                     style={{ backgroundColor: label.color }}
-                    title={label.name}
                   />
                 ))}
               </div>
@@ -177,40 +177,22 @@ export const TaskCard = memo(function TaskCard({ card }: TaskCardProps) {
                 </div>
               );
             })()}
-            {/* Card Members */}
+            {/* Card Members - Simplified for list view */}
             {card.members && card.members.length > 0 && (
               <div className="flex items-center gap-1 mt-2">
-                <TooltipProvider>
-                  <div className="flex -space-x-1.5">
-                    {card.members.slice(0, 3).map((member) => (
-                      <Tooltip key={member.id}>
-                        <TooltipTrigger asChild>
-                          <Avatar className="h-5 w-5 border-2 border-background">
-                            <AvatarImage src={member.avatar} alt={member.name} />
-                            <AvatarFallback className="text-[9px] font-medium">
-                              {member.name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)}
-                            </AvatarFallback>
-                          </Avatar>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>{member.name}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    ))}
-                    {card.members.length > 3 && (
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <div className="h-5 w-5 rounded-full bg-muted border-2 border-background flex items-center justify-center">
-                            <span className="text-[9px] font-semibold text-muted-foreground">+{card.members.length - 3}</span>
-                          </div>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>{card.members.slice(3).map(m => m.name).join(", ")}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    )}
-                  </div>
-                </TooltipProvider>
+                <div className="flex -space-x-1.5">
+                  {card.members.slice(0, 3).map((member, idx) => (
+                    <Avatar key={idx} className="h-5 w-5 border-2 border-background">
+                      <AvatarImage src={member.avatar} />
+                      <AvatarFallback className="text-[9px] font-medium">?</AvatarFallback>
+                    </Avatar>
+                  ))}
+                  {card.members.length > 3 && (
+                    <div className="h-5 w-5 rounded-full bg-muted border-2 border-background flex items-center justify-center">
+                      <span className="text-[9px] font-semibold text-muted-foreground">+{card.members.length - 3}</span>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </button>

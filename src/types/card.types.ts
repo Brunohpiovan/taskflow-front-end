@@ -14,6 +14,15 @@ export interface CardMember {
   assignedAt: string;
 }
 
+// Minimal types for list view (optimized payload)
+export interface CardMemberMinimal {
+  avatar?: string;
+}
+
+export interface LabelMinimal {
+  color: string;
+}
+
 export interface Card {
   id: string;
   title: string;
@@ -21,8 +30,8 @@ export interface Card {
   completed: boolean;
   position: number;
   boardId: string;
-  labels?: Label[];
-  members?: CardMember[];
+  labels?: Label[] | LabelMinimal[]; // Full for detail, minimal for list
+  members?: CardMember[] | CardMemberMinimal[]; // Full for detail, minimal for list
   dueDate?: string;
   createdAt?: string;
 
