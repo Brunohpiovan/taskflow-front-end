@@ -360,24 +360,10 @@ export function CommentsSection({ cardId, isOwner = false }: CommentsSectionProp
                                     size="icon"
                                     variant="secondary"
                                     className="h-8 w-8 rounded-full opacity-80 hover:opacity-100"
-                                    onClick={async () => {
+                                    onClick={() => {
                                         if (!previewAttachment) return;
-                                        try {
-                                            const { url } = await commentsService.getDownloadUrl(previewAttachment.id);
-
-                                            // Create a temporary link to trigger download
-                                            const a = document.createElement('a');
-                                            a.style.display = 'none';
-                                            a.href = url;
-                                            a.download = previewAttachment.filename; // S3 content-disposition will also help
-                                            document.body.appendChild(a);
-                                            a.click();
-                                            document.body.removeChild(a);
-                                        } catch (error) {
-                                            console.error('Download failed:', error);
-                                            // Fallback to opening in new tab if backend fails
-                                            window.open(previewAttachment.url, '_blank');
-                                        }
+                                        // Open directly in new tab - avoids async popup blockers and backend latency
+                                        window.open(previewAttachment.url, '_blank');
                                     }}
                                     title="Baixar"
                                 >
