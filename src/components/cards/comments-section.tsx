@@ -3,7 +3,7 @@
 import { useRef, useEffect, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Send, Trash, Paperclip, FileText, X, Download } from "lucide-react";
+import { Send, Trash, Paperclip, FileText, X, Download, ExternalLink, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -36,6 +36,7 @@ export function CommentsSection({ cardId, isOwner = false }: CommentsSectionProp
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [previewAttachment, setPreviewAttachment] = useState<Attachment | null>(null);
+    const [isDownloading, setIsDownloading] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { user } = useAuthStore();
 
@@ -114,6 +115,35 @@ export function CommentsSection({ cardId, isOwner = false }: CommentsSectionProp
             toast.error("Erro ao remover comentário");
         } finally {
             setCommentToDelete(null);
+        }
+    };
+
+    const handleDownload = async (attachment: Attachment) => {
+        try {
+            setIsDownloading(true);
+            const blob = await commentsService.downloadAttachment(attachment.id);
+
+            // Check if backend returned an error (JSON) instead of a file
+            if (blob.type === 'application/json') {
+                const text = await blob.text();
+                const error = JSON.parse(text);
+                toast.error(error.message || "Erro ao baixar arquivo");
+                return;
+            }
+
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = attachment.filename;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        } catch (error) {
+            console.error("Download failed:", error);
+            toast.error("Erro ao iniciar download");
+        } finally {
+            setIsDownloading(false);
         }
     };
 
@@ -362,12 +392,28 @@ export function CommentsSection({ cardId, isOwner = false }: CommentsSectionProp
                                     className="h-8 w-8 rounded-full opacity-80 hover:opacity-100"
                                     onClick={() => {
                                         if (!previewAttachment) return;
-                                        // Open directly in new tab - avoids async popup blockers and backend latency
                                         window.open(previewAttachment.url, '_blank');
                                     }}
-                                    title="Baixar"
+                                    title="Abrir em nova guia"
                                 >
-                                    <Download className="h-4 w-4" />
+                                    <ExternalLink className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                    size="icon"
+                                    variant="secondary"
+                                    className="h-8 w-8 rounded-full opacity-80 hover:opacity-100"
+                                    onClick={() => {
+                                        if (!previewAttachment) return;
+                                        handleDownload(previewAttachment);
+                                    }}
+                                    title="Baixar"
+                                    disabled={isDownloading}
+                                >
+                                    {isDownloading ? (
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                    ) : (
+                                        <Download className="h-4 w-4" />
+                                    )}
                                 </Button>
                                 <Button
                                     size="icon"
