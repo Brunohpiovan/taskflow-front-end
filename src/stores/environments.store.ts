@@ -17,6 +17,8 @@ interface EnvironmentsState {
   createEnvironment: (data: CreateEnvironmentDTO) => Promise<Environment>;
   updateEnvironment: (id: string, data: UpdateEnvironmentDTO) => Promise<void>;
   deleteEnvironment: (id: string) => Promise<void>;
+  simpleEnvironments: { id: string; name: string; slug: string }[];
+  fetchSimpleEnvironments: () => Promise<void>;
   setCurrentEnvironment: (env: Environment | null) => void;
 }
 
@@ -98,6 +100,20 @@ export const useEnvironmentsStore = create<EnvironmentsState>((set, get) => ({
       set({ isLoading: false });
       handleApiError(error);
       throw error;
+    }
+  },
+
+  simpleEnvironments: [],
+  simpleEnvironments: [],
+  fetchSimpleEnvironments: async () => {
+    if (get().simpleEnvironments.length > 0 || get().isLoading) return;
+    set({ isLoading: true });
+    try {
+      const simpleEnvironments = await environmentsService.getSimple();
+      set({ simpleEnvironments, isLoading: false });
+    } catch (error) {
+      console.error("Failed to fetch simple environments", error);
+      set({ isLoading: false });
     }
   },
 

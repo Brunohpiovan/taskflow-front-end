@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Plus, X, Trash2 } from "lucide-react";
 // import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -42,8 +42,12 @@ export function LabelManager({ environmentId, selectedLabels, onChange }: LabelM
     const [newLabelName, setNewLabelName] = useState("");
     const [newLabelColor, setNewLabelColor] = useState(COLORS[0]);
 
+    const isFetchingRef = useRef(false);
+
     useEffect(() => {
         const loadLabels = async () => {
+            if (isFetchingRef.current) return;
+            isFetchingRef.current = true;
             try {
                 setLoading(true);
                 const data = await labelsService.getByEnvironmentId(environmentId);
@@ -52,6 +56,7 @@ export function LabelManager({ environmentId, selectedLabels, onChange }: LabelM
                 console.error("Failed to load labels", error);
             } finally {
                 setLoading(false);
+                isFetchingRef.current = false;
             }
         };
         loadLabels();

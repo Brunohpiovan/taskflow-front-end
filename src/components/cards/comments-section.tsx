@@ -38,10 +38,13 @@ export function CommentsSection({ cardId, isOwner = false }: CommentsSectionProp
     const [previewAttachment, setPreviewAttachment] = useState<Attachment | null>(null);
     const [isDownloading, setIsDownloading] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const isFetchingRef = useRef(false);
     const { user } = useAuthStore();
 
     useEffect(() => {
         const loadComments = async () => {
+            if (isFetchingRef.current) return;
+            isFetchingRef.current = true;
             try {
                 setLoading(true);
                 const data = await commentsService.getByCardId(cardId);
@@ -50,6 +53,7 @@ export function CommentsSection({ cardId, isOwner = false }: CommentsSectionProp
                 console.error("Failed to load comments", error);
             } finally {
                 setLoading(false);
+                isFetchingRef.current = false;
             }
         };
         loadComments();

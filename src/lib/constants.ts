@@ -16,6 +16,7 @@ export const ROUTES = {
   BOARD: (envSlug: string, boardSlug: string) => `/environments/${envSlug}/boards/${boardSlug}`,
   MY_DATA: "/meus-dados",
   METRICS: "/metricas",
+  CALENDAR: "/calendar",
 } as const;
 
 export const STORAGE_KEYS = {

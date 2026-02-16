@@ -12,6 +12,11 @@ export const environmentsService = {
     return data;
   },
 
+  getSimple: async (): Promise<{ id: string; name: string; slug: string }[]> => {
+    const { data } = await api.get<{ id: string; name: string; slug: string }[]>("/environments/simple");
+    return data;
+  },
+
   getAll: async (): Promise<Environment[]> => {
     const { data } = await api.get<Environment[]>("/environments");
     return data;
