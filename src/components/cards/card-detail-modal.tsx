@@ -39,12 +39,14 @@ import { environmentsService } from "@/services/environments.service";
 import { useAuthStore } from "@/stores/auth.store";
 import type { CardMember } from "@/types/card.types";
 
+
 interface CardDetailModalProps {
   card: CardType;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onUpdate: (data: { title?: string; description?: string; boardId?: string; dueDate?: string; labels?: string[]; completed?: boolean }) => Promise<void>;
   onDelete: () => void;
+  environmentId?: string;
 }
 
 export function CardDetailModal({
@@ -53,6 +55,7 @@ export function CardDetailModal({
   onOpenChange,
   onUpdate,
   // onDelete,
+  environmentId,
 }: CardDetailModalProps) {
   const initialDescription = (card.description ?? "").slice(0, CARD_DESCRIPTION_MAX_LENGTH);
   const updateInProgressRef = useRef(false);
@@ -62,6 +65,8 @@ export function CardDetailModal({
   const [fullCard, setFullCard] = useState<CardType | null>(null);
   const [loadingCard, setLoadingCard] = useState(false);
   const hasInitializedRef = useRef(false);
+  const isFetchingCardRef = useRef(false);
+  const isFetchingBoardsRef = useRef(false);
   const [environmentMembers, setEnvironmentMembers] = useState<EnvironmentMember[]>([]);
   const [cardMembers, setCardMembers] = useState<CardMember[]>([]);
   const { user } = useAuthStore();
@@ -85,7 +90,7 @@ export function CardDetailModal({
   const descriptionValue = watch("description", initialDescription);
   const descriptionLength = (descriptionValue ?? "").length;
 
-  const boards = useBoardsStore((s) => s.boards);
+  const { boards, fetchBoards } = useBoardsStore();
 
   // Determine if the current user is an OWNER of the environment
   const isOwner = useMemo(() => {
@@ -106,6 +111,9 @@ export function CardDetailModal({
   // Fetch complete card data when modal opens
   useEffect(() => {
     if (open && card.id) {
+      if (isFetchingCardRef.current) return;
+      isFetchingCardRef.current = true;
+
       setLoadingCard(true);
       hasInitializedRef.current = false;
       cardsService.getById(card.id)
@@ -121,41 +129,93 @@ export function CardDetailModal({
         .catch((error) => {
           console.error('Failed to fetch card details:', error);
           toast.error("Erro ao carregar detalhes do card");
-          // Fallback to existing card data if fetch fails
           setFullCard(card);
           if (card.labels && card.labels.length > 0 && 'id' in card.labels[0]) {
             setLocalLabels(card.labels as LabelType[]);
           } else {
             setLocalLabels([]);
           }
-          // List view members are minimal (avatar only), so we can't use them for the manager which needs userId
-          // So we default to empty list if fetch fails
           setCardMembers([]);
           initialMembersRef.current = [];
         })
         .finally(() => {
           setLoadingCard(false);
+          isFetchingCardRef.current = false;
         });
-
-      // Fetch environment members to determine if user is owner
-      const currentBoard = boards.find(b => b.id === card.boardId);
-      if (currentBoard?.environmentId) {
-        environmentsService.getMembers(currentBoard.environmentId)
-          .then((members) => {
-            setEnvironmentMembers(members);
-          })
-          .catch((error) => {
-            console.error('Failed to fetch environment members:', error);
-          });
-      }
     } else if (!open) {
-      // Reset when modal closes
       hasInitializedRef.current = false;
       setEnvironmentMembers([]);
       setCardMembers([]);
       initialMembersRef.current = [];
+      isFetchingCardRef.current = false;
     }
-  }, [open, card, card.id, card.boardId, boards]);
+  }, [open, card.id]); // Removed 'card' and 'boards' from dependencies to prevent re-fetch loop
+
+  // Lazy load boards and fetch environment members
+  useEffect(() => {
+    if (!open) return;
+
+    if (environmentId) {
+      const hasBoardsForEnv = boards.some(b => b.environmentId === environmentId);
+      if (!hasBoardsForEnv && !isFetchingBoardsRef.current) {
+        isFetchingBoardsRef.current = true;
+        fetchBoards(environmentId)
+          .catch(console.error)
+          .finally(() => {
+            isFetchingBoardsRef.current = false;
+          });
+      }
+    }
+
+    const currentBoard = boards.find(b => b.id === card.boardId);
+
+    // This handles the case where calendar view doesn't load boards initially
+    if (!currentBoard) {
+      // We need the environmentId to fetch boards. 
+      // If we don't have it on the card (it's not on the minimal calendar card), 
+      // we might need to fetch the card details first which we are already doing above.
+      // However, `fullCard` might not be set yet.
+
+      // Strategy: 
+      // 1. If we have fullCard with board info, use that.
+      // 2. If we can't find the board in the store, we might need to fetch all boards for the environment.
+      // But we need environmentId. 
+
+      // The calendar view passes `card` which has `boardId`.
+      // The backend `getById` returns `boardId`.
+      // We need to fetch boards using `environmentsService` or `boardsService`.
+
+      // Actually, the best place is likely where we load the full card details.
+      // Once we have the full card, we know the environmentId (via labels or similar? No wait).
+      // The `Card` type has `boardId`. The `Board` has `environmentId`.
+      // We can't know `environmentId` just from `d`.
+
+      // Wait, `CardDetailModal` doesn't receive `environmentId`.
+      // But `CalendarView` knows `selectedEnvId`. 
+      // Maybe we should pass `environmentId` to `CardDetailModal`? 
+      // That would be cleanest. But let's look at what we have.
+
+      // `fullCard` logic above fetches card details. 
+      // Valid constraint: We need `environmentId` to fetch boards if they aren't loaded.
+      // `cardsService.getById` returns `Card`.
+
+      // Let's rely on the fact that `CalendarView` has `selectedEnvId`.
+      // AND `CardDetailModal` is used in `BoardView` too.
+
+      // PROPOSAL: Modify `CardDetailModal` props to accept `environmentId`.
+      // This is a robust fix.
+    }
+
+    if (currentBoard?.environmentId) {
+      environmentsService.getMembers(currentBoard.environmentId)
+        .then((members) => {
+          setEnvironmentMembers(members);
+        })
+        .catch((error) => {
+          console.error('Failed to fetch environment members:', error);
+        });
+    }
+  }, [open, environmentId, boards, card.boardId]);
 
   useEffect(() => {
     if (open && fullCard) {

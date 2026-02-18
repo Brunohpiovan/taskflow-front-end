@@ -13,6 +13,11 @@ export const cardsService = {
     return data;
   },
 
+  getCalendarCards: async (environmentId: string): Promise<Card[]> => {
+    const { data } = await api.get<Card[]>(`/cards/calendar?environmentId=${environmentId}`);
+    return data;
+  },
+
   getById: async (id: string): Promise<Card> => {
     const { data } = await api.get<Card>(`/cards/${id}`);
     return data;

@@ -25,20 +25,74 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 export function TaskCardPreview({ card }: { card: CardType }) {
   return (
     <Card className="cursor-grabbing w-full rounded-xl border bg-card shadow-2xl ring-2 ring-primary/30">
-      <CardContent className="p-3.5">
-        <div className="flex items-start gap-2">
-          {card.completed && (
-            <div className="h-4 w-4 rounded border bg-emerald-500 border-emerald-500 flex items-center justify-center shrink-0 mt-0.5">
-              <Check className="h-3 w-3 text-white" />
+      <CardContent className="p-3.5 flex flex-row items-start gap-2">
+        {card.completed && (
+          <div className="flex flex-col gap-1 pt-0.5 overflow-hidden transition-all duration-300 ease-in-out w-5 opacity-100">
+            <div className="h-4 w-4 rounded border bg-emerald-600 border-emerald-600 flex items-center justify-center shrink-0 mt-0.5 text-white">
+              <Check className="h-3 w-3" />
+            </div>
+          </div>
+        )}
+        <div className="flex-1 min-w-0">
+          {card.labels && card.labels.length > 0 && (
+            <div className="flex flex-wrap gap-1 mb-2">
+              {card.labels.map((label, idx) => (
+                <div
+                  key={idx}
+                  className="h-1.5 w-8 rounded-full"
+                  style={{ backgroundColor: label.color }}
+                />
+              ))}
             </div>
           )}
-          <div className="flex-1 min-w-0">
-            <p className={cn("font-medium text-sm truncate text-foreground", card.completed && "line-through text-muted-foreground")}>{card.title}</p>
-          </div>
+
+          <p className={cn("font-medium text-sm truncate text-foreground", card.completed && "line-through text-muted-foreground")}>{card.title}</p>
+
+          {card.description && (
+            <p className="text-xs text-muted-foreground line-clamp-2 mt-1 leading-relaxed">{card.description}</p>
+          )}
+
+          {card.dueDate && (() => {
+            const date = new Date(card.dueDate);
+            const isOverdue = new Date() > date && !card.completed;
+            return (
+              <div className={cn(
+                "flex items-center gap-1.5 mt-2 text-xs flex-wrap",
+                isOverdue ? "text-destructive font-medium" : "text-muted-foreground",
+                card.completed && "opacity-70"
+              )}>
+                <Calendar className="h-3 w-3 shrink-0" />
+                <span className="whitespace-nowrap">
+                  {date.toLocaleString('pt-BR', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
+                </span>
+                {isOverdue && <span className="text-[10px] uppercase tracking-wider font-semibold ml-1 whitespace-nowrap">(Atrasado)</span>}
+              </div>
+            );
+          })()}
+
+          {card.members && card.members.length > 0 && (
+            <div className="flex items-center gap-1 mt-2">
+              <div className="flex -space-x-1.5">
+                {card.members.slice(0, 3).map((member, idx) => (
+                  <Avatar key={idx} className="h-5 w-5 border-2 border-background">
+                    <AvatarImage src={member.avatar} />
+                    <AvatarFallback className="text-[9px] font-medium">?</AvatarFallback>
+                  </Avatar>
+                ))}
+                {card.members.length > 3 && (
+                  <div className="h-5 w-5 rounded-full bg-muted border-2 border-background flex items-center justify-center">
+                    <span className="text-[9px] font-semibold text-muted-foreground">+{card.members.length - 3}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
-        {card.description && (
-          <p className="text-xs text-muted-foreground line-clamp-2 mt-1 leading-relaxed">{card.description}</p>
-        )}
       </CardContent>
     </Card>
   );

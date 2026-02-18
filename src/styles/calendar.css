@@ -1,0 +1,123 @@
+.rbc-calendar {
+  @apply font-sans;
+}
+
+/* General Layout & Borders */
+.rbc-month-view,
+.rbc-time-view,
+.rbc-agenda-view {
+  @apply border-border bg-card rounded-md overflow-hidden;
+  border: 1px solid hsl(var(--border)) !important;
+}
+
+.rbc-header {
+  @apply py-3 font-medium text-muted-foreground text-sm uppercase tracking-wider;
+  border-bottom: 1px solid hsl(var(--border)) !important;
+}
+
+.rbc-month-row+.rbc-month-row {
+  border-top: 1px solid hsl(var(--border)) !important;
+}
+
+.rbc-day-bg+.rbc-day-bg {
+  border-left: 1px solid hsl(var(--border)) !important;
+}
+
+/* Day Cells */
+.rbc-day-bg {
+  @apply transition-colors hover:bg-accent/10;
+}
+
+.rbc-off-range-bg {
+  @apply bg-muted/20 !important;
+}
+
+.rbc-today {
+  @apply bg-accent/20 !important;
+}
+
+/* Toolbar & Buttons */
+.rbc-toolbar {
+  @apply mb-6 flex flex-wrap gap-4 items-center justify-between p-1;
+}
+
+.rbc-toolbar-label {
+  @apply text-xl font-bold text-foreground capitalize;
+}
+
+.rbc-btn-group {
+  @apply inline-flex bg-muted/50 rounded-lg p-0.5 border border-border;
+}
+
+.rbc-toolbar button {
+  @apply text-sm font-medium px-4 py-2 rounded-md transition-all text-muted-foreground border-none shadow-none bg-transparent !important;
+}
+
+.rbc-toolbar button:hover {
+  @apply text-foreground bg-background/50 !important;
+}
+
+.rbc-toolbar button:active,
+.rbc-toolbar button.rbc-active {
+  @apply bg-background text-foreground shadow-sm !important;
+}
+
+.rbc-toolbar button:focus {
+  @apply ring-2 ring-ring ring-offset-2 ring-offset-background outline-none !important;
+}
+
+/* Events */
+.rbc-event {
+  @apply rounded px-2 py-1 shadow-sm text-xs border-none cursor-pointer hover:brightness-110 transition-all min-h-[26px];
+}
+
+.rbc-event-content {
+  @apply font-medium truncate;
+}
+
+/* Date Text */
+.rbc-date-cell {
+  @apply p-2 text-xs font-medium text-muted-foreground;
+}
+
+.rbc-now .rbc-date-cell {
+  @apply text-primary font-bold;
+}
+
+.rbc-off-range .rbc-date-cell {
+  @apply text-muted-foreground/50;
+}
+
+/* Time View & Agenda specific */
+.rbc-time-header {
+  @apply border-b border-border;
+}
+
+.rbc-time-content {
+  @apply border-t border-border;
+}
+
+.rbc-time-slot {
+  @apply border-t border-border/50 text-xs text-muted-foreground;
+}
+
+.rbc-timeslot-group {
+  @apply border-b border-border/50;
+}
+
+.rbc-day-slot .rbc-time-slot {
+  @apply border-t border-border/30;
+}
+
+.rbc-current-time-indicator {
+  @apply bg-primary h-[2px];
+}
+
+/* Adjustments for dark mode compatibility */
+.dark .rbc-off-range-bg {
+  @apply bg-muted/5 !important;
+}
+
+.dark .rbc-today {
+  @apply bg-primary/10 !important;
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { History } from "lucide-react";
@@ -14,9 +14,12 @@ interface ActivityLogProps {
 export function ActivityLogList({ cardId }: ActivityLogProps) {
     const [logs, setLogs] = useState<ActivityLog[]>([]);
     const [loading, setLoading] = useState(false);
+    const isFetchingRef = useRef(false);
 
     useEffect(() => {
         const loadLogs = async () => {
+            if (isFetchingRef.current) return;
+            isFetchingRef.current = true;
             try {
                 setLoading(true);
                 const data = await activityLogsService.getByCardId(cardId);
@@ -25,6 +28,7 @@ export function ActivityLogList({ cardId }: ActivityLogProps) {
                 console.error("Failed to load activity logs", error);
             } finally {
                 setLoading(false);
+                isFetchingRef.current = false;
             }
         };
         loadLogs();
