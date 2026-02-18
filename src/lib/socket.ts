@@ -12,6 +12,7 @@ export const getSocket = () => {
 
         socket = io(url, {
             autoConnect: false,
+            transports: ['websocket', 'polling'],
             auth: (cb) => {
                 const token = getCookie(STORAGE_KEYS.AUTH_TOKEN);
                 cb({ token });
