@@ -7,7 +7,7 @@ import { ptBR } from "date-fns/locale";
 import { Card, UpdateCardDTO } from "@/types/card.types";
 import { cardsService } from "@/services/cards.service";
 import { useEnvironmentsStore } from "@/stores/environments.store";
-import { useBoardsStore } from "@/stores/boards.store";
+
 import { CardDetailModal } from "@/components/cards/card-detail-modal";
 import {
     Select,
@@ -49,7 +49,7 @@ export function CalendarView() {
     const [selectedEnvId, setSelectedEnvId] = useState<string>("");
 
     const { simpleEnvironments, fetchSimpleEnvironments, isLoading } = useEnvironmentsStore();
-    const { fetchBoards } = useBoardsStore();
+
 
     // Fetch environments on mount
     useEffect(() => {

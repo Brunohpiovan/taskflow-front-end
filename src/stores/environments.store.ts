@@ -104,7 +104,6 @@ export const useEnvironmentsStore = create<EnvironmentsState>((set, get) => ({
   },
 
   simpleEnvironments: [],
-  simpleEnvironments: [],
   fetchSimpleEnvironments: async () => {
     if (get().simpleEnvironments.length > 0 || get().isLoading) return;
     set({ isLoading: true });
