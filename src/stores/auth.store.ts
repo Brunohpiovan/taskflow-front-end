@@ -30,6 +30,9 @@ interface AuthState {
   updateProfile: (data: UpdateProfileDTO) => Promise<User>;
 }
 
+
+let checkAuthPromise: Promise<void> | null = null;
+
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
@@ -107,27 +110,37 @@ export const useAuthStore = create<AuthState>()(
       },
 
       checkAuth: async () => {
-        // After a page refresh, Zustand state is empty (token is not persisted).
-        // Read the token from the cookie as the authoritative source.
-        let { token } = get();
-        if (!token && typeof document !== "undefined") {
-          const match = document.cookie.match(
-            new RegExp(`(?:^|;\\s*)${STORAGE_KEYS.AUTH_TOKEN}=([^;]+)`)
-          );
-          token = match?.[1] ?? null;
-          if (token) set({ token });
-        }
+        if (checkAuthPromise) return checkAuthPromise;
 
-        if (!token) {
-          set({ user: null, isAuthenticated: false });
-          return;
-        }
+        checkAuthPromise = (async () => {
+          // After a page refresh, Zustand state is empty (token is not persisted).
+          // Read the token from the cookie as the authoritative source.
+          let { token } = get();
+          if (!token && typeof document !== "undefined") {
+            const match = document.cookie.match(
+              new RegExp(`(?:^|;\\s*)${STORAGE_KEYS.AUTH_TOKEN}=([^;]+)`)
+            );
+            token = match?.[1] ?? null;
+            if (token) set({ token });
+          }
+
+          if (!token) {
+            set({ user: null, isAuthenticated: false });
+            return;
+          }
+          try {
+            const { user } = await authService.refresh();
+            set({ user, isAuthenticated: true });
+          } catch {
+            setAuthCookie(null);
+            set({ user: null, token: null, isAuthenticated: false });
+          }
+        })();
+
         try {
-          const { user } = await authService.refresh();
-          set({ user, isAuthenticated: true });
-        } catch {
-          setAuthCookie(null);
-          set({ user: null, token: null, isAuthenticated: false });
+          await checkAuthPromise;
+        } finally {
+          checkAuthPromise = null;
         }
       },
     }),
