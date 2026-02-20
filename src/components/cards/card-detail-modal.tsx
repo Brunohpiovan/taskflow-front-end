@@ -169,42 +169,9 @@ export function CardDetailModal({
 
     const currentBoard = boards.find(b => b.id === card.boardId);
 
-    // This handles the case where calendar view doesn't load boards initially
-    if (!currentBoard) {
-      // We need the environmentId to fetch boards. 
-      // If we don't have it on the card (it's not on the minimal calendar card), 
-      // we might need to fetch the card details first which we are already doing above.
-      // However, `fullCard` might not be set yet.
-
-      // Strategy: 
-      // 1. If we have fullCard with board info, use that.
-      // 2. If we can't find the board in the store, we might need to fetch all boards for the environment.
-      // But we need environmentId. 
-
-      // The calendar view passes `card` which has `boardId`.
-      // The backend `getById` returns `boardId`.
-      // We need to fetch boards using `environmentsService` or `boardsService`.
-
-      // Actually, the best place is likely where we load the full card details.
-      // Once we have the full card, we know the environmentId (via labels or similar? No wait).
-      // The `Card` type has `boardId`. The `Board` has `environmentId`.
-      // We can't know `environmentId` just from `d`.
-
-      // Wait, `CardDetailModal` doesn't receive `environmentId`.
-      // But `CalendarView` knows `selectedEnvId`. 
-      // Maybe we should pass `environmentId` to `CardDetailModal`? 
-      // That would be cleanest. But let's look at what we have.
-
-      // `fullCard` logic above fetches card details. 
-      // Valid constraint: We need `environmentId` to fetch boards if they aren't loaded.
-      // `cardsService.getById` returns `Card`.
-
-      // Let's rely on the fact that `CalendarView` has `selectedEnvId`.
-      // AND `CardDetailModal` is used in `BoardView` too.
-
-      // PROPOSAL: Modify `CardDetailModal` props to accept `environmentId`.
-      // This is a robust fix.
-    }
+    // If the board isn't in the store yet (e.g. CalendarView), the boards
+    // useEffect above will trigger fetchBoards via environmentId.
+    // environmentMembers will be fetched once currentBoard is resolvable.
 
     if (currentBoard?.environmentId) {
       environmentsService.getMembers(currentBoard.environmentId)

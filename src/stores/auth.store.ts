@@ -107,7 +107,17 @@ export const useAuthStore = create<AuthState>()(
       },
 
       checkAuth: async () => {
-        const { token } = get();
+        // After a page refresh, Zustand state is empty (token is not persisted).
+        // Read the token from the cookie as the authoritative source.
+        let { token } = get();
+        if (!token && typeof document !== "undefined") {
+          const match = document.cookie.match(
+            new RegExp(`(?:^|;\\s*)${STORAGE_KEYS.AUTH_TOKEN}=([^;]+)`)
+          );
+          token = match?.[1] ?? null;
+          if (token) set({ token });
+        }
+
         if (!token) {
           set({ user: null, isAuthenticated: false });
           return;
@@ -116,6 +126,7 @@ export const useAuthStore = create<AuthState>()(
           const { user } = await authService.refresh();
           set({ user, isAuthenticated: true });
         } catch {
+          setAuthCookie(null);
           set({ user: null, token: null, isAuthenticated: false });
         }
       },

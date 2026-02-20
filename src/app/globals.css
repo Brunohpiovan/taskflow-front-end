@@ -34,7 +34,7 @@
     --foreground: 210 40% 98%;
     --card: 222 47% 8%;
     --card-foreground: 210 40% 98%;
-    --primary: 225 94% 19%;
+    --primary: 225 80% 55%;
 
     --primary-foreground: 0 0% 100%;
     --secondary: 222 47% 12%;
@@ -73,8 +73,8 @@
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 12px;
-  height: 12px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
