@@ -29,14 +29,15 @@ import { useBoardsStore } from "@/stores/boards.store";
 import type { Board } from "@/types/board.types";
 import type { Card as CardType } from "@/types/card.types";
 import type { EnvironmentMember } from "@/types/environment.types";
-import { useState, memo, useEffect } from "react";
+import { useState, memo } from "react";
 import { toast } from "sonner";
 import { boardSchema } from "@/lib/validations";
-import { environmentsService } from "@/services/environments.service";
 
 interface BoardColumnProps {
   board: Board;
   cards: CardType[];
+  /** Members of the environment — fetched once by the parent page, not per column */
+  environmentMembers: EnvironmentMember[];
 }
 
 // Inner component to isolate re-renders of the content list
@@ -116,46 +117,26 @@ const BoardColumnContent = memo(function BoardColumnContent({
 }, (prev, next) => {
   if (prev.board.id !== next.board.id) return false;
   if (prev.board.name !== next.board.name) return false;
-  // Shallow compare cards
   if (prev.cards === next.cards) return true;
   if (prev.cards.length !== next.cards.length) return false;
-  // Deep check if cards changed - needed because dragging changes order but not necessarily length
-  // However, simple reference equality check on cards array is usually enough if store is immutable
-  // But let's be safe for drag scenarios
   return prev.cards.every((c, i) => c === next.cards[i]);
 });
 
-export const BoardColumn = memo(function BoardColumn({ board, cards }: BoardColumnProps) {
+export const BoardColumn = memo(function BoardColumn({ board, cards, environmentMembers }: BoardColumnProps) {
   const [cardFormOpen, setCardFormOpen] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [editNameOpen, setEditNameOpen] = useState(false);
   const [editNameValue, setEditNameValue] = useState(board.name);
   const [editNameLoading, setEditNameLoading] = useState(false);
-  const [environmentMembers, setEnvironmentMembers] = useState<EnvironmentMember[]>([]);
 
-  // OPTIMIZATION: Use local useDroppable state instead of global useDndContext
-  // This prevents the entire column (and its children) from re-rendering just because
-  // the user is dragging something somewhere else on the screen.
-  // The 'isOver' prop here only updates for THIS specific column.
   const { setNodeRef, isOver } = useDroppable({
     id: board.id,
-    data: {
-      type: "Board",
-      board
-    }
+    data: { type: "Board", board }
   });
 
   const createCard = useCardsStore((s) => s.createCard);
   const updateBoard = useBoardsStore((s) => s.updateBoard);
   const deleteBoard = useBoardsStore((s) => s.deleteBoard);
-
-  useEffect(() => {
-    if (board.environmentId) {
-      environmentsService.getMembers(board.environmentId)
-        .then(setEnvironmentMembers)
-        .catch(() => setEnvironmentMembers([]));
-    }
-  }, [board.environmentId]);
 
   const handleCreateCard = async (title: string, description?: string, dueDate?: string, labels?: string[], members?: string[]) => {
     await createCard({
@@ -294,9 +275,6 @@ export const BoardColumn = memo(function BoardColumn({ board, cards }: BoardColu
 }, (prev: BoardColumnProps, next: BoardColumnProps) => {
   if (prev.board.id !== next.board.id) return false;
   if (prev.board.name !== next.board.name) return false;
-
-  // Checking cards array reference should be enough for performance
-  // The deep check inside BoardColumnContent's memo handles the granular re-renders
-  // But for the container, we want to update if dragging might have changed sort order
+  if (prev.environmentMembers !== next.environmentMembers) return false;
   return prev.cards === next.cards;
 });
