@@ -18,6 +18,7 @@ import { LabelManager } from "./label-manager";
 import { CardMembersSelector } from "./card-members-selector";
 import type { Label as LabelType, CardMember } from "@/types/card.types";
 import type { EnvironmentMember } from "@/types/environment.types";
+import { DateTimePicker } from "@/components/ui/date-time-picker";
 
 interface CardFormProps {
   open: boolean;
@@ -158,11 +159,10 @@ export function CardForm({
           </div>
           <div className="space-y-2">
             <Label htmlFor="card-due-date">Prazo (opcional)</Label>
-            <Input
+            <DateTimePicker
               id="card-due-date"
-              type="datetime-local"
               value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
+              onChange={(val) => setDueDate(val)}
             />
           </div>
           <div className="space-y-2">
