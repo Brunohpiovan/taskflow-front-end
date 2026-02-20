@@ -52,7 +52,7 @@ export interface UpdateCardDTO {
   description?: string;
   position?: number;
   labels?: string[]; // IDs of labels
-  dueDate?: string;
+  dueDate?: string | null;
   completed?: boolean;
 }
 

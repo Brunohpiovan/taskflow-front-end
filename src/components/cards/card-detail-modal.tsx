@@ -38,13 +38,14 @@ import { cardsService } from "@/services/cards.service";
 import { environmentsService } from "@/services/environments.service";
 import { useAuthStore } from "@/stores/auth.store";
 import type { CardMember } from "@/types/card.types";
+import { DateTimePicker } from "@/components/ui/date-time-picker";
 
 
 interface CardDetailModalProps {
   card: CardType;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onUpdate: (data: { title?: string; description?: string; boardId?: string; dueDate?: string; labels?: string[]; completed?: boolean }) => Promise<void>;
+  onUpdate: (data: { title?: string; description?: string; boardId?: string; dueDate?: string | null; labels?: string[]; completed?: boolean }) => Promise<void>;
   onDelete: () => void;
   environmentId?: string;
 }
@@ -261,12 +262,14 @@ export function CardDetailModal({
       await Promise.all(memberPromises);
 
       // Update card details (which might trigger board refresh)
+      // When dueDate is empty string, send empty string so backend sets it to null.
+      // When it has a value, convert to ISO string.
       await onUpdate({
         title: data.title,
         description: data.description,
         boardId: data.boardId,
         completed: data.completed,
-        dueDate: data.dueDate ? new Date(data.dueDate).toISOString() : undefined,
+        dueDate: data.dueDate ? new Date(data.dueDate).toISOString() : "",
         labels: localLabels.map(l => l.id),
       });
 
@@ -410,11 +413,10 @@ export function CardDetailModal({
 
               <div className="space-y-1">
                 <Label htmlFor="card-due-date" className="text-sm font-medium">Prazo</Label>
-                <Input
+                <DateTimePicker
                   id="card-due-date"
-                  type="datetime-local"
-                  className="h-9"
-                  {...register("dueDate")}
+                  value={watch("dueDate") ?? ""}
+                  onChange={(val) => setValue("dueDate", val, { shouldDirty: true })}
                 />
               </div>
 
