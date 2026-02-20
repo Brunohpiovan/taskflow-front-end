@@ -417,6 +417,7 @@ export function CardDetailModal({
                   id="card-due-date"
                   value={watch("dueDate") ?? ""}
                   onChange={(val) => setValue("dueDate", val, { shouldDirty: true })}
+                  completed={watch("completed")}
                 />
               </div>
 
