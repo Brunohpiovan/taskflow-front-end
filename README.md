@@ -1,54 +1,55 @@
-# TaskFlow - Frontend
+<p align="center">
+  <img src="https://nextjs.org/icons/next.svg" width="80" alt="Next.js Logo" />
+</p>
 
-Frontend do **TaskFlow**, uma aplicação moderna de gestão de tarefas estilo Kanban, construída com Next.js 14 e shadcn/ui.
+<h1 align="center">TaskFlow — Frontend</h1>
+<p align="center">Interface web do TaskFlow: Kanban com drag-and-drop, tempo real e autenticação OAuth</p>
 
-## ✨ Funcionalidades
+<p align="center">
+  <img src="https://img.shields.io/badge/Next.js-14-000000?style=flat-square&logo=nextdotjs" />
+  <img src="https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript" />
+  <img src="https://img.shields.io/badge/Zustand-5-FF9900?style=flat-square" />
+  <img src="https://img.shields.io/badge/Socket.io-4-010101?style=flat-square&logo=socketdotio" />
+  <img src="https://img.shields.io/badge/TailwindCSS-3-38BDF8?style=flat-square&logo=tailwindcss" />
+</p>
 
-- **Kanban Board Interativo**: Arraste e solte cards entre colunas (Drag & Drop com `@dnd-kit`).
-- **Gestão de Ambientes**: Múltiplos ambientes de trabalho com permissões (Dono/Membro).
-- **Detalhes do Card**:
-  - Comentários e Anexos (integração S3).
-  - Etiquetas coloridas personalizáveis.
-  - Membros e responsáveis.
-  - Datas de entrega e Checklist.
-- **Atualizações em Tempo Real**: Alterações refletidas instantaneamente para todos os usuários via **Socket.io**.
-- **Dashboard**: Métricas de produtividade e visão geral.
-- **Autenticação Segura**: Login social (Google/GitHub) e recuperação de senha.
-- **Temas**: Suporte a Dark/Light mode.
+---
 
 ## 🛠️ Tech Stack
 
-- **Framework:** [Next.js 14](https://nextjs.org/) (App Router)
-- **Linguagem:** TypeScript
-- **Estilização:** Tailwind CSS + [shadcn/ui](https://ui.shadcn.com/)
-- **Estado Global:** [Zustand](https://github.com/pmndrs/zustand)
-- **Formulários:** React Hook Form + Zod
-- **Drag & Drop:** @dnd-kit
-- **Comunicação:** Axios + Socket.io-client
+| Tecnologia | Uso |
+|-----------|-----|
+| **Next.js 14** | App Router, SSR, middleware de autenticação |
+| **TypeScript** | Tipagem estática end-to-end |
+| **Zustand** | Estado global — boards, cards, auth |
+| **React Hook Form + Zod** | Formulários com validação tipada |
+| **DND Kit** | Drag-and-drop de cards entre colunas |
+| **Radix UI + shadcn/ui** | Componentes acessíveis (Modal, Popover, etc.) |
+| **TailwindCSS** | Estilos utilitários |
+| **Socket.io-client** | Atualizações em tempo real |
+| **Axios** | Comunicação com a API REST |
+| **date-fns** | Formatação de datas (ptBR) |
 
-## 🚀 Como rodar o projeto
+---
+
+## 🚀 Setup Local
 
 ### Pré-requisitos
-
-- Node.js (v18+)
-- Backend do TaskFlow rodando (padrão: `http://localhost:3001`)
+- Node.js v20+
+- Backend do TaskFlow rodando em `http://localhost:3001`
 
 ### Instalação
 
 ```bash
-# Instalar dependências
 npm install
 ```
 
-### Configuração
+### Variáveis de Ambiente
 
-Crie um arquivo `.env.local` na raiz do projeto:
+Crie `.env.local` na raiz:
 
 ```env
-# API URL (Backend)
 NEXT_PUBLIC_API_URL=http://localhost:3001/api
-
-# WebSocket URL (Geralmente a mesma raiz da API sem /api)
 NEXT_PUBLIC_SOCKET_URL=http://localhost:3001
 ```
 
@@ -58,31 +59,56 @@ NEXT_PUBLIC_SOCKET_URL=http://localhost:3001
 # Desenvolvimento
 npm run dev
 
-# Produção
+# Build de produção
 npm run build
 npm start
 ```
 
-Acesse [http://localhost:3000](http://localhost:3000).
-
-## 📁 Estrutura do Projeto
-
-- `src/app` – Rotas e layouts (Next.js App Router).
-- `src/components` – Componentes UI reutilizáveis e específicos.
-  - `cards/` – Componentes relacionados a cards (Modal, Detalhes).
-  - `boards/` – Componentes do quadro Kanban.
-- `src/hooks` – Hooks personalizados (useSockets, useAuth).
-- `src/services` – Camada de serviço para comunicação com API.
-- `src/stores` – Gerenciamento de estado global (Zustand).
-
-## 🚢 Deploy
-
-O projeto é otimizado para deploy na **Vercel** ou **Render**.
-
-### Variáveis de Ambiente em Produção
-
-Certifique-se de configurar:
-- `NEXT_PUBLIC_API_URL`: URL do seu backend em produção.
+Acesse: `http://localhost:3000`
 
 ---
 
+## 📁 Estrutura
+
+```
+src/
+├── app/              # Rotas e layouts (App Router)
+├── components/
+│   ├── cards/        # Modal de card, activity log, comentários
+│   ├── boards/       # Quadro Kanban com colunas e drag-and-drop
+│   └── ui/           # Componentes primitivos (Button, Dialog…)
+├── hooks/            # useCards, useAuth, useSockets
+├── services/         # Camada de API (axios)
+├── stores/           # Zustand stores (auth, cards)
+└── types/            # Tipos TypeScript compartilhados
+```
+
+---
+
+## ✨ Funcionalidades
+
+- **Kanban** com drag-and-drop entre colunas e entre boards
+- **Tempo real** — movimentação de cards, membros e comentários sincronizados via WebSocket
+- **Autenticação** — email/senha, Google OAuth e GitHub OAuth
+- **Detalhes do card** — comentários, anexos (S3), etiquetas, membros, data de entrega
+- **Histórico de atividades** paginado por card
+- **Calendário** — visualização de cards com prazo
+- **Dashboard** — métricas do ambiente (cards, membros, atividade)
+- **Dark / Light mode**
+- **Segurança** — token armazenado em cookie (nunca no `localStorage`)
+
+---
+
+## 🚢 Deploy (Vercel)
+
+1. Conecte o repositório na Vercel
+2. Configure as variáveis de ambiente:
+   - `NEXT_PUBLIC_API_URL`: URL do backend em produção (ex: `https://taskflow-api.onrender.com/api`)
+   - `NEXT_PUBLIC_SOCKET_URL`: URL raiz do backend (ex: `https://taskflow-api.onrender.com`)
+3. Framework auto-detectado como **Next.js** — deploy automático a cada push
+
+---
+
+## 📄 Licença
+
+MIT

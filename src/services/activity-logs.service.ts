@@ -11,12 +11,28 @@ export interface ActivityLog {
     user: User;
 }
 
+export interface PaginatedActivityLogs {
+    data: ActivityLog[];
+    nextCursor: string | null;
+}
+
 export const activityLogsService = {
-    getByCardId: async (cardId: string): Promise<ActivityLog[]> => {
+    getByCardId: async (
+        cardId: string,
+        cursor?: string,
+        limit = 10,
+    ): Promise<PaginatedActivityLogs> => {
         const response = await api.get("/activity-logs", {
-            params: { cardId },
+            params: { cardId, cursor, limit },
         });
         const result = response.data;
-        return Array.isArray(result) ? result : (result.data || []);
+        // The ResponseTransformInterceptor passes objects with a 'data' key directly.
+        // So the structure is: response.data = { data: [...logs], nextCursor: "..." }
+        if (result && Array.isArray(result.data) && 'nextCursor' in result) {
+            return result as PaginatedActivityLogs;
+        }
+        // Legacy fallback (plain array)
+        const items = Array.isArray(result) ? result : (result.data || []);
+        return { data: items, nextCursor: null };
     },
 };

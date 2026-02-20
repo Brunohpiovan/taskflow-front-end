@@ -149,7 +149,7 @@ export function CardDetailModal({
       initialMembersRef.current = [];
       isFetchingCardRef.current = false;
     }
-  }, [open, card.id]); // Removed 'card' and 'boards' from dependencies to prevent re-fetch loop
+  }, [open, card.id, card]); // card.id is the stable key; card is included to satisfy exhaustive-deps
 
   // Lazy load boards and fetch environment members
   useEffect(() => {
@@ -215,7 +215,7 @@ export function CardDetailModal({
           console.error('Failed to fetch environment members:', error);
         });
     }
-  }, [open, environmentId, boards, card.boardId]);
+  }, [open, environmentId, boards, card.boardId, fetchBoards]);
 
   useEffect(() => {
     if (open && fullCard) {

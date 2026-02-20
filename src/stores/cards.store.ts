@@ -9,7 +9,8 @@ import type {
 
 interface CardsState {
   cards: Record<string, Card[]>;
-  isLoading: boolean;
+  /** Set of boardIds currently being fetched — enables per-board loading state */
+  loadingBoards: Set<string>;
   fetchCards: (boardId: string) => Promise<void>;
   createCard: (data: CreateCardDTO) => Promise<Card>;
   updateCard: (id: string, data: UpdateCardDTO) => Promise<void>;
@@ -26,35 +27,47 @@ interface CardsState {
   syncCardUpdated: (card: Card) => void;
   syncCardDeleted: (cardId: string, boardId: string) => void;
   clearCards: () => void;
+  isBoardLoading: (boardId: string) => boolean;
 }
 
 export const useCardsStore = create<CardsState>((set, get) => ({
   cards: {},
-  isLoading: false,
+  loadingBoards: new Set<string>(),
+
+  isBoardLoading: (boardId) => get().loadingBoards.has(boardId),
 
   fetchCards: async (boardId) => {
     const state = get();
-    // Check if this specific board is already being fetched
-    if (state.isLoading && state.cards[boardId] !== undefined) {
-      return; // Only skip if we're loading AND this board already has data
-    }
+    // Skip if already fetching this specific board
+    if (state.loadingBoards.has(boardId)) return;
 
-    set((state) => ({ cards: { ...state.cards }, isLoading: true }));
+    set((state) => {
+      const next = new Set(state.loadingBoards);
+      next.add(boardId);
+      return { loadingBoards: next };
+    });
     try {
       const cards = await cardsService.getByBoardId(boardId);
-      set((state) => ({
-        cards: { ...state.cards, [boardId]: cards.sort((a, b) => a.position - b.position) },
-        isLoading: false,
-      }));
+      set((state) => {
+        const next = new Set(state.loadingBoards);
+        next.delete(boardId);
+        return {
+          cards: { ...state.cards, [boardId]: cards.sort((a, b) => a.position - b.position) },
+          loadingBoards: next,
+        };
+      });
     } catch (error) {
-      set({ isLoading: false });
+      set((state) => {
+        const next = new Set(state.loadingBoards);
+        next.delete(boardId);
+        return { loadingBoards: next };
+      });
       handleApiError(error);
       throw error;
     }
   },
 
   createCard: async (data) => {
-    set({ isLoading: true });
     try {
       const card = await cardsService.create(data);
       set((state) => {
@@ -62,19 +75,16 @@ export const useCardsStore = create<CardsState>((set, get) => ({
         const newCards = [...boardCards, card].sort((a, b) => a.position - b.position);
         return {
           cards: { ...state.cards, [data.boardId]: newCards },
-          isLoading: false,
         };
       });
       return card;
     } catch (error) {
-      set({ isLoading: false });
       handleApiError(error);
       throw error;
     }
   },
 
   updateCard: async (id, data) => {
-    set({ isLoading: true });
     try {
       const card = await cardsService.update(id, data);
       set((state) => {
@@ -86,17 +96,15 @@ export const useCardsStore = create<CardsState>((set, get) => ({
             break;
           }
         }
-        return { cards: newCards, isLoading: false };
+        return { cards: newCards };
       });
     } catch (error) {
-      set({ isLoading: false });
       handleApiError(error);
       throw error;
     }
   },
 
   deleteCard: async (id) => {
-    set({ isLoading: true });
     try {
       await cardsService.delete(id);
       set((state) => {
@@ -104,10 +112,9 @@ export const useCardsStore = create<CardsState>((set, get) => ({
         for (const boardId of Object.keys(newCards)) {
           newCards[boardId] = newCards[boardId].filter((c) => c.id !== id);
         }
-        return { cards: newCards, isLoading: false };
+        return { cards: newCards };
       });
     } catch (error) {
-      set({ isLoading: false });
       handleApiError(error);
       throw error;
     }
@@ -121,6 +128,7 @@ export const useCardsStore = create<CardsState>((set, get) => ({
 
     const sameBoard = fromBoardId === toBoardId;
 
+    // Optimistic update
     set((state) => {
       const newFrom = state.cards[fromBoardId]?.filter((c) => c.id !== cardId) ?? [];
       if (sameBoard) {
@@ -156,9 +164,8 @@ export const useCardsStore = create<CardsState>((set, get) => ({
         return { cards: newCards };
       });
     } catch (error) {
-      set({
-        cards: prevCards,
-      });
+      // Rollback optimistic update
+      set({ cards: prevCards });
       handleApiError(error);
       throw error;
     }
@@ -210,7 +217,7 @@ export const useCardsStore = create<CardsState>((set, get) => ({
   syncCardCreated: (card) => {
     set((state) => {
       const boardCards = state.cards[card.boardId] ?? [];
-      // Avoid duplicate if already exists (shouldn't happen with optimistic, but safety)
+      // Avoid duplicate if already exists
       if (boardCards.some((c) => c.id === card.id)) return {};
 
       const newCards = [...boardCards, card].sort((a, b) => a.position - b.position);
@@ -242,5 +249,5 @@ export const useCardsStore = create<CardsState>((set, get) => ({
     });
   },
 
-  clearCards: () => set({ cards: {} }),
+  clearCards: () => set({ cards: {}, loadingBoards: new Set() }),
 }));

@@ -122,7 +122,10 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: STORAGE_KEYS.AUTH_STORAGE,
-      partialize: (state) => ({ token: state.token, user: state.user }),
+      // Only persist non-sensitive user data.
+      // The auth token is stored exclusively in a cookie via setAuthCookie.
+      // Storing the token in localStorage would expose it to XSS attacks.
+      partialize: (state) => ({ user: state.user }),
     }
   )
 );
