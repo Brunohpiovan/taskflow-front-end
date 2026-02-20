@@ -23,7 +23,11 @@ export function ActivityLogList({ cardId }: ActivityLogProps) {
         if (isFetchingRef.current) return;
         isFetchingRef.current = true;
 
-        cursor ? setLoadingMore(true) : setLoading(true);
+        if (cursor) {
+            setLoadingMore(true);
+        } else {
+            setLoading(true);
+        }
 
         try {
             const result = await activityLogsService.getByCardId(cardId, cursor);
