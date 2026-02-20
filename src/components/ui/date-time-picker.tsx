@@ -9,6 +9,7 @@ interface DateTimePickerProps {
     onChange: (value: string) => void; // "" means "clear"
     placeholder?: string;
     id?: string;
+    completed?: boolean;
 }
 
 function formatDisplay(value: string): string {
@@ -27,35 +28,28 @@ function formatDisplay(value: string): string {
     }
 }
 
-function getStatusColor(value: string): string {
-    if (!value) return "";
-    try {
-        const date = new Date(value);
-        const now = new Date();
-        const diffMs = date.getTime() - now.getTime();
-        const diffDays = diffMs / (1000 * 60 * 60 * 24);
-
-        if (diffMs < 0) return "text-red-500 dark:text-red-400"; // overdue
-        if (diffDays <= 2) return "text-amber-500 dark:text-amber-400"; // due soon
-        return "text-emerald-600 dark:text-emerald-400"; // plenty of time
-    } catch {
-        return "";
-    }
+interface StatusBadge {
+    label: string;
+    className: string;
 }
 
-function getStatusBg(value: string): string {
-    if (!value) return "bg-muted/50 border-border hover:border-primary/50";
+function getStatusBadge(value: string, completed?: boolean): StatusBadge | null {
+    if (!value) return null;
+    if (completed) return {
+        label: "Concluído",
+        className: "bg-green-600 dark:bg-emerald-400 text-white dark:text-emerald-950",
+    };
     try {
         const date = new Date(value);
         const now = new Date();
         const diffMs = date.getTime() - now.getTime();
         const diffDays = diffMs / (1000 * 60 * 60 * 24);
 
-        if (diffMs < 0) return "bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800/50 hover:border-red-400";
-        if (diffDays <= 2) return "bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800/50 hover:border-amber-400";
-        return "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800/50 hover:border-emerald-400";
+        if (diffMs < 0) return { label: "Atrasado", className: "bg-red-500 text-white" };
+        if (diffDays <= 2) return { label: "Próximo", className: "bg-amber-500 text-white" };
+        return null; // no badge needed when plenty of time
     } catch {
-        return "bg-muted/50 border-border hover:border-primary/50";
+        return null;
     }
 }
 
@@ -64,6 +58,7 @@ export function DateTimePicker({
     onChange,
     placeholder = "Definir prazo",
     id,
+    completed,
 }: DateTimePickerProps) {
     const [open, setOpen] = useState(false);
     const [localDate, setLocalDate] = useState("");
@@ -113,8 +108,7 @@ export function DateTimePicker({
     }
 
     const displayText = formatDisplay(value);
-    const statusColor = getStatusColor(value);
-    const statusBg = getStatusBg(value);
+    const badge = getStatusBadge(value, completed);
     const hasValue = Boolean(value);
 
     return (
@@ -124,19 +118,22 @@ export function DateTimePicker({
                 id={id}
                 type="button"
                 onClick={() => setOpen((prev) => !prev)}
-                className={`
+                className="
           w-full flex items-center gap-2 px-3 py-2 rounded-md border text-sm
           transition-all duration-200 cursor-pointer text-left
+          bg-background border-input hover:border-primary/60
           focus:outline-none focus:ring-2 focus:ring-primary/30 focus:ring-offset-1
-          ${statusBg}
-        `}
+        "
             >
-                <Calendar
-                    className={`h-4 w-4 flex-shrink-0 transition-colors ${hasValue ? statusColor : "text-muted-foreground"}`}
-                />
-                <span className={`flex-1 ${hasValue ? statusColor + " font-medium" : "text-muted-foreground"}`}>
+                <Calendar className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                <span className={`flex-1 ${hasValue ? "text-foreground" : "text-muted-foreground"}`}>
                     {displayText || placeholder}
                 </span>
+                {hasValue && badge && (
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${badge.className}`}>
+                        {badge.label}
+                    </span>
+                )}
                 {hasValue && (
                     <span
                         role="button"
