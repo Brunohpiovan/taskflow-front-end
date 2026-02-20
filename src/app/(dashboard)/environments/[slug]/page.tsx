@@ -25,6 +25,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useEnvironmentsStore } from "@/stores/environments.store";
 import { useBoardsStore } from "@/stores/boards.store";
 import { useCardsStore } from "@/stores/cards.store";
+import { environmentsService } from "@/services/environments.service";
+import type { EnvironmentMember } from "@/types/environment.types";
 import { ROUTES } from "@/lib/constants";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
@@ -45,6 +47,7 @@ export default function EnvironmentBoardsPage() {
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
   const [accessDenied, setAccessDenied] = useState(false);
   const [environmentsLoaded, setEnvironmentsLoaded] = useState(false);
+  const [environmentMembers, setEnvironmentMembers] = useState<EnvironmentMember[]>([]);
 
   const environments = useEnvironmentsStore((s) => s.environments);
   const fetchEnvironments = useEnvironmentsStore((s) => s.fetchEnvironments);
@@ -89,7 +92,6 @@ export default function EnvironmentBoardsPage() {
   useEffect(() => {
     if (environmentId) {
       fetchBoards(environmentId).catch((error) => {
-        // Check if it's an access denied error (403 or 401)
         if (error instanceof AxiosError) {
           const status = error.response?.status;
           if (status === 403 || status === 401) {
@@ -101,6 +103,12 @@ export default function EnvironmentBoardsPage() {
           }
         }
       });
+
+      // Fetch members once for the whole environment — passed down to each column
+      environmentsService.getMembers(environmentId)
+        .then(setEnvironmentMembers)
+        .catch(() => setEnvironmentMembers([]));
+
       return () => {
         clearBoards();
         clearCards();
@@ -372,6 +380,7 @@ export default function EnvironmentBoardsPage() {
                     key={board.id}
                     board={board}
                     cards={cardsByBoard[board.id] ?? []}
+                    environmentMembers={environmentMembers}
                   />
                 ))}
               </div>
